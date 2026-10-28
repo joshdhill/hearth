@@ -174,10 +174,13 @@ const music = {
       const st = await spotify.state().catch(() => null);
       if (st && st.is_playing && st.context && st.context.uri === want.uri) { this.current = want; return; }
       let dev = pickDevice(await spotify.devices(), store.get('sp-device', null));
+      const look = async n => { for (let i = 0; i < n && !dev; i++) { await sleep(1500); dev = pickDevice(await spotify.devices(), store.get('sp-device', null)); } };
       if (!dev && native && native.wakeSpotify) {
-        app.toast('Opening Spotify on the TV…', 6000);
+        // first a quiet nudge in the background, then open Spotify for a moment if that isn't enough
+        app.toast('Waking up Spotify on the TV…', 6000);
         native.wakeSpotify();
-        for (let i = 0; i < 14 && !dev; i++) { await sleep(1500); dev = pickDevice(await spotify.devices(), store.get('sp-device', null)); }
+        await look(6);
+        if (!dev && native.openSpotify) { app.toast('Opening Spotify for a moment…', 8000); native.openSpotify(); await look(14); }
       }
       if (!dev) { app.toast('Spotify isn’t open on any speaker. Open Spotify on the TV once, then come back.', 8000); return; }
       await spotify.play(want.uri, dev.id);

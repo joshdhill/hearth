@@ -34,7 +34,7 @@ body:not(.see-through) #video { display: none; }
 .menu h1 { font: 400 3.3vw/1.05 var(--serif); margin: 0; letter-spacing: -0.01em; }
 .menu-head p { font-size: 1.3vw; margin: .35vw 0 0; color: var(--birch-dim); }
 
-.shelf { display: flex; gap: 1.1vw; overflow: hidden; padding: .7vw .4vw 1.1vw; }
+.shelf { display: flex; gap: 1.1vw; overflow: hidden; padding: 1.5vw .6vw 1.1vw; margin-top: -.8vw; }
 .tile { flex: 0 0 14.2vw; display: flex; flex-direction: column; gap: .5vw; transition: transform .25s var(--ease); }
 .tile canvas { width: 100%; aspect-ratio: 16 / 9; height: auto; border-radius: .35vw; background: var(--iron); outline: .16vw solid rgba(236, 229, 216, 0.12); }
 .tile span { font-size: 1.1vw; color: var(--birch-dim); }

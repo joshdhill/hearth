@@ -24,6 +24,7 @@ jobs:
           mkdir -p out
           cp android/app/build/outputs/apk/release/app-release.apk out/hearth.apk 2>/dev/null || true
           grep -E "^e: |error:|FAILURE|What went wrong" -A3 android/build.log > out/build-errors.txt 2>/dev/null || true
+          [ -s out/build-errors.txt ] || rm -f out/build-errors.txt
           ls -la out
       - name: Publish the app release
         if: always()

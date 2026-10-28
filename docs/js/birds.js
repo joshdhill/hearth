@@ -199,7 +199,10 @@ export class Birds {
     if (this.o.names !== false) this.app.caption(b.name, b.ts ? `Heard ${ago(b.ts)}` : 'A regular here');
     if (fresh && b.snd && this.o.calls !== false && this.clock - this.lastCall > 40) {
       this.lastCall = this.clock;
-      try { const a = new Audio(b.snd); a.volume = this.o.callVolume ?? 0.45; a.play().catch(() => {}); } catch (e) { /* no audio */ }
+      const vol = this.o.callVolume ?? 0.45;
+      // on the TV the call goes through the app's own player so Spotify isn't paused
+      if (window.HearthNative && window.HearthNative.playSound) window.HearthNative.playSound(new URL(b.snd, location.href).href, vol);
+      else { try { const a = new Audio(b.snd); a.volume = vol; a.play().catch(() => {}); } catch (e) { /* no audio */ } }
     }
   }
 
