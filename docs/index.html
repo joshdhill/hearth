@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hearth</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Young+Serif&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/hearth.css">
+</head>
+<body>
+<video id="video" playsinline preload="auto"></video>
+<canvas id="scene"></canvas>
+<div id="layer"></div>
+
+<div id="wx" class="wx"><b></b><span></span></div>
+<div id="caption" class="caption"><b></b><span></span></div>
+<div id="np" class="np"><img alt=""><div><b></b><span></span></div></div>
+<div id="toast" class="toast" role="status"></div>
+
+<div id="menu" class="menu" aria-label="Scenes and settings">
+  <div class="menu-head">
+    <h1 id="m-title"></h1>
+    <p id="m-blurb"></p>
+  </div>
+  <div id="shelf" class="shelf"></div>
+  <div id="opts" class="opts"></div>
+  <p class="hint">Left and right change scene. Down for settings. OK changes a setting. Back closes.</p>
+</div>
+
+<div id="picker" class="picker">
+  <h2 id="p-title"></h2>
+  <p id="p-note"></p>
+  <ul id="p-list"></ul>
+</div>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
