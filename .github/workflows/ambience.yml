@@ -16,7 +16,9 @@ jobs:
           curl -sL -o fire.wav https://opengameart.org/sites/default/files/fire.wav
           ffprobe -v error -show_entries stream=codec_name,channels,sample_rate:format=duration -of compact fire.wav | tee out/ambience-report.txt
           L=$(ffprobe -v error -show_entries format=duration -of csv=p=0 fire.wav); D=3
-          ffmpeg -v warning -y -i fire.wav -filter_complex "[0:a]atrim=start=$D:end=$L,asetpts=PTS-STARTPTS[a];[0:a]atrim=start=0:end=$D,asetpts=PTS-STARTPTS[b];[a][b]acrossfade=d=$D:c1=qsin:c2=qsin,loudnorm=I=-24:TP=-3[o]" -map "[o]" -c:a aac -b:a 160k -ar 44100 out/fire-ambience.m4a 2>> out/ambience-report.txt
+          ffmpeg -v error -y -ss $D -i fire.wav -c:a pcm_f32le a.wav
+          ffmpeg -v error -y -t $D -i fire.wav -c:a pcm_f32le b.wav
+          ffmpeg -v warning -y -i a.wav -i b.wav -filter_complex "[0:a][1:a]acrossfade=d=$D:c1=qsin:c2=qsin,loudnorm=I=-24:TP=-3,aresample=44100[o]" -map "[o]" -c:a aac -b:a 160k out/fire-ambience.m4a 2>> out/ambience-report.txt
           ffprobe -v error -show_entries format=duration -of csv=p=0 out/fire-ambience.m4a | sed 's/^/loop length /' >> out/ambience-report.txt
           ls -la out
       - uses: softprops/action-gh-release@v2
