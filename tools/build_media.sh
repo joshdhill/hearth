@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 # Builds seamless fireplace loops from Pexels footage (Pexels license: free use, modification allowed).
 # usage: build_media.sh <pexels-url> <name> <crossfade-seconds>
-set -euo pipefail
+set -uo pipefail
 URL=$1; NAME=$2; D=$3
 OUT=out; mkdir -p "$OUT" work
+run() { local tag=$1; shift; "$@" 2> "work/$tag.err"; local rc=$?; if [ $rc -ne 0 ]; then { echo "== $NAME $tag failed rc=$rc"; echo "$*"; tail -40 "work/$tag.err"; } >> "$OUT/report.txt"; fi; return $rc; }
 UA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/130.0 Safari/537.36"
-curl -sL -A "$UA" -o work/$NAME.mp4 "$URL"
+curl -sL -A "$UA" -o work/$NAME.mp4 "$URL"; ffmpeg -version | head -1 >> "$OUT/report.txt"; ls -la work >> "$OUT/report.txt"
 L=$(ffprobe -v error -show_entries format=duration -of csv=p=0 work/$NAME.mp4)
 FPS=$(ffprobe -v error -select_streams v:0 -show_entries stream=r_frame_rate -of csv=p=0 work/$NAME.mp4)
 HASA=$(ffprobe -v error -select_streams a -show_entries stream=index -of csv=p=0 work/$NAME.mp4 | head -1)
@@ -17,11 +18,11 @@ if [ -n "$HASA" ]; then
   MAPA=(-map "[ao]" -c:a aac -b:a 192k)
 else AF=""; MAPA=(-an); fi
 # 4K HEVC for the TV
-ffmpeg -v error -y -i work/$NAME.mp4 -filter_complex "$VF$AF" -map "[v]" "${MAPA[@]}" \
+run 4k ffmpeg -v warning -y -i work/$NAME.mp4 -filter_complex "$VF$AF" -map "[v]" "${MAPA[@]}" \
   -c:v libx265 -preset medium -crf 21 -pix_fmt yuv420p -tag:v hvc1 \
   -x265-params "vbv-maxrate=26000:vbv-bufsize=52000:log-level=error" -movflags +faststart "$OUT/$NAME-4k.mp4"
 # 1080p H.264 for browsers and as a fallback
-ffmpeg -v error -y -i work/$NAME.mp4 -filter_complex "$VF$AF;[v]scale=1920:-2[v2]" -map "[v2]" "${MAPA[@]}" \
+run 1080 ffmpeg -v warning -y -i work/$NAME.mp4 -filter_complex "$VF$AF;[v]scale=1920:-2[v2]" -map "[v2]" "${MAPA[@]}" \
   -c:v libx264 -preset slow -crf 21 -maxrate 9M -bufsize 18M -pix_fmt yuv420p -movflags +faststart "$OUT/$NAME-1080.mp4"
 ffmpeg -v error -y -ss 3 -i "$OUT/$NAME-1080.mp4" -frames:v 1 -vf scale=640:-2 -q:v 3 "$OUT/$NAME-poster.jpg"
 # loop-seam check: last frame vs first frame, and frames around the seam for review

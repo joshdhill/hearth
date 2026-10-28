@@ -15,8 +15,10 @@ jobs:
       - name: Brick hearth (4K 60fps)
         run: ./tools/build_media.sh https://videos.pexels.com/video-files/13270910/13270910-uhd_3840_2160_60fps.mp4 fire-brick 1.4
       - name: Teepee fire (4K 30fps)
+        if: always()
         run: ./tools/build_media.sh https://videos.pexels.com/video-files/11353677/11353677-uhd_3840_2160_30fps.mp4 fire-teepee 2.0
       - name: Publish as the media-v1 release
+        if: always()
         uses: softprops/action-gh-release@v2
         with:
           tag_name: media-v1
@@ -27,3 +29,4 @@ jobs:
             out/*.jpg
             out/*.png
             out/report.txt
+          fail_on_unmatched_files: false
