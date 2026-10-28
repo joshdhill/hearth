@@ -1,8 +1,7 @@
 // Fireplace scenes: a real 4K loop, procedural crackle, optional garland lights and the cat.
-import { W, H, canvas, rand, seeded, rgb, hex, lerp } from '../util.js';
+import { W, H, canvas, seeded, rgb, hex, lerp } from '../util.js';
 import { FireSound } from '../audio/fire.js';
 import { Cat } from '../overlays/cat.js';
-import { drawLeaf } from '../paint.js';
 
 const REL = 'https://github.com/joshdhill/hearth/releases/download/media-v1/';
 export const FIRES = {
@@ -10,6 +9,8 @@ export const FIRES = {
   teepee: { name: 'Teepee fire', tv: REL + 'fire-teepee-4k.mp4', web: REL + 'fire-teepee-1080.mp4', poster: REL + 'fire-teepee-poster.jpg' }
 };
 const LEVEL = { off: 0, low: 0.25, medium: 0.5, high: 0.85 };
+// a real fireplace recording (CC0, "Fireplace sound loop" by PagDev) under the generated crackles
+export const AMBIENCE = REL + 'fire-ambience.m4a';
 
 export class FireplaceScene {
   constructor(app, preset) {
@@ -34,13 +35,13 @@ export class FireplaceScene {
 
   applySound() {
     const lv = LEVEL[this.o.sound || 'medium'] ?? 0.5;
-    this.app.videoVolume(lv);                                    // recorded fire audio in the clip
-    if (this.o.crackle !== false && lv > 0) this.sound.start(lv * 0.55); else this.sound.stop();
+    this.app.ambient(lv > 0 ? AMBIENCE : null, lv);              // recorded fire, looping
+    if (this.o.crackle !== false && lv > 0) this.sound.start(lv * 0.4); else this.sound.stop();
   }
 
   update() { this.play(); this.applySound(); this.garland = null; }
 
-  exit() { this.sound.stop(); this.app.video(null); }
+  exit() { this.sound.stop(); this.app.video(null); this.app.ambient(null); }
 
   draw(ctx, t, dt) {
     ctx.clearRect(0, 0, W, H);

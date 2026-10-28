@@ -90,6 +90,17 @@ class App {
     v.play().catch(() => { v.muted = true; v.play().catch(() => {}); });
   }
 
+  // looping background sound; on the TV it plays through the app so Spotify isn't interrupted
+  ambient(url, vol = 0.5) {
+    if (native && native.playAmbient) { if (url) native.playAmbient(url, vol); else native.stopAmbient(); return; }
+    let a = this.amb;
+    if (!url) { if (a) { a.pause(); } return; }
+    if (!a) { a = this.amb = new Audio(); a.loop = true; }
+    if (a.dataset.src !== url) { a.dataset.src = url; a.src = url; }
+    a.volume = clamp(vol, 0, 1);
+    a.play().catch(() => {});
+  }
+
   videoVolume(x) {
     if (native && native.setVideoVolume) native.setVideoVolume(x);
     this.videoEl.volume = clamp(x, 0, 1);
@@ -408,6 +419,7 @@ let backArmed = 0;
 function onKey(k) {
   resumeAudio();
   app.videoEl.muted = false;
+  if (app.amb && app.amb.paused && app.amb.dataset.src) app.amb.play().catch(() => {});
   if (k === 'playpause') { if (spotify.signedIn) spotify.state().then(s => (s && s.is_playing ? spotify.pause() : spotify.resume())).catch(() => {}); return true; }
   if (menu.open) { menu.key(k); return true; }
   if (k === 'ok' || k === 'up' || k === 'down') { menu.show(); return true; }

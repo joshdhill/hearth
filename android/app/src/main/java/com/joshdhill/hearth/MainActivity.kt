@@ -54,6 +54,8 @@ class MainActivity : Activity() {
     private lateinit var playerView: PlayerView
     private var video: ExoPlayer? = null
     private var sound: ExoPlayer? = null
+    private var ambience: ExoPlayer? = null
+    private var ambienceUrl: String? = null
     private val ui = Handler(Looper.getMainLooper())
     private var videoUrl: String? = null
 
@@ -157,6 +159,26 @@ class MainActivity : Activity() {
         p.playWhenReady = true
     }
 
+    private fun playAmbient(url: String, volume: Float) {
+        val p = ambience ?: ExoPlayer.Builder(this).setMediaSourceFactory(sourceFactory()).build().also {
+            it.setAudioAttributes(AudioAttributes.Builder().setUsage(C.USAGE_MEDIA).setContentType(C.AUDIO_CONTENT_TYPE_MOVIE).build(), false)
+            it.repeatMode = Player.REPEAT_MODE_ONE
+            ambience = it
+        }
+        p.volume = volume
+        if (url != ambienceUrl) {
+            ambienceUrl = url
+            p.setMediaItem(MediaItem.fromUri(url))
+            p.prepare()
+        }
+        p.playWhenReady = true
+    }
+
+    private fun stopAmbient() {
+        ambienceUrl = null
+        ambience?.stop()
+    }
+
     // ---- Spotify ---------------------------------------------------------------
 
     private fun spotifyPackage(): String? = SPOTIFY_PACKAGES.firstOrNull {
@@ -189,6 +211,8 @@ class MainActivity : Activity() {
         @JavascriptInterface fun stopVideo() { ui.post { this@MainActivity.stopVideo() } }
         @JavascriptInterface fun setVideoVolume(v: Float) { ui.post { video?.volume = v } }
         @JavascriptInterface fun playSound(url: String, v: Float) { ui.post { this@MainActivity.playSound(url, v) } }
+        @JavascriptInterface fun playAmbient(url: String, v: Float) { ui.post { this@MainActivity.playAmbient(url, v) } }
+        @JavascriptInterface fun stopAmbient() { ui.post { this@MainActivity.stopAmbient() } }
         @JavascriptInterface fun wakeSpotify() { ui.post { this@MainActivity.wakeSpotify() } }
         @JavascriptInterface fun openSpotify() { ui.post { this@MainActivity.openSpotify() } }
         @JavascriptInterface fun hasSpotify(): Boolean = spotifyPackage() != null
@@ -225,16 +249,18 @@ class MainActivity : Activity() {
         hideSystemUi()
         web.onResume()
         video?.playWhenReady = videoUrl != null
+        ambience?.playWhenReady = ambienceUrl != null
     }
 
     override fun onPause() {
         super.onPause()
         web.onPause()
         video?.playWhenReady = false
+        ambience?.playWhenReady = false
     }
 
     override fun onDestroy() {
-        video?.release(); sound?.release()
+        video?.release(); sound?.release(); ambience?.release()
         web.destroy()
         super.onDestroy()
     }
