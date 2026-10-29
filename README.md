@@ -6,7 +6,6 @@ Ambient scenes for the Google TV Streamer, with Spotify playing in the backgroun
 | --- | --- |
 | Fireplace | A brick hearth in 4K at 60 fps, seamless loop, crackles that never repeat |
 | Bird Window | Birds heard in the yard today (from the bird board feed) fly in and perch on the branch |
-| Bird Board | The bird board in TV mode, slides rotating |
 | Weather Window | Live Germantown sky: time of day, clouds, rain, snow, fog, with Sugarloaf on the horizon |
 | Thanksgiving | Golden-hour window, pumpkins and candles on the sill, leaves falling |
 | Winter Night | Snow at dusk, string lights, frost on the glass |

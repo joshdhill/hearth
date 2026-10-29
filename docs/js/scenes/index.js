@@ -11,11 +11,6 @@ export const SCENES = [
     defaults: { birds: true, names: true, calls: true, weather: 'live', time: 'live', season: 'auto', cat: 'sometimes', music: 'spotify:playlist:37i9dQZF1DX4sWSpwq3LiO' }
   },
   {
-    id: 'board', name: 'Bird Board', type: 'board',
-    blurb: "Today's bird board, slides rotating.",
-    defaults: { view: 'today', music: 'spotify:playlist:37i9dQZF1DX4sWSpwq3LiO' }
-  },
-  {
     id: 'weather', name: 'Weather Window', type: 'window', branch: false, view: 'field', wall: '#86806f', showWeather: true,
     blurb: 'The sky over Germantown right now.',
     defaults: { weather: 'live', time: 'live', season: 'auto', cat: 'off', music: 'spotify:playlist:37i9dQZF1DX3Ogo9pFvBkY' }
@@ -49,6 +44,5 @@ export const OPTIONS = [
   { key: 'season', label: 'Season', types: ['window'], values: [['auto', 'Live'], ['spring', 'Spring'], ['summer', 'Summer'], ['autumn', 'Autumn'], ['winter', 'Winter']] },
   { key: 'leaves', label: 'Falling leaves', types: ['window'], values: [[false, 'Off'], [true, 'On']] },
   { key: 'lights', label: 'String lights', types: ['window', 'fire'], values: [[false, 'Off'], [true, 'On']] },
-  { key: 'cat', label: 'Cat', types: ['window', 'fire'], values: [['off', 'Off'], ['sometimes', 'Now and then'], ['often', 'Often']] },
-  { key: 'view', label: 'Board shows', types: ['board'], values: [['today', 'Today'], ['hour', 'This hour']] }
+  { key: 'cat', label: 'Cat', types: ['window', 'fire'], values: [['off', 'Off'], ['sometimes', 'Now and then'], ['often', 'Often']] }
 ];
