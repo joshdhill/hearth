@@ -87,7 +87,8 @@ body:not(.see-through) #video { display: none; }
   .hint.touch { display: block; }
   .shelf, .opts { overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
   .shelf::-webkit-scrollbar, .opts::-webkit-scrollbar { display: none; }
-  .tile, .chip, .picker li { cursor: pointer; }
+  html, body, .tile, .chip, .picker li { cursor: pointer; touch-action: manipulation; }
+  body { -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; }
 }
 @media (max-width: 1000px) {
   .menu { padding: 18px 16px calc(14px + env(safe-area-inset-bottom)); }

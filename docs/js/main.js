@@ -462,18 +462,22 @@ addEventListener('keydown', e => {
   e.preventDefault();
   onKey(k);
 });
-// ---- touch (phone and tablet) ---------------------------------------------------------
-let touch0 = null, swiped = false;
-addEventListener('touchstart', e => { const t = e.touches[0]; touch0 = { x: t.clientX, y: t.clientY }; swiped = false; }, { passive: true });
-addEventListener('touchend', e => {
-  if (!touch0 || menu.open) return;
-  const t = e.changedTouches[0], dx = t.clientX - touch0.x, dy = t.clientY - touch0.y;
-  if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.5) { swiped = true; onKey(dx < 0 ? 'right' : 'left'); }
-}, { passive: true });
-addEventListener('click', e => {
-  if (swiped) { swiped = false; return; }
-  app.wake();
-  const el = e.target;
+// ---- touch and mouse ---------------------------------------------------------------------
+// iPhones don't send "click" for taps on plain page areas, so taps are read from pointer events.
+let down = null;
+addEventListener('pointerdown', e => { down = { x: e.clientX, y: e.clientY, t: Date.now() }; }, { passive: true });
+addEventListener('pointerup', e => {
+  if (!down) return;
+  const dx = e.clientX - down.x, dy = e.clientY - down.y;
+  down = null;
+  app.wake();                                   // a tap counts as permission to play video and sound
+  if (!menu.open && !menu.picker && Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.5) { onKey(dx < 0 ? 'right' : 'left'); return; }
+  if (Math.hypot(dx, dy) > 14) return;          // a scroll of the shelf, not a tap
+  tap(e.target);
+});
+addEventListener('touchend', () => app.wake(), { passive: true });
+
+function tap(el) {
   if (menu.picker) {
     const li = el.closest('#p-list li');
     if (li) { menu.picker.i = +li.dataset.i; menu.pickerKey('ok'); }
@@ -492,7 +496,7 @@ addEventListener('click', e => {
   const chip = el.closest('.chip');
   if (chip) { menu.row = 1; menu.col = +chip.dataset.i; menu.activate(menu.list[menu.col]); menu.render(); return; }
   if (!el.closest('.menu')) menu.hide();
-});
+}
 
 // Called by the TV app for keys the web page can't see (Back, media keys).
 window.hearth = { key: k => onKey(k), back: () => onKey('back') };
