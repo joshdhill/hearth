@@ -41,8 +41,12 @@ class App {
     return { ...def, opts: { ...def.defaults, ...saved } };
   }
 
+  // the scene being shown, or the one on its way in while it loads
+  get cur() { return (this.scene && this.scene.p) || this.pending; }
+
   async show(id) {
     const p = this.preset(id);
+    this.pending = p;
     if (this.scene && this.scene.p.id === p.id) return;
     const old = this.scene;
     this.scene = null;
@@ -235,7 +239,7 @@ const menu = {
   open: false, row: 0, col: 0, picker: null,
   show() {
     this.open = true; this.row = 0;
-    this.col = SCENES.findIndex(s => s.id === app.scene.p.id);
+    this.col = SCENES.findIndex(s => s.id === app.cur.id);
     $('menu').classList.add('on');
     this.render(); this.thumbs(); this.idle();
   },
@@ -243,7 +247,7 @@ const menu = {
   idle() { clearTimeout(this.it); this.it = setTimeout(() => this.hide(), 25000); },
 
   options() {
-    const s = app.scene.p;
+    const s = app.cur;
     const list = [{ key: 'music', label: 'Music', value: this.musicLabel(s.opts.music) }];
     for (const o of OPTIONS) {
       if (!o.types.includes(s.type)) continue;
@@ -265,7 +269,7 @@ const menu = {
   },
 
   render() {
-    const focusScene = SCENES[this.col] && this.row === 0 ? SCENES[this.col] : app.scene.p;
+    const focusScene = SCENES[this.col] && this.row === 0 ? SCENES[this.col] : app.cur;
     $('m-title').textContent = focusScene.name;
     $('m-blurb').textContent = focusScene.blurb;
     const shelf = $('shelf');
@@ -279,7 +283,7 @@ const menu = {
     }
     [...shelf.children].forEach((d, i) => {
       d.classList.toggle('focus', this.row === 0 && i === this.col);
-      d.classList.toggle('active', SCENES[i].id === app.scene.p.id);
+      d.classList.toggle('active', SCENES[i].id === app.cur.id);
     });
     const opts = $('opts');
     const list = this.options();
@@ -287,6 +291,7 @@ const menu = {
     list.forEach((o, i) => {
       const d = document.createElement('div');
       d.className = 'chip' + (this.row === 1 && i === this.col ? ' focus' : '');
+      d.dataset.i = i;
       d.innerHTML = `<small></small><b></b>`;
       d.querySelector('small').textContent = o.label;
       d.querySelector('b').textContent = o.value;
@@ -314,7 +319,7 @@ const menu = {
           const img = await loadImage('/bird-board/cutouts/cardinal.png').catch(() => null);
           new BoardScene(app, app.preset(s.id)).thumb(x, 320, 180, img);
         } else {
-          const ws = app.scene && app.scene.p.id === s.id ? app.scene : new WindowScene(app, app.preset(s.id));
+          const ws = app.scene && app.cur.id === s.id ? app.scene : new WindowScene(app, app.preset(s.id));
           if (!ws.layers.out) ws.rebuild(true);
           ws.thumb(x, 320, 180);
         }
@@ -330,7 +335,7 @@ const menu = {
     if (k === 'left') this.col = Math.max(0, this.col - 1);
     if (k === 'right') this.col = Math.min(list.length - 1, this.col + 1);
     if (k === 'down' && this.row === 0) { this.row = 1; this.col = 0; }
-    else if (k === 'up' && this.row === 1) { this.row = 0; this.col = SCENES.findIndex(s => s.id === app.scene.p.id); }
+    else if (k === 'up' && this.row === 1) { this.row = 0; this.col = SCENES.findIndex(s => s.id === app.cur.id); }
     if (this.row === 0 && (k === 'left' || k === 'right')) app.show(SCENES[this.col].id).then(() => this.render());
     if (k === 'ok') {
       if (this.row === 0) { this.hide(); return; }
@@ -349,15 +354,15 @@ const menu = {
       return login(location.href.split('?')[0]);
     }
     if (o.key === '_songcard') { store.set('songcard', !store.get('songcard', true)); return this.render(); }
-    if (o.key === '_reset') { app.resetScene(); app.toast(`${app.scene.p.name} reset`); return this.render(); }
+    if (o.key === '_reset') { app.resetScene(); app.toast(`${app.cur.name} reset`); return this.render(); }
     const vals = o.o.values;
-    const i = vals.findIndex(v => v[0] === app.scene.p.opts[o.key]);
+    const i = vals.findIndex(v => v[0] === app.cur.opts[o.key]);
     app.setOpt(o.key, vals[(i + 1) % vals.length][0]);
     this.render();
   },
 
   async musicPicker() {
-    const s = app.scene.p;
+    const s = app.cur;
     const items = [{ label: 'No music', run: () => app.setOpt('music', 'off') }];
     const def = SCENES.find(x => x.id === s.id).defaults.music;
     items.push({ label: 'Scene default: ' + this.musicLabel(def), run: () => app.setOpt('music', def) });
@@ -378,7 +383,7 @@ const menu = {
     this.openPicker('Play music on', items, 'Looking for speakers…');
     try {
       const devs = await spotify.devices();
-      for (const d of devs) items.push({ label: `${d.name}`, run: () => { store.set('sp-device', d.name); music.sceneChanged(app.scene.p, true); } });
+      for (const d of devs) items.push({ label: `${d.name}`, run: () => { store.set('sp-device', d.name); music.sceneChanged(app.cur, true); } });
       if (this.picker) { this.picker.items = items; this.pickerNote(devs.length ? '' : 'No speakers found. Open Spotify on the TV and try again.'); this.renderPicker(); }
     } catch (e) { this.pickerNote(spotify.signedIn ? e.message : 'Connect Spotify first.'); }
   },
@@ -398,6 +403,7 @@ const menu = {
     p.items.forEach((it, i) => {
       const li = document.createElement('li');
       li.textContent = it.label;
+      li.dataset.i = i;
       if (i === p.i) li.className = 'focus';
       ul.appendChild(li);
     });
@@ -424,7 +430,7 @@ function onKey(k) {
   if (menu.open) { menu.key(k); return true; }
   if (k === 'ok' || k === 'up' || k === 'down') { menu.show(); return true; }
   if (k === 'left' || k === 'right') {
-    const i = SCENES.findIndex(s => s.id === app.scene.p.id);
+    const i = SCENES.findIndex(s => s.id === app.cur.id);
     const n = SCENES[(i + (k === 'right' ? 1 : -1) + SCENES.length) % SCENES.length];
     app.show(n.id); app.toast(n.name, 2500);
     return true;
@@ -444,6 +450,40 @@ addEventListener('keydown', e => {
   e.preventDefault();
   onKey(k);
 });
+// ---- touch (phone and tablet) ---------------------------------------------------------
+let touch0 = null, swiped = false;
+addEventListener('touchstart', e => { const t = e.touches[0]; touch0 = { x: t.clientX, y: t.clientY }; swiped = false; }, { passive: true });
+addEventListener('touchend', e => {
+  if (!touch0 || menu.open) return;
+  const t = e.changedTouches[0], dx = t.clientX - touch0.x, dy = t.clientY - touch0.y;
+  if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.5) { swiped = true; onKey(dx < 0 ? 'right' : 'left'); }
+}, { passive: true });
+addEventListener('click', e => {
+  if (swiped) { swiped = false; return; }
+  resumeAudio();
+  app.videoEl.muted = false;
+  if (app.amb && app.amb.paused && app.amb.dataset.src) app.amb.play().catch(() => {});
+  const el = e.target;
+  if (menu.picker) {
+    const li = el.closest('#p-list li');
+    if (li) { menu.picker.i = +li.dataset.i; menu.pickerKey('ok'); }
+    else if (!el.closest('#picker')) { menu.closePicker(); menu.render(); }
+    return;
+  }
+  if (!menu.open) { menu.show(); return; }
+  menu.idle();
+  const tile = el.closest('.tile');
+  if (tile) {
+    menu.row = 0; menu.col = SCENES.findIndex(s => s.id === tile.dataset.id);
+    app.show(tile.dataset.id).then(() => menu.render());
+    menu.render();
+    return;
+  }
+  const chip = el.closest('.chip');
+  if (chip) { menu.row = 1; menu.col = +chip.dataset.i; menu.activate(menu.list[menu.col]); menu.render(); return; }
+  if (!el.closest('.menu')) menu.hide();
+});
+
 // Called by the TV app for keys the web page can't see (Back, media keys).
 window.hearth = { key: k => onKey(k), back: () => onKey('back') };
 

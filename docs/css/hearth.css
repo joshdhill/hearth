@@ -80,4 +80,48 @@ body:not(.see-through) #video { display: none; }
 .wx span { font-size: 1.3vw; color: var(--birch-dim); }
 .menu.on ~ .wx, body:has(.menu.on) .caption, body:has(.menu.on) .wx { opacity: 0; }
 
+/* ---- phones and tablets: touch, and sizes that read on a small screen ---- */
+.hint.touch { display: none; }
+@media (pointer: coarse) {
+  .hint.remote { display: none; }
+  .hint.touch { display: block; }
+  .shelf, .opts { overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .shelf::-webkit-scrollbar, .opts::-webkit-scrollbar { display: none; }
+  .tile, .chip, .picker li { cursor: pointer; }
+}
+@media (max-width: 1000px) {
+  .menu { padding: 18px 16px calc(14px + env(safe-area-inset-bottom)); }
+  .menu h1 { font-size: 28px; }
+  .menu-head { margin-bottom: 10px; max-width: none; }
+  .menu-head p { font-size: 15px; margin-top: 4px; }
+  .shelf { gap: 10px; padding: 12px 4px 10px; margin-top: -6px; }
+  .tile { flex-basis: 132px; gap: 5px; }
+  .tile canvas { border-radius: 5px; outline-width: 1px; }
+  .tile span { font-size: 13px; }
+  .tile.active span::before { width: 6px; height: 6px; margin-right: 5px; vertical-align: 1px; }
+  .tile.focus { transform: translateY(-3px) scale(1.04); }
+  .tile.focus canvas { outline-width: 2px; }
+  .opts { gap: 8px; padding: 4px; }
+  .chip { min-width: 0; padding: 8px 12px 9px; border-radius: 8px; border-width: 1px; }
+  .chip small { font-size: 12px; }
+  .chip b { font-size: 16px; margin-top: 2px; }
+  .hint { font-size: 12px; margin: 10px 4px 0; }
+  .picker { width: 100%; padding: 22px 18px calc(18px + env(safe-area-inset-bottom)); border-left: 0; }
+  .picker h2 { font-size: 24px; margin-bottom: 6px; }
+  .picker p { font-size: 14px; min-height: 0; margin-bottom: 10px; }
+  .picker ul { max-height: 80vh; overflow-y: auto; }
+  .picker li { font-size: 17px; padding: 12px 12px; border-radius: 8px; border-width: 1px; }
+  .caption { left: 16px; bottom: calc(18px + env(safe-area-inset-bottom)); }
+  .caption b { font-size: 24px; }
+  .caption span { font-size: 13px; }
+  .np { right: 12px; bottom: calc(14px + env(safe-area-inset-bottom)); gap: 10px; padding: 8px 14px 8px 8px; border-radius: 10px; max-width: 70vw; }
+  .np img { width: 48px; height: 48px; border-radius: 4px; }
+  .np b { font-size: 14px; }
+  .np span { font-size: 12px; }
+  .toast { top: calc(14px + env(safe-area-inset-top)); padding: 8px 16px; border-radius: 20px; font-size: 14px; max-width: 90vw; }
+  .wx { left: 16px; bottom: calc(16px + env(safe-area-inset-bottom)); }
+  .wx b { font-size: 48px; }
+  .wx span { font-size: 14px; }
+}
+
 @media (prefers-reduced-motion: reduce) { .menu, .picker, .tile { transition: none; } }
