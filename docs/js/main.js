@@ -89,9 +89,23 @@ class App {
     const v = this.videoEl;
     if (!f) { v.pause(); v.removeAttribute('src'); v.load(); v.style.backgroundImage = ''; return; }
     v.style.backgroundImage = `url("${f.poster}")`;
-    if (v.dataset.src !== f.web) { v.dataset.src = f.web; v.src = f.web; }
-    v.loop = true;
-    v.play().catch(() => { v.muted = true; v.play().catch(() => {}); });
+    // start muted so phones allow it to play on its own; the first tap turns sound on
+    v.muted = !this.touched; v.loop = true; v.autoplay = true; v.playsInline = true;
+    v.setAttribute('playsinline', ''); v.setAttribute('webkit-playsinline', '');
+    if (v.dataset.src !== f.web) { v.dataset.src = f.web; v.src = f.web; v.load(); }
+    v.play().catch(() => { v.muted = true; v.play().catch(() => this.toast('Tap to start the fire', 5000)); });
+  }
+
+  // any tap or key press: allowed to make sound now, and restart anything the phone held back
+  wake() {
+    this.touched = true;
+    resumeAudio();
+    const v = this.videoEl;
+    if (v.dataset.src && document.body.classList.contains('see-through')) {
+      v.muted = false;
+      if (v.paused) v.play().catch(() => {});
+    }
+    if (this.amb && this.amb.paused && this.amb.dataset.src) this.amb.play().catch(() => {});
   }
 
   // looping background sound; on the TV it plays through the app so Spotify isn't interrupted
@@ -423,9 +437,7 @@ const menu = {
 const KEYS = { ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'up', ArrowDown: 'down', Enter: 'ok', ' ': 'ok', Escape: 'back', Backspace: 'back', GoBack: 'back', BrowserBack: 'back', MediaPlayPause: 'playpause' };
 let backArmed = 0;
 function onKey(k) {
-  resumeAudio();
-  app.videoEl.muted = false;
-  if (app.amb && app.amb.paused && app.amb.dataset.src) app.amb.play().catch(() => {});
+  app.wake();
   if (k === 'playpause') { if (spotify.signedIn) spotify.state().then(s => (s && s.is_playing ? spotify.pause() : spotify.resume())).catch(() => {}); return true; }
   if (menu.open) { menu.key(k); return true; }
   if (k === 'ok' || k === 'up' || k === 'down') { menu.show(); return true; }
@@ -460,9 +472,7 @@ addEventListener('touchend', e => {
 }, { passive: true });
 addEventListener('click', e => {
   if (swiped) { swiped = false; return; }
-  resumeAudio();
-  app.videoEl.muted = false;
-  if (app.amb && app.amb.paused && app.amb.dataset.src) app.amb.play().catch(() => {});
+  app.wake();
   const el = e.target;
   if (menu.picker) {
     const li = el.closest('#p-list li');
