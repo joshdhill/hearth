@@ -8,7 +8,8 @@ const REL = 'https://github.com/joshdhill/hearth/releases/download/media-v2/';
 // copy from the site itself as HLS, in small pieces (release files aren't served as video).
 const SITE = new URL('../../media/', import.meta.url).href;
 const fire = (key, name) => ({
-  name, tv: REL + key + '-4k.mp4', hls: SITE + 'fire/' + key + '/index.m3u8', poster: SITE + 'fire/' + key + '/poster.jpg'
+  name, tv: REL + key + '-4k.mp4', hls: SITE + 'fire/' + key + '/index.m3u8', poster: SITE + 'fire/' + key + '/poster.jpg',
+  web: SITE + 'fire-brick-1080.mp4'          // the old short loop, used if the long one can't load
 });
 // Each is a 5-6 minute seamless loop re-cut from one free 4K clip (Pixabay).
 export const FIRES = {

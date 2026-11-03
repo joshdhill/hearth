@@ -99,12 +99,16 @@ class App {
     v.dataset.src = src;
     if (!f.hls || v.canPlayType('application/vnd.apple.mpegurl')) {
       // Safari and iPhones stream HLS themselves
+      v.onerror = () => {
+        if (f.web && v.dataset.src === src && src !== f.web) { v.dataset.src = f.web; v.src = f.web; v.load(); go(); }
+      };
       v.src = src; v.load(); go();
       return;
     }
     loadHls().then(Hls => {
       if (v.dataset.src !== src) return;
       if (!Hls || !Hls.isSupported()) { v.src = f.web || src; v.load(); go(); return; }
+      v.onerror = null;
       const h = this.hls = new Hls({ maxBufferLength: 30, capLevelToPlayerSize: true });
       h.loadSource(src); h.attachMedia(v);
       h.on(Hls.Events.MANIFEST_PARSED, go);
