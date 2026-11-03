@@ -717,16 +717,20 @@ function pmYes(m) {
   if (lt != null && lt > 0) return lt;
   return num(arr(m.outcomePrices)[0]);
 }
+const fold = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 function sideFromText(txt, r) {
-  const t = String(txt || ''), low = t.toLowerCase();
-  if (/democrat/i.test(t)) return 'D';
-  if (/republican|\bgop\b/i.test(t)) return 'R';
+  const t = String(txt || ''), low = fold(t);
+  const indSlot = !!(r && r.dSide === 'I');                 // an independent holds the Democratic side of this race
+  const tag = ((t.match(/\((DEM|REP|IND|D|R|I)\)/i) || [])[1] || '').toUpperCase().charAt(0);
+  if (/democrat/i.test(t) || tag === 'D') return indSlot ? 'O' : 'D';
+  if (/republican|\bgop\b/i.test(t) || tag === 'R') return 'R';
   if (r) {
     for (const c of r.cands) if (c.side !== 'O') { const ln = lnKey(c.name); if (ln.length > 2 && low.includes(ln)) return c.side; }
     const ld = lnKey(r.dName), lr = lnKey(r.rName);
     if (ld.length > 2 && low.includes(ld)) return 'D';
     if (lr.length > 2 && low.includes(lr)) return 'R';
   }
+  if (indSlot && (/\bindependent\b/i.test(t) || tag === 'I')) return 'D';
   return 'O';
 }
 function pmSides(ev, r) {
