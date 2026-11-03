@@ -608,7 +608,7 @@ LS.set('settings', SET);
 const races = new Map();
 const normHeld = p => { p = String(p || '').toUpperCase(); return p === 'IND' || p === 'I' ? 'I' : p === 'D' || p === 'R' ? p : ''; };
 function blank(o) { return Object.assign({ cands: [], total: 0, rep: 0, winner: null, winP: '', lead: null, margin: null, dm: null, pm: null, ks: null, bg: false, civAt: 0 }, o); }
-for (const x of DATA.senate) races.set('S-' + x.st, blank({ key: 'S-' + x.st, ch: 'S', st: x.st, name: x.name.replace(/\s*\(special\)/i, ''), sp: x.sp, label: `${x.name} Senate${x.sp ? ' (special)' : ''}`, short: x.st + ' Sen', held: normHeld(x.held), dName: x.d, dSide: x.dS === 'I' ? 'I' : 'D', rName: x.r, lean: x.lean, poll: x.poll, firstTs: hourTs(x.close[0]), closeTs: hourTs(x.close[1]), fixed: '' }));
+for (const x of DATA.senate) races.set('S-' + x.st, blank({ key: 'S-' + x.st, ch: 'S', st: x.st, name: x.name.replace(/\s*\(special\)/i, ''), sp: x.sp, label: `${x.name.replace(/\s*\(special\)/i, '')} Senate${x.sp ? ' (special)' : ''}`, short: x.st + ' Sen', held: normHeld(x.held), dName: x.d, dSide: x.dS === 'I' ? 'I' : 'D', rName: x.r, lean: x.lean, poll: x.poll, firstTs: hourTs(x.close[0]), closeTs: hourTs(x.close[1]), fixed: '' }));
 for (const x of DATA.gov) races.set('G-' + x.st, blank({ key: 'G-' + x.st, ch: 'G', st: x.st, name: x.name, label: `${x.name} Governor`, short: x.st + ' Gov', held: normHeld(x.held), dName: x.d, dSide: x.dS === 'I' ? 'I' : 'D', rName: x.r, lean: x.lean, poll: x.poll, firstTs: hourTs(x.close[0]), closeTs: hourTs(x.close[1]), fixed: '' }));
 for (const h of DATA.house) {
   const [dist, d, dS, r, , held, lean, fixed, pm, pn, cl] = h;
@@ -1653,13 +1653,14 @@ function oddsChart(sides, from, to) {
   const ends = inWin.map(pts => pts.length ? pts[pts.length - 1] : null);
   const ly = ends.map(e => e ? y(e.p) : 0);
   if (ends[0] && ends[1] && Math.abs(ly[0] - ly[1]) < 20) { const m = (ly[0] + ly[1]) / 2, up = ly[0] <= ly[1] ? 0 : 1; ly[up] = m - 10; ly[1 - up] = m + 10; }
+  const pct = i => i && ends[0] ? 100 - Math.round(ends[0].p * 100) : Math.round(ends[i].p * 100);
   const paths = sides.map((s, i) => {
     const pts = inWin[i]; if (!pts.length) return '';
     const d = pts.map((p, j) => (j ? 'L' : 'M') + x(p.t).toFixed(1) + ' ' + y(p.p).toFixed(1)).join(' ');
     const last = ends[i];
     return `<path d="${d}" fill="none" stroke="${s.color}" stroke-width="${i ? 2 : 2.6}" stroke-linejoin="round"/>`
       + `<circle cx="${x(last.t).toFixed(1)}" cy="${y(last.p).toFixed(1)}" r="4" fill="${s.color}"/>`
-      + `<text class="el" x="${(x(last.t) + 10).toFixed(1)}" y="${(ly[i] + 5).toFixed(1)}" fill="${s.color}" style="fill:${s.color}">${esc(s.short)} ${Math.round(last.p * 100)}%</text>`;
+      + `<text class="el" x="${(x(last.t) + 10).toFixed(1)}" y="${(ly[i] + 5).toFixed(1)}" fill="${s.color}" style="fill:${s.color}">${esc(s.short)} ${pct(i)}%</text>`;
   }).join('');
   return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Each side's chance to win over the selected window">${g}${paths}</svg>`;
 }
@@ -1682,7 +1683,8 @@ function renderOdds() {
   if (pts.length) {
     const f = pts[0].p, l = pts[pts.length - 1].p, dd = Math.round(l * 100) - Math.round(f * 100);
     const toward = dd > 0 ? A : B;
-    $('#oddsStats').textContent = `Over this window: ${A.short} ${pc0(f)} → ${pc0(l)}, ${B.short} ${pc0(1 - f)} → ${pc0(1 - l)}. ` + (dd ? `A shift of ${Math.abs(dd)} point${Math.abs(dd) === 1 ? '' : 's'} toward ${toward.short}.` : 'No net change.');
+    const fa = Math.round(f * 100), la = Math.round(l * 100);
+    $('#oddsStats').textContent = `Over this window: ${A.short} ${fa}% → ${la}%, ${B.short} ${100 - fa}% → ${100 - la}%. ` + (dd ? `A shift of ${Math.abs(dd)} point${Math.abs(dd) === 1 ? '' : 's'} toward ${toward.short}.` : 'No net change.');
   } else $('#oddsStats').textContent = 'No samples in this window yet.';
 }
 function openOdds(key) {
