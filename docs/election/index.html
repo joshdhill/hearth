@@ -260,6 +260,28 @@ body.pre .livedot{background:var(--faint);animation:none}
 .ev.k-polls{border-left-color:var(--cream)}
 .ev.k-market .chip{background:#2c2240;color:#d7c6ff}
 .ev.earlier{opacity:.72}
+.ev.big{background:rgba(242,230,201,.09)}
+.ev.k-lead .chip{background:#3a2a10;color:#ffd58a}
+.ev.k-votes .chip{background:#163024;color:#9fe3bd}
+.ev.k-swing .chip{background:#2c2240;color:#d7c6ff}
+.ev.k-oddsflip .chip{background:#d7c6ff;color:#1c1430}
+.row{position:relative}
+.row.hit::after{content:"";position:absolute;inset:0 -4px;pointer-events:none;border-radius:4px;background:rgba(242,230,201,.14);box-shadow:inset 4px 0 0 var(--cream);animation:rowhit 4s ease-out forwards}
+@keyframes rowhit{0%{opacity:1}60%{opacity:.7}100%{opacity:0}}
+.row.recent .tag{box-shadow:0 0 0 2px rgba(242,230,201,.6)}
+.row.omove .tag{box-shadow:0 0 0 2px #b79cff}
+.row.lchg .tag{box-shadow:0 0 0 3px #ffd58a}
+.row .sub .nw{color:var(--dim);font-weight:600}
+.row .sub .nw.on{color:var(--cream);font-weight:800}
+.row .sub .om{font-weight:800} .row .sub .om.d{color:var(--dem-hi)} .row .sub .om.r{color:var(--rep-hi)} .row .sub .om.i{color:var(--ind-hi)}
+.st .lc{color:#ffd58a;text-transform:uppercase;letter-spacing:.06em;font-size:15px}
+.tile.bump{animation:bump 1.6s ease-out}
+@keyframes bump{0%{box-shadow:0 0 0 0 rgba(242,230,201,.8)}100%{box-shadow:0 0 0 10px rgba(242,230,201,0)}}
+.tk-run span em.ji{background:var(--cream);color:var(--cream-ink);padding:2px 8px;border-radius:2px;font-size:16px;letter-spacing:.08em;text-transform:uppercase}
+#banner.alert{background:#151d30;color:var(--text);box-shadow:0 30px 80px rgba(0,0,0,.6),inset 0 0 0 2px #b79cff}
+#banner.alert .k{color:#d7c6ff}
+#banner.alert .rc{color:var(--cream)}
+#banner.alert .wn{font-size:84px;color:var(--text)}
 .credits{font-size:11px;line-height:1.35;color:var(--faint);font-stretch:85%;border-top:1px solid var(--rule);padding-top:8px}
 .credits b{color:var(--dim);font-weight:600}
 
@@ -474,6 +496,7 @@ body.compact #banner .wn{font-size:52px} body.compact #banner .rc{font-size:24px
         <label><input type="checkbox" id="optRotate"> Rotate Senate → Governors → House automatically</label>
         <label><input type="checkbox" id="optSound"> Chime when a key race is called</label>
         <label><input type="checkbox" id="optHouseFeed"> List every House call in the feed (otherwise batched)</label>
+        <label><input type="checkbox" id="optAlerts"> Pop-up alerts for lead changes and odds flips in key races</label>
       </div>
       <div class="rowf" style="margin-top:10px"><button class="btn" id="resetFeed" type="button">Clear the decision desk feed</button></div>
     </section>
@@ -514,7 +537,7 @@ const TILE = {AK:[0,0],ME:[10,0],VT:[9,1],NH:[10,1],WA:[0,2],ID:[1,2],MT:[2,2],N
 const FIRST_NOTE = { NH: 'some', OR: 'part' };
 const PNAME = { D: 'Dem', R: 'Rep', I: 'Ind', O: 'Other' };
 const PLONG = { D: 'Democrats', R: 'Republicans', I: 'independents', O: 'others' };
-const KIND = { call: 'Projected', flip: 'Pickup', votes: 'Votes in', lead: 'Lead change', market: 'Market move', polls: 'Polls closed', runoff: 'Runoff', house: 'House calls', info: 'Desk' };
+const KIND = { call: 'Projected', flip: 'Pickup', votes: 'Votes in', lead: 'Lead change', market: 'Market move', swing: 'Odds swing', oddsflip: 'Odds flip', polls: 'Polls closed', runoff: 'Runoff', house: 'House calls', info: 'Desk' };
 
 /* ================= helpers ================= */
 const $ = (s, el = document) => el.querySelector(s);
@@ -565,7 +588,7 @@ function nameMatch(a, b) {
 
 /* ================= settings ================= */
 const params = new URLSearchParams(location.search);
-const SET = Object.assign({ sound: false, rotate: true, houseFeed: false }, LS.get('settings', {}));
+const SET = Object.assign({ sound: false, rotate: true, houseFeed: false, alerts: true }, LS.get('settings', {}));
 delete SET.relay;
 LS.set('settings', SET);
 
@@ -612,9 +635,10 @@ const S = {
   events: LS.get('events', []).filter(e => e && e.id && e.t),
   bannerQ: [], bannerOn: false,
   houseBuf: [],
+  voteBuf: [], voteBufAt: 0, oddsEv: {},        // batched vote drops; last odds alert per race
   lastMkt: {}, mode: 'sen', page: 0, pinned: false, modeStart: Date.now(), pageStart: Date.now()
 };
-const KEYS_BEFORE = r => ({ winner: r.winner ? r.winner.name : '', total: r.total, lead: r.lead ? r.lead.name : '', rep: r.rep });
+const KEYS_BEFORE = r => ({ winner: r.winner ? r.winner.name : '', total: r.total, lead: r.lead ? r.lead.name : '', rep: r.rep, margin: r.margin });
 
 /* ================= networking ================= */
 async function getJSON(url, ms = 25000) {
@@ -679,6 +703,7 @@ async function pullCivic(ch) {
   for (const [key, { x }] of best) applyCivic(races.get(key), x, initial);
   S.civicSeen[ch] = true;
   if (ch === 'H') flushHouseCalls(initial);
+  flushVotes();
   schedule();
 }
 function sideOf(c, r) {
@@ -888,6 +913,7 @@ async function pmRaces() {
     a.push({ t: now, p: r.pm.D }); if (a.length > 800) a.splice(0, a.length - 800);
   }
   flagBattlegrounds();
+  oddsWatch();
   mark('pm', true);
   schedule();
 }
@@ -997,6 +1023,7 @@ function callText(r) {
 function diffEvents(r, b, initial) {
   const now = Date.now();
   if (r.winner && b.winner !== r.winner.name) {
+    if (!initial) r.calledAt = now;
     const key = r.ch !== 'H' || r.bg || SET.houseFeed;
     if (key) {
       const ct = callText(r);
@@ -1004,21 +1031,53 @@ function diffEvents(r, b, initial) {
       if (fresh && !initial) { queueBanner(r); flashTile(r); }
     } else S.houseBuf.push(r);
   }
-  if (initial || r.winner) return;
-  if (r.bg && b.total > 0 && r.total > b.total) {
-    const add = r.total - b.total;
-    if (add >= Math.max(5000, b.total * 0.03) && now - (r.lastVotesEv || 0) > 180e3) {
-      r.lastVotesEv = now;
-      addEvent({ id: `votes:${r.key}:${r.total}`, t: now, kind: 'votes', party: r.lead ? r.lead.p : '', title: `${r.label}: +${fmtInt(add)} votes`, sub: `${r.lead ? lastName(r.lead.name) + ' leads by ' + fmtPct(r.margin) : ''} · ${Math.round(r.rep)}% in` });
-    }
+  if (initial) return;
+  if (r.total > b.total) {
+    r.upd = { t: now, dv: r.total - b.total };
+    bumpTile(r);
   }
-  if (r.bg && b.lead && r.lead && b.lead !== r.lead.name && r.total >= 2000) {
-    addEvent({ id: `lead:${r.key}:${now}`, t: now, kind: 'lead', party: r.lead.p, title: `Lead change: ${r.label}`, sub: `${r.lead.name} (${r.lead.p}) now ahead by ${fmtPct(r.margin)} · ${Math.round(r.rep)}% in` });
+  if (r.winner) return;
+  const statewide = r.ch !== 'H', watch = statewide || r.bg;
+  if (watch && r.total > b.total) {
+    const add = r.total - b.total;
+    if (b.total === 0) {
+      const [A, B] = pairOf(r);
+      addEvent({ id: 'first:' + r.key, t: now, kind: 'votes', party: r.lead ? r.lead.p : '', big: r.bg,
+        title: `First votes: ${r.label}`,
+        sub: [A, B].filter(Boolean).map(c => `${lastName(c.name)} ${fmtPct(share(c, r))}`).join(' · ') + ` · ${fmtInt(r.total)} votes · ${Math.round(r.rep)}% in` });
+    } else if (r.bg && r.lead && add >= Math.max(2000, b.total * 0.02) && now - (r.lastVotesEv || 0) > 150e3) {
+      r.lastVotesEv = now;
+      const was = b.lead === r.lead.name && b.margin != null ? ` (was +${fmtPct(b.margin)})` : '';
+      addEvent({ id: `votes:${r.key}:${r.total}`, t: now, kind: 'votes', party: r.lead.p, title: `${r.label}: +${fmtInt(add)} votes`, sub: `${lastName(r.lead.name)} leads by ${fmtPct(r.margin)}${was} · ${Math.round(r.rep)}% in` });
+    } else S.voteBuf.push({ key: r.key, add });
+  }
+  if (watch && b.lead && r.lead && b.lead !== r.lead.name && r.total >= 2000) {
+    r.leadChgAt = now;
+    addEvent({ id: `lead:${r.key}:${now}`, t: now, kind: 'lead', party: r.lead.p, big: r.bg, title: `Lead change: ${r.label}`, sub: `${r.lead.name} (${r.lead.p}) now ahead by ${fmtPct(r.margin)} · ${Math.round(r.rep)}% in` });
+    if (statewide && r.bg && r.rep >= 5 && now - (r.leadBnAt || 0) > 600e3) {
+      r.leadBnAt = now;
+      queueAlert({ k: 'Lead change · vote count', party: r.lead.p, rc: r.label, wn: `${lastName(r.lead.name)} takes the lead`,
+        tag: PNAME[r.lead.p] || 'Other', detail: `Ahead by ${fmtPct(r.margin)} pts · ${fmtInt(r.total)} votes · ${Math.round(r.rep)}% in` });
+    }
   }
   if (r.runoff && !r.runoffEv) {
     r.runoffEv = true;
     addEvent({ id: 'runoff:' + r.key, t: now, kind: 'runoff', party: '', title: `${r.label} heading toward a runoff`, sub: `No one above 50% with ${Math.round(r.rep)}% in · Georgia runoff is Dec 1` });
   }
+}
+function flushVotes() {
+  const now = Date.now();
+  if (!S.voteBuf.length || now - S.voteBufAt < 180e3) return;
+  S.voteBufAt = now;
+  const agg = new Map();
+  for (const v of S.voteBuf.splice(0)) agg.set(v.key, (agg.get(v.key) || 0) + v.add);
+  const list = [...agg.entries()].map(([k, add]) => ({ r: races.get(k), add })).filter(x => x.r).sort((a, b) => b.add - a.add);
+  if (!list.length) return;
+  const tot = list.reduce((n, x) => n + x.add, 0);
+  const seg = x => `${x.r.short} +${fmtInt(x.add)}${x.r.lead ? ` (${lastName(x.r.lead.name)} +${fmtPct(x.r.margin)}, ${Math.round(x.r.rep)}% in)` : ''}`;
+  addEvent({ id: 'votesum:' + now, t: now, kind: 'votes', party: '',
+    title: `Votes in: ${list.length} race${list.length > 1 ? 's' : ''}, +${fmtInt(tot)}`,
+    sub: list.slice(0, 5).map(seg).join(' · ') + (list.length > 5 ? ` · ${list.length - 5} more` : '') });
 }
 function flushHouseCalls(initial) {
   if (!S.houseBuf.length) return;
@@ -1033,11 +1092,40 @@ function flushHouseCalls(initial) {
 function marketMove(k) {
   const s = S.live[k], now = Date.now(); if (s.length < 2) return;
   const cur = s[s.length - 1].p, old = s.find(p => now - p.t <= 20 * 60e3);
+  const base = s.find(p => now - p.t <= 30 * 60e3);
+  if (base && now - base.t >= 5 * 60e3 && (base.p < 0.5) !== (cur < 0.5) && Math.abs(cur - 0.5) >= 0.02 && now - (S.oddsEv['ctl:' + k] || 0) > 20 * 60e3) {
+    S.oddsEv['ctl:' + k] = now;
+    const nm = k === 'senate' ? 'Senate' : 'House', fav = cur > 0.5 ? 'Democrats' : 'Republicans', mins = Math.round((now - base.t) / 60e3);
+    addEvent({ id: `ctlflip:${k}:${now}`, t: now, kind: 'oddsflip', party: cur > 0.5 ? 'D' : 'R', big: true, title: `${nm} control: ${fav} now favored`, sub: `Polymarket: Democrats ${pc0(base.p)} → ${pc0(cur)} in ${mins} min` });
+    queueAlert({ k: 'Odds flip · Polymarket', party: cur > 0.5 ? 'D' : 'R', rc: `${nm} control`, wn: `${fav} now favored`, tag: pc0(Math.max(cur, 1 - cur)), detail: `Democrats ${pc0(base.p)} → ${pc0(cur)} in ${mins} min` });
+  }
   if (!old || now - old.t < 5 * 60e3) return;
   if (Math.abs(cur - old.p) >= 0.04 && now - (S.lastMkt[k] || 0) > 15 * 60e3) {
     S.lastMkt[k] = now;
     const mins = Math.round((now - old.t) / 60e3);
     addEvent({ id: `mkt:${k}:${now}`, t: now, kind: 'market', party: cur > old.p ? 'D' : 'R', title: `${k === 'senate' ? 'Senate' : 'House'} control odds moving`, sub: `Polymarket: Democrats ${pc0(old.p)} → ${pc0(cur)} in ${mins} min` });
+  }
+}
+// Per-race Polymarket swings, from samples the desk has taken since it opened
+function oddsWatch() {
+  const now = Date.now();
+  for (const r of races.values()) {
+    if (!r.pm || r.winner || (r.ch === 'H' && !r.bg)) continue;
+    const live = S.rlive[r.key]; if (!live || live.length < 2) continue;
+    const cur = live[live.length - 1].p, base = live.find(p => now - p.t <= 30 * 60e3);
+    if (!base || now - base.t < 5 * 60e3) continue;
+    const d = cur - base.p, mins = Math.round((now - base.t) / 60e3), last = S.oddsEv[r.key] || 0;
+    const dn = lastName(r.dName) || 'Democrat', rn = lastName(r.rName) || 'Republican';
+    const crossed = (base.p < 0.5) !== (cur < 0.5) && Math.abs(cur - 0.5) >= 0.03 && Math.abs(base.p - 0.5) >= 0.03;
+    if (crossed && now - last > 20 * 60e3) {
+      S.oddsEv[r.key] = now;
+      const favD = cur > 0.5, fav = favD ? dn : rn, party = favD ? r.dSide : 'R';
+      addEvent({ id: `oddsflip:${r.key}:${now}`, t: now, kind: 'oddsflip', party, big: true, title: `Odds flip: ${r.label}`, sub: `Polymarket now favors ${fav} (${pc0(favD ? cur : 1 - cur)}), was ${pc0(favD ? base.p : 1 - base.p)} ${mins} min ago` });
+      if (r.ch !== 'H' || r.bg) queueAlert({ k: 'Odds flip · Polymarket', party, rc: r.label, wn: `${fav} now favored`, tag: pc0(favD ? cur : 1 - cur), detail: `${dn} ${pc0(base.p)} → ${pc0(cur)} in ${mins} min` });
+    } else if (Math.abs(d) >= 0.10 && now - last > 15 * 60e3) {
+      S.oddsEv[r.key] = now;
+      addEvent({ id: `swing:${r.key}:${now}`, t: now, kind: 'swing', party: d > 0 ? r.dSide : 'R', big: Math.abs(d) >= 0.2, title: `Odds swing: ${r.label}`, sub: `Polymarket: ${dn} ${pc0(base.p)} → ${pc0(cur)} in ${mins} min (${d > 0 ? '+' : '−'}${Math.round(Math.abs(d) * 100)} pts)` });
+    }
   }
 }
 function wavesList() {
@@ -1065,9 +1153,19 @@ function checkWaves() {
 
 /* ================= banner + chime ================= */
 function queueBanner(r) { if (S.bannerQ.length < 6) S.bannerQ.push(r.key); if (!S.bannerOn) nextBanner(); }
+function queueAlert(a) { if (!SET.alerts || S.bannerQ.length >= 3) return; S.bannerQ.push(a); if (!S.bannerOn) nextBanner(); }
 function nextBanner() {
   const key = S.bannerQ.shift(); const el = $('#banner');
   if (!key) { S.bannerOn = false; el.classList.remove('on'); return; }
+  if (typeof key === 'object') {
+    S.bannerOn = true;
+    el.className = 'alert p-' + (key.party === 'D' || key.party === 'R' ? key.party : 'I');
+    $('#bnK').textContent = key.k; $('#bnR').textContent = key.rc; $('#bnN').textContent = key.wn;
+    $('#bnF').innerHTML = `<span class="pp">${esc(key.tag)}</span><span>${esc(key.detail)}</span>`;
+    requestAnimationFrame(() => el.classList.add('on'));
+    setTimeout(() => { el.classList.remove('on'); setTimeout(nextBanner, 700); }, 5500);
+    return;
+  }
   const r = races.get(key); if (!r || !r.winner) return nextBanner();
   S.bannerOn = true;
   const p = r.winP, flip = isFlip(r), sh = share(r.winner, r);
@@ -1094,7 +1192,8 @@ function chime() {
     });
   } catch { /* audio not allowed yet */ }
 }
-function flashTile(r) { const el = tileEls[r.st]; if (el && ((S.mode === 'sen' && r.ch === 'S') || (S.mode === 'gov' && r.ch === 'G'))) { el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); } }
+function flashTile(r) { const el = tileEls[r.st]; if (el && ((S.mode === 'sen' && r.ch === 'S') || (S.mode === 'gov' && r.ch === 'G'))) { el.classList.remove('flash', 'bump'); void el.offsetWidth; el.classList.add('flash'); } }
+function bumpTile(r) { const el = tileEls[r.st]; if (el && !el.classList.contains('flash') && ((S.mode === 'sen' && r.ch === 'S') || (S.mode === 'gov' && r.ch === 'G'))) { el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); } }
 
 /* ================= rendering ================= */
 let scheduled = false;
@@ -1222,7 +1321,7 @@ function renderMap() {
       const el = tileEls[st], r = races.get(ch + '-' + st);
       const [u1, u2] = $$('s', el);
       if (!r) { el.className = 'tile off'; u1.style.width = u2.style.width = '0'; continue; }
-      const t = tileState(r), keep = el.classList.contains('flash') ? ' flash' : '';
+      const t = tileState(r), keep = el.classList.contains('flash') ? ' flash' : el.classList.contains('bump') ? ' bump' : '';
       el.className = 'tile ' + t.cls + keep;
       $('i', el).textContent = t.sub;
       const show = r.pm && !t.cls.startsWith('won');
@@ -1251,7 +1350,8 @@ function renderMap() {
 /* --- board --- */
 function boardList(mode) {
   const ch = mode === 'sen' ? 'S' : mode === 'gov' ? 'G' : 'H';
-  let list = byCh(ch).filter(r => r.bg);
+  const now = Date.now();
+  let list = byCh(ch).filter(r => r.bg || (ch !== 'H' && r.total > 0 && (!r.winner || now - (r.calledAt || 0) < 20 * 60e3)));
   if (ch === 'H') list = list.sort((a, b) => closeness(a) - closeness(b)).slice(0, 32);
   if (list.length < 4) list = byCh(ch).sort((a, b) => closeness(a) - closeness(b)).slice(0, ch === 'H' ? 24 : 12);
   return list.sort((a, b) => (a.closeTs - b.closeTs) || closeness(a) - closeness(b) || a.key.localeCompare(b.key));
@@ -1267,8 +1367,31 @@ function candCell(c, r, side, lost) {
   const label = `<span class="nm" title="${esc(c ? c.name : side === 'D' ? r.dName : r.rName)}">${esc(nm || '—')}<sup>${esc(p === 'I' ? 'I' : p)}</sup></span>`;
   return { html: side === 'D' ? `${ck}${label}<span class="pc">${pc}</span>` : `<span class="pc">${pc}</span>${label}${ck}`, p: p === 'D' || p === 'R' ? p : p === 'O' ? 'O' : 'I', lost };
 }
+function oddsChip(r) {
+  if (!r.pm || r.winner) return '';
+  const target = Date.now() - 3600e3;
+  let best = null;
+  for (const p of [...(S.rhist[r.key] || []), ...(S.rlive[r.key] || [])]) {
+    const dt = Math.abs(p.t - target);
+    if (dt <= 20 * 60e3 && (!best || dt < Math.abs(best.t - target))) best = p;
+  }
+  if (!best) return '';
+  const d = r.pm.D - best.p;
+  if (Math.abs(d) < 0.05) return '';
+  const toward = d > 0 ? r.dSide : 'R';
+  return `<span class="om ${toward.toLowerCase()}">${d > 0 ? '▲' : '▼'} Odds ${esc(r.dSide)} ${d > 0 ? '+' : '−'}${Math.round(Math.abs(d) * 100)} in 1h</span>`;
+}
+function updChip(r) {
+  if (!r.upd) return '';
+  const age = Date.now() - r.upd.t;
+  return `<span class="nw${age < 180e3 ? ' on' : ''}">+${fmtInt(r.upd.dv)} votes ${ago(r.upd.t)} ago</span>`;
+}
 function rowHTML(r) {
   const s = statusOf(r);
+  const now = Date.now();
+  const hit = r.upd && now - r.upd.t < 15e3, recent = r.upd && now - r.upd.t < 180e3;
+  const lchg = r.leadChgAt && now - r.leadChgAt < 300e3 && !r.winner;
+  const omove = S.oddsEv[r.key] && now - S.oddsEv[r.key] < 600e3 && !r.winner;
   const [A, B] = r.cands.length ? pairOf(r) : [null, null];
   const won = r.winner;
   const L = candCell(A, r, 'D', won && A && !A.winner), R = candCell(B, r, 'R', won && B && !B.winner);
@@ -1279,19 +1402,23 @@ function rowHTML(r) {
   } else if (r.pm) {
     bar = `<div class="vbar mkt"><i class="a p-${r.dSide}" style="width:${r.pm.D * 100}%"></i><i class="b p-R" style="width:${r.pm.R * 100}%"></i><em></em></div>`;
   } else bar = `<div class="vbar mkt"><em></em></div>`;
-  const sub = [r.total > 0 ? `<b>${fmtInt(r.total)}</b> votes` : '', r.poll ? `Final polls ${esc(sideMargin(r.poll.m, r))}` : '', r.pm ? `Polymarket ${r.dSide} <b>${pc0(r.pm.D)}</b>` : '', r.ks ? `Kalshi ${r.dSide} <b>${pc0(r.ks.D)}</b>` : ''].filter(Boolean).join(' · ') || 'No polls or market yet';
+  const sub = [updChip(r), oddsChip(r), r.total > 0 ? `<b>${fmtInt(r.total)}</b> votes` : '', r.poll ? `Final polls ${esc(sideMargin(r.poll.m, r))}` : '', r.pm ? `Polymarket ${r.dSide} <b>${pc0(r.pm.D)}</b>` : '', r.ks ? `Kalshi ${r.dSide} <b>${pc0(r.ks.D)}</b>` : ''].filter(Boolean).join(' · ') || 'No polls or market yet';
   let s1, s2 = '';
   const flipChip = isFlip(r) ? `<span class="flipchip">${esc(PNAME[winnerParty(r)])} pickup</span>` : '';
   const close = hourLabel((r.closeTs - MIDNIGHT) / 3600e3);
   if (s === 'won') { s1 = `✓ ${esc(lastName(r.winner.name))}`; s2 = flipChip || (r.held ? `${esc(PNAME[r.winP] || '')} hold` : 'Projected'); }
   else if (s === 'uncontested') { s1 = 'Uncontested'; s2 = flipChip; }
-  else if (s === 'counting') { s1 = r.runoff ? 'Runoff likely' : `${Math.round(r.rep)}% in`; s2 = r.lead ? `${esc(lastName(r.lead.name))} +${fmtPct(r.margin)}` : ''; }
+  else if (s === 'counting') {
+    s1 = lchg ? '<span class="lc">Lead change</span>' : r.runoff ? 'Runoff likely' : `${Math.round(r.rep)}% in`;
+    s2 = r.lead ? `${esc(lastName(r.lead.name))} +${fmtPct(r.margin)}${lchg ? ` · ${Math.round(r.rep)}% in` : ''}` : '';
+  }
   else if (s === 'closed') { s1 = '<span class="closed">Polls closed</span>'; s2 = 'Awaiting first votes'; }
   else if (s === 'partial') { s1 = '<span class="closed">Partly closed</span>'; s2 = `All close ${close}`; }
   else { s1 = `Closes ${close}`; s2 = r.ch === 'H' ? esc(r.name) : ''; }
   const wp = won ? (r.winP === 'D' || r.winP === 'R' ? r.winP : 'I') : '';
   const tagSub = r.ch === 'S' ? (r.sp ? 'SEN·SP' : 'SEN') : r.ch === 'G' ? 'GOV' : r.dist.slice(3);
-  return `<div class="row${won ? ' won p-' + wp : ''}" data-key="${r.key}">
+  const cls = (won ? ' won p-' + wp : '') + (hit ? ' hit' : '') + (recent ? ' recent' : '') + (lchg ? ' lchg' : '') + (omove ? ' omove' : '');
+  return `<div class="row${cls}" data-key="${r.key}" data-u="${r.upd ? r.upd.t : 0}">
     <div class="tag"><b>${r.st}</b><span>${tagSub}</span></div>
     <div class="cand l p-${L.p}${L.lost ? ' lost' : ''}">${L.html}</div>
     <div class="vwrap">${bar}</div>
@@ -1322,6 +1449,7 @@ function renderBoard() {
       const c = cur[i];
       if (c.dataset.key !== f.dataset.key) { c.replaceWith(f); return; }
       c.className = f.className; c.style.animation = 'none';
+      if (c.dataset.u !== f.dataset.u) { c.dataset.u = f.dataset.u; if (f.classList.contains('hit')) { c.classList.remove('hit'); void c.offsetWidth; c.classList.add('hit'); } }
       ['.tag', '.cand.l', '.cand.r', '.st', '.sub'].forEach(sel => { const a = $(sel, c), b = $(sel, f); if (a && b) { if (a.className !== b.className) a.className = b.className; if (a.innerHTML !== b.innerHTML) a.innerHTML = b.innerHTML; } });
       const va = $('.vbar', c), vb = $('.vbar', f);
       if (va && vb) {
@@ -1349,7 +1477,7 @@ function renderBop() {
 /* --- feed --- */
 function feedItem(e) {
   const li = document.createElement('li');
-  li.className = `ev k-${e.kind} p-${e.party || 'O'}${e.earlier ? ' earlier' : ''}`;
+  li.className = `ev k-${e.kind} p-${e.party || 'O'}${e.earlier ? ' earlier' : ''}${e.big ? ' big' : ''}`;
   li.dataset.id = e.id;
   li.innerHTML = `<div class="ev-h"><span class="chip">${esc(KIND[e.kind] || 'Desk')}</span><time>${e.seen ? 'By ' : ''}${esc(clockOf(e.t))} ET</time></div><div class="ev-t">${esc(e.title)}</div>${e.sub ? `<div class="ev-s">${esc(e.sub)}</div>` : ''}`;
   return li;
@@ -1382,6 +1510,10 @@ function tickItems() {
   }
   const h = counts('H');
   if (h.called) out.push(`<em>House called</em> <span class="d">D ${h.D}</span><span class="r">R ${h.R}</span><span class="m">${435 - h.called} to go</span>`);
+  const JI = new Set(['lead', 'swing', 'oddsflip', 'votes', 'market', 'flip', 'call', 'runoff']);
+  const ji = S.events.filter(e => !e.earlier && JI.has(e.kind) && Date.now() - e.t < 12 * 60e3).slice(0, 4)
+    .map(e => { const sub = String(e.sub || ''); return `<em class="ji">${esc(KIND[e.kind] || 'Desk')}</em> ${esc(e.title)}<span class="m">${esc(sub.length > 90 ? sub.slice(0, 88) + '…' : sub)}</span>`; });
+  out.unshift(...ji);
   if (DATA.generic) out.push(`<em>Final generic ballot</em> <span class="${DATA.generic.m >= 0 ? 'd' : 'r'}">${sideMargin(DATA.generic.m)}</span><span class="m">${DATA.generic.n} pollsters</span>`);
   return out;
 }
@@ -1534,7 +1666,7 @@ document.addEventListener('click', e => {
   if (ctl) { const sec = ctl.closest('section'); if (sec) openOdds(sec.id === 'sen' ? 'senate' : 'house'); }
 });
 setInterval(() => { if (oddsDlg.open) renderOdds(); }, 5000);
-function openSettings() { $('#optRotate').checked = SET.rotate; $('#optSound').checked = SET.sound; $('#optHouseFeed').checked = SET.houseFeed; if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', ''); }
+function openSettings() { $('#optRotate').checked = SET.rotate; $('#optSound').checked = SET.sound; $('#optHouseFeed').checked = SET.houseFeed; $('#optAlerts').checked = SET.alerts; if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', ''); }
 $('#btnSet').addEventListener('click', openSettings);
 document.addEventListener('click', e => { const t = e.target.closest('[data-open="settings"]'); if (t) openSettings(); });
 $('#setClose').addEventListener('click', () => dlg.close());
@@ -1543,6 +1675,7 @@ const saveSet = () => LS.set('settings', SET);
 $('#optRotate').addEventListener('change', e => { SET.rotate = e.target.checked; S.pinned = false; saveSet(); });
 $('#optSound').addEventListener('change', e => { SET.sound = e.target.checked; saveSet(); if (SET.sound) chime(); });
 $('#optHouseFeed').addEventListener('change', e => { SET.houseFeed = e.target.checked; saveSet(); });
+$('#optAlerts').addEventListener('change', e => { SET.alerts = e.target.checked; saveSet(); });
 $('#resetFeed').addEventListener('click', () => { S.events = []; LS.set('events', []); renderFeed(); checkWaves(); toast('Feed cleared'); });
 document.addEventListener('keydown', e => {
   if (dlg.open || e.target.closest('input,textarea') || e.metaKey || e.ctrlKey || e.altKey) return;
@@ -1584,7 +1717,7 @@ setTimeout(() => pmRacePoll.start(), 500);
 setTimeout(() => pmHistPoll.start(), 6000);
 setTimeout(() => pmRaceHistPoll.start(), 9000);
 setTimeout(() => ksPoll.start(), 2500);
-if (params.has('debug')) window.__desk = { races, S, DATA, openOdds };
+if (params.has('debug')) window.__desk = { races, S, DATA, openOdds, pullCivic, oddsWatch, renderAll, tickItems, setMode };
 wake(); keepAwake();
 setTimeout(() => toast('F = full screen · S = settings · 1/2/3 = pin a view'), 1200);
 })();
