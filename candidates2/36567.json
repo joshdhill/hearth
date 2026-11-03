@@ -1,1 +1,0 @@
-{"name": "36567", "frames": 241, "fps": 23.976, "seconds": 10.1, "static": 0.736, "drift": 0.0027, "median": 0.1014, "step": 0.0855, "loop": {"a": 26, "b": 211, "seconds": 7.7, "cost": 0.0881, "vs_step": 1.03, "vs_median": 0.869}, "splices_great": 24806, "splices_ok": 0}
