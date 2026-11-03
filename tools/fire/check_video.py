@@ -28,12 +28,15 @@ for path in sys.argv[1:]:
     seam = d[-1] / med
     # repeats: for each frame, the nearest later time (around the loop) showing near-identical footage
     sq = (F ** 2).sum(1)
-    Dm = np.sqrt(np.maximum(sq[:, None] + sq[None, :] - 2 * F @ F.T, 0) / F.shape[1])
-    step = float(np.median(np.diagonal(Dm, 1)))
-    same = Dm < 0.35 * step
-    lag = (np.arange(L)[None, :] - np.arange(L)[:, None]) % L
-    lag = np.where(same & (lag > fps * 1.0), lag, L)
-    soon = lag.min(1) / fps
+    step = float(np.median(np.sqrt(np.maximum(sq[1:] + sq[:-1] - 2 * (F[1:] * F[:-1]).sum(1), 0) / F.shape[1])))
+    soon = np.empty(L)
+    idx = np.arange(L)
+    for a in range(0, L, 800):            # in blocks, so long 60 fps loops fit in memory
+        b = min(L, a + 800)
+        Dm = np.sqrt(np.maximum(sq[a:b, None] + sq[None, :] - 2 * F[a:b] @ F.T, 0) / F.shape[1])
+        lag = (idx[None, :] - idx[a:b, None]) % L
+        lag = np.where((Dm < 0.35 * step) & (lag > fps * 1.0), lag, L)
+        soon[a:b] = lag.min(1) / fps
     # long repeats only: footage that comes back as a run of 2+ seconds
     print(f'{path}: {L / fps:.1f}s @ {fps:g}fps')
     print(f'  cuts: seam {seam:.2f}x a normal frame change, biggest '

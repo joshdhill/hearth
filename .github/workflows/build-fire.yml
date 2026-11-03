@@ -49,6 +49,11 @@ jobs:
       - name: Build the long loop
         if: steps.pick.outputs.url != '' && steps.pick.outputs.mode != 'analyze'
         run: python3 tools/fire/build_long.py dl/src.mp4 "${{ steps.pick.outputs.name }}" "${{ steps.pick.outputs.tv }}" "${{ steps.pick.outputs.web }}" out
+      - name: Check the finished loops (cuts, seam, how soon footage repeats)
+        if: steps.pick.outputs.url != '' && steps.pick.outputs.mode != 'analyze'
+        run: |
+          n="${{ steps.pick.outputs.name }}"
+          python3 tools/fire/check_video.py "out/$n-4k.mp4" "out/$n-web/index.m3u8" | tee "out/$n-check.txt"
       - name: Publish the 4K file for the TV
         if: steps.pick.outputs.url != '' && steps.pick.outputs.mode != 'analyze'
         uses: softprops/action-gh-release@v2
@@ -59,6 +64,7 @@ jobs:
           files: |
             out/*-4k.mp4
             out/*-joins.jpg
+            out/*-check.txt
             out/*.json
       - name: Add the web version to the site
         if: steps.pick.outputs.url != '' && steps.pick.outputs.mode != 'analyze'

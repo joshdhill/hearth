@@ -18,7 +18,7 @@ import numpy as np
 
 
 class Planner:
-    def __init__(self, D, fps, blend_s=0.5, gap_s=3.0, min_s=4.0, max_s=12.0, pct=2.5):
+    def __init__(self, D, fps, blend_s=0.5, gap_s=3.0, min_s=4.0, max_s=20.0, pct=2.5):
         D = np.asarray(D, np.float32)
         self.N = N = len(D)
         self.fps = fps
@@ -69,18 +69,52 @@ class Planner:
         self.alive = alive
         self.ok = self.good & alive[None, :]
 
+        # the largest group of landing frames that can all reach each other: a walk that stays
+        # inside it can always get anywhere in it and back (some clips drift, e.g. the fire
+        # grows, so early and late footage don't join)
+        C = np.vstack([np.zeros((1, M), np.int32), np.cumsum(self.ok, axis=0, dtype=np.int32)])
+        a = np.clip(np.arange(M) + K + self.MIN, 0, M)
+        b = np.clip(np.arange(M) + K + self.MAX, 0, M)
+        A = ((C[b] - C[a]) > 0) & alive[:, None] & alive[None, :]
+        del C
+        AT = np.ascontiguousarray(A.T)
+
+        def reach(s, G):
+            seen = np.zeros(M, bool); seen[s] = True
+            front = seen.copy()
+            while front.any():
+                nxt = G[front].any(0) & ~seen
+                seen |= nxt; front = nxt
+            return seen
+
+        best = np.zeros(M, bool)
+        for s in np.nonzero(alive)[0][::max(1, int(fps // 2))]:
+            if best[s]:
+                continue
+            comp = reach(s, A) & reach(s, AT)
+            if comp.sum() > best.sum():
+                best = comp
+        self.comp = best
+        self.ok &= best[None, :]
+        # footage a walk inside the group can show
+        play = np.zeros(self.N, bool)
+        for j in np.nonzero(best)[0]:
+            play[j + K: min(j + K + self.MAX, M)] = True
+        self.usable_s = len(np.unique(canon[play])) / fps
+
     # -------------------------------------------------------------------------------------
     def plan(self, target_s, seed, fresh_s=None):
         K, M, fps = self.K, self.M, self.fps
         rng = random.Random(seed)
-        if not self.alive.any():
+        if self.comp.sum() < 2:
             raise SystemExit('no usable joins in this clip')
-        fresh = fresh_s if fresh_s is not None else min(25.0, self.unique_s * 0.45)
+        fresh = fresh_s if fresh_s is not None else min(25.0, self.usable_s * 0.45)
         tau = fresh * fps
         target = target_s * fps
-        # start where many good joins arrive, so the loop can close easily
-        incoming = self.ok.sum(0) * self.alive
-        s0 = int(np.argmax(incoming))
+        # start where good joins arrive (so the loop can close easily), varied by seed
+        incoming = (self.ok.sum(0) * self.comp).astype(float)
+        top = np.argsort(-incoming)[:max(1, int(self.comp.sum() // 4))]
+        s0 = int(top[rng.randrange(len(top))])
         last = np.full(self.N, -1e9)      # output frame at which each (canonical) source frame was last shown
         t = 0
         segs, starts, lens = [], [s0], []
@@ -136,8 +170,6 @@ class Planner:
 
             ii, jj = np.nonzero(self.ok[lo:hi])
             ii = ii + lo
-            keep = np.abs(jj - cur) > self.GAP
-            ii, jj = ii[keep], jj[keep]
             if not len(ii):
                 raise SystemExit('no way on from frame %d (pruning failed)' % cur)
             cost = self.Wc[ii, jj] / self.THR

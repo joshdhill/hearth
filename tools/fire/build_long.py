@@ -47,95 +47,42 @@ wmap = np.clip(std / max(1e-6, np.percentile(std, 95)), 0.15, 1.0)[..., None]
 X = (S * np.sqrt(wmap)).reshape(N, -1)
 sq = (X ** 2).sum(1)
 D = np.sqrt(np.maximum(sq[:, None] + sq[None, :] - 2 * X @ X.T, 0) / X.shape[1])
-K = max(4, int(round(FPS * 0.5)))           # blend length in frames
-M = N - K
-Wc = np.zeros((M, M), np.float32)
-for k in range(K + 1):
-    Wc += D[k:k + M, k:k + M]
-Wc /= K + 1
-step = float(np.mean(np.diagonal(D, 1)))
-GAP = int(FPS * 3)
-idx = np.arange(M)
-valid = np.abs(idx[:, None] - idx[None, :]) > GAP
-THR = float(np.percentile(Wc[valid], 2.5))
-good = (Wc <= THR) & valid
-print(f'frames {N}, blend {K}, step {step:.4f}, threshold {THR:.4f} ({THR / step:.2f}x a normal frame change), '
-      f'joins available {int(good.sum())}', flush=True)
-
-MINSEG, MAXSEG = int(FPS * 4), int(FPS * 12)
-
 if os.environ.get('D_ONLY'):     # just the similarity data, for working on the planner elsewhere
     np.savez_compressed(f'{OUT}/{name}-D.npz', D=D.astype(np.float16), fps=FPS, lum=S.mean((1, 2, 3)).astype(np.float32),
                         wmap=wmap[..., 0].astype(np.float16))
     raise SystemExit(0)
 
+from loopplan import Planner
+P = Planner(D, FPS)
+K, step = P.K, P.step
+print(f'frames {N}, blend {K}, step {step:.4f}, threshold {P.THR / step:.2f}x a normal frame change, '
+      f'joins {int(P.ok.sum())}, usable landing frames {P.alive.mean():.0%}, '
+      f'unique footage {P.unique_s:.1f}s (clip repeats {P.repeat_frac:.0%} of itself), '
+      f'joined-up footage {P.usable_s:.1f}s', flush=True)
 
-def plan(target_s, seed):
-    """Random walk through the clip; returns (start frame, runs). Each run is (first, jump_at, jump_to, cost).
-    The walk closes when it can jump back into the start of an earlier run, keeping the cycle long enough."""
-    rng = random.Random(seed)
-    incoming = good.sum(0)
-    lim = M - MAXSEG - K
-    s0 = int(np.argmax(incoming[:lim])) if lim > 0 else 0
-    targets, segs, lens = [s0], [], []
-    cur = s0 + K
-    used = np.zeros(N)
-    target = target_s * FPS
-    for _ in range(3000):
-        lo = cur + MINSEG
-        if lo >= M - 1:
-            lo = cur + 1
-        hi = min(cur + MAXSEG, M - 1)
-        # can we close the loop from this run?
-        after = np.cumsum(lens[::-1])[::-1] if lens else np.zeros(0)
-        best = None
-        for k, tj in enumerate(targets):
-            have = float(after[k]) if k < len(after) else 0.0
-            i_min = max(lo, cur + int(target - have) - K)
-            if i_min > M - 2:
-                continue
-            col = Wc[i_min:M - 1, tj]
-            for o in np.nonzero(col <= THR * 1.25)[0]:
-                i = i_min + int(o)
-                if abs(i - tj) <= GAP:
-                    continue
-                c = float(col[o]) + 0.0003 * (i - i_min)
-                if best is None or c < best[0]:
-                    best = (c, k, i, int(tj))
-                break
-        if best:
-            _, k, i, tj = best
-            return tj, segs[k:] + [(cur, i, tj, float(Wc[i, tj]))]
-        opts = []
-        for i in range(lo, max(lo + 1, hi)):
-            for j in np.nonzero(good[i])[0]:
-                if j + K + MINSEG < M and abs(int(j) - cur) > GAP:
-                    pen = used[j:j + MAXSEG].mean()
-                    opts.append((float(Wc[i, j]) * (1 + 0.6 * pen), i, int(j)))
-        if not opts:  # nothing in reach: run to the end of the clip and take the best available
-            i = M - 2
-            j = int(np.argmin(np.where(valid[i], Wc[i], 9)))
-            opts = [(float(Wc[i, j]), i, j)]
-        opts.sort()
-        pool = opts[:max(3, len(opts) // 6)]
-        c, i, j = pool[rng.randrange(len(pool))]
-        segs.append((cur, i, j, float(Wc[i, j])))
-        lens.append((i - cur) + K)
-        targets.append(j)
-        used[j:j + MAXSEG] += 1
-        cur = j + K
-    raise SystemExit('could not close the loop')
+
+def best_plan(target_s, seeds):
+    """Several walks; keep the one where footage comes back latest, with no weak join."""
+    best = None
+    for sd in seeds:
+        try:
+            st, sg = P.plan(target_s, sd)
+        except SystemExit as e:
+            print('  seed', sd, e, flush=True)
+            continue
+        r = P.check(st, sg)
+        score = r['repeat_p5'] + 0.5 * r['repeat_soonest'] - 4 * max(0, r['worst_join'] - P.THR / step)
+        print('  seed', sd, r, flush=True)
+        if best is None or score > best[0]:
+            best = (score, st, sg, r)
+    if best is None:
+        raise SystemExit('could not plan a loop')
+    return best[1], best[2], best[3]
 
 
 if os.environ.get('PLAN_ONLY'):
-    for tgt in (60, 150, 300, 360):
-        st, sg = plan(tgt, 7)
-        assert sg[0][0] == st + K, 'loop must start right after its closing blend'
-        for (c1, i1, j1, _), (c2, *_r) in zip(sg, sg[1:]):
-            assert c2 == j1 + K
-        assert sg[-1][2] == st
-        print(tgt, 's ->', round(sum((i - c) + K for (c, i, j, _x) in sg) / FPS, 1), 's,', len(sg), 'joins, worst',
-              round(max(x for *_, x in sg) / step, 2), flush=True)
+    for tgt in (120, 300):
+        best_plan(tgt, range(1, 9))
     raise SystemExit(0)
 
 
@@ -178,18 +125,12 @@ def render(segs, cmd, size):
     return n
 
 
-def report(segs, label):
-    frames = sum((i - c) + K for (c, i, j, _x) in segs)
-    costs = [x for (*_, x) in segs]
-    return dict(label=label, seconds=round(frames / FPS, 1), joins=len(segs),
-                worst_join=round(max(costs) / step, 2), mean_join=round(float(np.mean(costs)) / step, 2))
-
-
-info = dict(name=name, src=f'{Wd}x{Hd}@{FPS:.2f}', clip_seconds=round(N / FPS, 1), threshold_vs_step=round(THR / step, 2))
+info = dict(name=name, src=f'{Wd}x{Hd}@{FPS:.2f}', clip_seconds=round(N / FPS, 1), unique_seconds=round(P.unique_s, 1),
+            usable_seconds=round(P.usable_s, 1),
+            threshold_vs_step=round(P.THR / step, 2))
 
 # TV: 4K, 10-bit HEVC
-s0, tv = plan(TV_S, 7)
-info['tv'] = report(tv, 'tv')
+s0, tv, info['tv'] = best_plan(TV_S, range(1, 13))
 print(info['tv'], flush=True)
 raw_in = ['-f', 'rawvideo', '-pix_fmt', 'bgr24', '-r', f'{FPS:.6f}']
 color = ['-color_primaries', 'bt709', '-color_trc', 'bt709', '-colorspace', 'bt709']
@@ -200,8 +141,7 @@ render(tv, ['ffmpeg', '-v', 'error', '-y', *raw_in, '-s', f'{Wd}x{Hd}', '-i', '-
             *color, '-movflags', '+faststart', f'{OUT}/{name}-4k.mp4'], None)
 
 # Web and phones: 1080p H.264 as HLS (iPhones play it natively)
-_, web = plan(WEB_S, 11)
-info['web'] = report(web, 'web')
+_, web, info['web'] = best_plan(WEB_S, range(21, 33))
 print(info['web'], flush=True)
 os.makedirs(f'{OUT}/{name}-web', exist_ok=True)
 g = int(round(FPS * 2))
@@ -215,7 +155,7 @@ render(web, ['ffmpeg', '-v', 'error', '-y', *raw_in, '-s', '1920x1080', '-i', '-
 # poster and a sheet of join midpoints to check by eye
 cv2.imwrite(f'{OUT}/{name}-poster.jpg', cv2.resize(frame(s0 + K), (1280, 720), interpolation=cv2.INTER_AREA), [cv2.IMWRITE_JPEG_QUALITY, 85])
 tiles = []
-for (cur, i, j, _c) in sorted(tv, key=lambda s: -s[3])[:6]:      # the six weakest joins
+for (cur, i, j, _c) in sorted(dict(((s[1], s[2]), s) for s in tv).values(), key=lambda s: -s[3])[:6]:      # six weakest joins
     m = K // 2
     row = [cv2.resize(frame(i + m - K), (480, 270)), cv2.resize(blend(frame(i + m), frame(j + m), 0.5), (480, 270)),
            cv2.resize(frame(j + K + m), (480, 270))]
