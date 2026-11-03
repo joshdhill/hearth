@@ -2,7 +2,7 @@ name: Build long fire loops
 on:
   workflow_dispatch:
   push:
-    paths: [ 'tools/fire/build_long.py', 'tools/fire/fires.txt', '.github/workflows/build-fire.yml' ]
+    paths: [ 'tools/fire/build_long.py', 'tools/fire/fires.txt', 'tools/fire/mode', '.github/workflows/build-fire.yml' ]
 permissions:
   contents: write
 jobs:
@@ -12,14 +12,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        fire: [ 'a', 'b' ]
+        fire: [ 1, 2, 3, 4 ]
     steps:
       - uses: actions/checkout@v4
       - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg >/dev/null && pip install -q opencv-python-headless numpy playwright && python -m playwright install --with-deps chromium >/dev/null
       - name: Pick this job's clip
         id: pick
         run: |
-          line=$(grep -v '^#' tools/fire/fires.txt | sed -n "$([ "${{ matrix.fire }}" = a ] && echo 1 || echo 2)p")
+          line=$(grep -v '^#' tools/fire/fires.txt | grep . | sed -n "${{ matrix.fire }}p")
+          echo "mode=$(cat tools/fire/mode 2>/dev/null || echo build)" >> $GITHUB_OUTPUT
           echo "name=$(echo "$line" | awk '{print $1}')" >> $GITHUB_OUTPUT
           echo "url=$(echo "$line" | awk '{print $2}')" >> $GITHUB_OUTPUT
           echo "tv=$(echo "$line" | awk '{print $3}')" >> $GITHUB_OUTPUT
@@ -34,11 +35,22 @@ jobs:
             *) curl -sL --max-time 600 -o dl/src.mp4 "$url" ;;
           esac
           ffprobe -v error -show_entries stream=codec_name,width,height,r_frame_rate,pix_fmt:format=duration -of compact dl/src.mp4
+      - name: Similarity data only (for planning)
+        if: steps.pick.outputs.url != '' && steps.pick.outputs.mode == 'analyze'
+        run: |
+          D_ONLY=1 python3 tools/fire/build_long.py dl/src.mp4 "${{ steps.pick.outputs.name }}" 0 0 out
+          git config user.name "hearth-bot"; git config user.email "actions@users.noreply.github.com"
+          for try in 1 2 3 4 5 6; do
+            rm -rf /tmp/mw; git fetch -q origin media-work && git worktree add -q -f /tmp/mw origin/media-work
+            mkdir -p /tmp/mw/plans && cp out/*-D.npz /tmp/mw/plans/
+            (cd /tmp/mw && git add plans && git commit -qm "Similarity data: ${{ steps.pick.outputs.name }}" && git push -q origin HEAD:media-work) && break
+            git worktree remove -f /tmp/mw; sleep $((try * 9))
+          done
       - name: Build the long loop
-        if: steps.pick.outputs.url != ''
+        if: steps.pick.outputs.url != '' && steps.pick.outputs.mode != 'analyze'
         run: python3 tools/fire/build_long.py dl/src.mp4 "${{ steps.pick.outputs.name }}" "${{ steps.pick.outputs.tv }}" "${{ steps.pick.outputs.web }}" out
       - name: Publish the 4K file for the TV
-        if: steps.pick.outputs.url != ''
+        if: steps.pick.outputs.url != '' && steps.pick.outputs.mode != 'analyze'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: media-v2
@@ -49,7 +61,7 @@ jobs:
             out/*-joins.jpg
             out/*.json
       - name: Add the web version to the site
-        if: steps.pick.outputs.url != ''
+        if: steps.pick.outputs.url != '' && steps.pick.outputs.mode != 'analyze'
         run: |
           n="${{ steps.pick.outputs.name }}"
           git config user.name "hearth-bot"; git config user.email "actions@users.noreply.github.com"

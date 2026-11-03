@@ -64,6 +64,11 @@ print(f'frames {N}, blend {K}, step {step:.4f}, threshold {THR:.4f} ({THR / step
 
 MINSEG, MAXSEG = int(FPS * 4), int(FPS * 12)
 
+if os.environ.get('D_ONLY'):     # just the similarity data, for working on the planner elsewhere
+    np.savez_compressed(f'{OUT}/{name}-D.npz', D=D.astype(np.float16), fps=FPS, lum=S.mean((1, 2, 3)).astype(np.float32),
+                        wmap=wmap[..., 0].astype(np.float16))
+    raise SystemExit(0)
+
 
 def plan(target_s, seed):
     """Random walk through the clip; returns (start frame, runs). Each run is (first, jump_at, jump_to, cost).
