@@ -556,7 +556,7 @@ LS.set('settings', SET);
 const races = new Map();
 const normHeld = p => { p = String(p || '').toUpperCase(); return p === 'IND' || p === 'I' ? 'I' : p === 'D' || p === 'R' ? p : ''; };
 function blank(o) { return Object.assign({ cands: [], total: 0, rep: 0, winner: null, winP: '', lead: null, margin: null, dm: null, pm: null, ks: null, bg: false, civAt: 0 }, o); }
-for (const x of DATA.senate) races.set('S-' + x.st, blank({ key: 'S-' + x.st, ch: 'S', st: x.st, name: x.name, sp: x.sp, label: `${x.name} Senate${x.sp ? ' (special)' : ''}`, short: x.st + ' Sen', held: normHeld(x.held), dName: x.d, dSide: x.dS === 'I' ? 'I' : 'D', rName: x.r, lean: x.lean, poll: x.poll, firstTs: hourTs(x.close[0]), closeTs: hourTs(x.close[1]), fixed: '' }));
+for (const x of DATA.senate) races.set('S-' + x.st, blank({ key: 'S-' + x.st, ch: 'S', st: x.st, name: x.name.replace(/\s*\(special\)/i, ''), sp: x.sp, label: `${x.name} Senate${x.sp ? ' (special)' : ''}`, short: x.st + ' Sen', held: normHeld(x.held), dName: x.d, dSide: x.dS === 'I' ? 'I' : 'D', rName: x.r, lean: x.lean, poll: x.poll, firstTs: hourTs(x.close[0]), closeTs: hourTs(x.close[1]), fixed: '' }));
 for (const x of DATA.gov) races.set('G-' + x.st, blank({ key: 'G-' + x.st, ch: 'G', st: x.st, name: x.name, label: `${x.name} Governor`, short: x.st + ' Gov', held: normHeld(x.held), dName: x.d, dSide: x.dS === 'I' ? 'I' : 'D', rName: x.r, lean: x.lean, poll: x.poll, firstTs: hourTs(x.close[0]), closeTs: hourTs(x.close[1]), fixed: '' }));
 for (const h of DATA.house) {
   const [dist, d, dS, r, , held, lean, fixed, pm, pn, cl] = h;
@@ -882,7 +882,8 @@ function ksSides(x, r) {
       if (s === 'O' && r) s = sideFromText(row[1], r);
       acc[s] += p; tot += p;
     }
-    if (tot > 0) return { D: acc.D / tot, R: acc.R / tot, O: acc.O / tot };
+    if (tot > 0 && acc.D + acc.R >= tot / 2) return { D: acc.D / tot, R: acc.R / tot, O: acc.O / tot };
+    return null;                                      // mostly candidates we can't place on a side
   }
   const D = num(x.D), R = num(x.R);
   return D == null || R == null ? null : { D, R, O: num(x.O) || 0 };

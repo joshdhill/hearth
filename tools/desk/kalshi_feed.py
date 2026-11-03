@@ -33,10 +33,38 @@ STATES = set("AL AK AZ AR CA CO CT DE FL GA HI ID IL IN IA KS KY LA ME MD MA MI 
              "NJ NM NY NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY".split())
 AT_LARGE = {"AK", "DE", "ND", "SD", "VT", "WY"}
 CONTROL = {"CONTROLS": "senate", "CONTROLH": "house"}
-RE_SEN = re.compile(r"^(?:KX)?SENATE(?:PARTY)?-?([A-Z]{2})$")
+RE_SEN = re.compile(r"^(?:KX)?SENATE(?:PARTY)?-?([A-Z]{2})S?$")      # trailing S = special election
 RE_GOV = re.compile(r"^(?:KX)?GOV(?:PARTY)?-?([A-Z]{2})$")
 RE_HOUSE = re.compile(r"^(?:KX)?HOUSE-?([A-Z]{2})-?(\d{1,2}|AL)$")
 RE_CYCLE = re.compile(r"-(26|2026)$")
+NAMES = {"Alabama": "AL", "Alaska": "AK", "Arizona": "AZ", "Arkansas": "AR", "California": "CA", "Colorado": "CO",
+         "Connecticut": "CT", "Delaware": "DE", "Florida": "FL", "Georgia": "GA", "Hawaii": "HI", "Idaho": "ID",
+         "Illinois": "IL", "Indiana": "IN", "Iowa": "IA", "Kansas": "KS", "Kentucky": "KY", "Louisiana": "LA",
+         "Maine": "ME", "Maryland": "MD", "Massachusetts": "MA", "Michigan": "MI", "Minnesota": "MN",
+         "Mississippi": "MS", "Missouri": "MO", "Montana": "MT", "Nebraska": "NE", "Nevada": "NV",
+         "New Hampshire": "NH", "New Jersey": "NJ", "New Mexico": "NM", "New York": "NY", "North Carolina": "NC",
+         "North Dakota": "ND", "Ohio": "OH", "Oklahoma": "OK", "Oregon": "OR", "Pennsylvania": "PA",
+         "Rhode Island": "RI", "South Carolina": "SC", "South Dakota": "SD", "Tennessee": "TN", "Texas": "TX",
+         "Utah": "UT", "Vermont": "VT", "Virginia": "VA", "Washington": "WA", "West Virginia": "WV",
+         "Wisconsin": "WI", "Wyoming": "WY"}
+RE_STATE = re.compile(r"\b(" + "|".join(sorted(NAMES, key=len, reverse=True)) + r")\b")
+
+
+def this_cycle(ev, key):
+    """Kalshi's tickers don't always say the year (NH governor 2026 is GOVPARTYNH-28), so read the text too."""
+    t = str(ev.get("event_ticker") or "")
+    txt = f"{ev.get('title') or ''} {ev.get('sub_title') or ''}"
+    if re.search(r"\b20(1\d|2[0-5]|2[89]|3\d)\b", txt) and "2026" not in txt:
+        return key.startswith("G-") and "2027" in txt      # governors elected in 2026 take office in 2027
+    return bool(RE_CYCLE.search(t)) or "2026" in txt or (key.startswith("G-") and "2027" in txt)
+
+
+def fix_key(ev, key):
+    """Trust the event title's state over the series ticker (Kalshi files Kentucky's race as SENATELA-26)."""
+    if key[:2] not in ("S-", "G-"):
+        return key
+    m = RE_STATE.search(str(ev.get("title") or ""))
+    return key[:2] + NAMES[m.group(1)] if m else key
 
 
 def log(*a):
@@ -148,16 +176,16 @@ def discover():
             series.setdefault(k, []).append(s["ticker"])
     log("series matched", len(series), "keys from", len(j.get("series") or []))
 
-    def events_of(ticker):
+    def events_of(pair):
+        key, ticker = pair
         jj = get("/events", {"series_ticker": ticker, "with_nested_markets": "false", "limit": 100}) or {}
-        return [e.get("event_ticker") for e in jj.get("events") or []
-                if RE_CYCLE.search(str(e.get("event_ticker") or ""))]
+        return [(fix_key(e, key), e.get("event_ticker")) for e in jj.get("events") or [] if this_cycle(e, key)]
 
     found = {}
     pairs = [(k, t) for k, ts in series.items() for t in ts]
     with ThreadPoolExecutor(6) as ex:
-        for (k, _), evs in zip(pairs, ex.map(lambda p: _safe(events_of, p[1], []), pairs)):
-            for e in evs:
+        for evs in ex.map(lambda p: _safe(events_of, p, []), pairs):
+            for k, e in evs:
                 if e and e not in found.setdefault(k, []):
                     found[k].append(e)
     found = {k: v for k, v in found.items() if v}
