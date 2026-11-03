@@ -509,6 +509,7 @@ const arr = v => { if (Array.isArray(v)) return v; try { const a = JSON.parse(v 
 const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
 const fmtInt = n => Math.round(n).toLocaleString('en-US');
 const pc0 = p => p == null ? '—' : Math.round(p * 100) + '%';
+const pcPair = s => { const d = Math.round(s.D * 100); return [d + '%', ((s.O || 0) < 0.005 ? 100 - d : Math.round(s.R * 100)) + '%']; };
 const fmtPct = x => x == null ? '—' : (Math.round(x * 10) / 10).toFixed(1);
 const etFmt = new Intl.DateTimeFormat('en-US', { timeZone: ET, hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true });
 const etShort = new Intl.DateTimeFormat('en-US', { timeZone: ET, hour: 'numeric', minute: '2-digit', hour12: true });
@@ -1310,8 +1311,8 @@ let tickHTML = '';
 function tickItems() {
   const out = [];
   const pmS = S.ctl.pm.senate, pmH = S.ctl.pm.house, ksS = S.ctl.ks.senate, ksH = S.ctl.ks.house;
-  if (pmS) out.push(`<em>Senate control</em> <span class="d">D ${pc0(pmS.D)}</span><span class="r">R ${pc0(pmS.R)}</span><span class="m">Polymarket${ksS ? ` · Kalshi D ${pc0(ksS.D)}` : ''}</span>`);
-  if (pmH) out.push(`<em>House control</em> <span class="d">D ${pc0(pmH.D)}</span><span class="r">R ${pc0(pmH.R)}</span><span class="m">Polymarket${ksH ? ` · Kalshi D ${pc0(ksH.D)}` : ''}</span>`);
+  if (pmS) out.push(`<em>Senate control</em> <span class="d">D ${pcPair(pmS)[0]}</span><span class="r">R ${pcPair(pmS)[1]}</span><span class="m">Polymarket${ksS ? ` · Kalshi D ${pc0(ksS.D)}` : ''}</span>`);
+  if (pmH) out.push(`<em>House control</em> <span class="d">D ${pcPair(pmH)[0]}</span><span class="r">R ${pcPair(pmH)[1]}</span><span class="m">Polymarket${ksH ? ` · Kalshi D ${pc0(ksH.D)}` : ''}</span>`);
   const key = [...races.values()].filter(r => r.ch !== 'H' && r.bg).sort((a, b) => a.closeTs - b.closeTs || a.key.localeCompare(b.key));
   for (const r of key) {
     const s = statusOf(r);
@@ -1322,7 +1323,7 @@ function tickItems() {
       out.push(`<em>${esc(r.short)}</em> ${seg(A)}${seg(B)}<span class="m">${Math.round(r.rep)}% in</span>`);
       continue;
     }
-    if (r.pm) out.push(`<em>${esc(r.short)}</em> <span class="m">closes ${hourLabel((r.closeTs - MIDNIGHT) / 3600e3)} ·</span><span class="${r.dSide.toLowerCase()}">${esc(lastName(r.dName))} ${pc0(r.pm.D)}</span><span class="r">${esc(lastName(r.rName))} ${pc0(r.pm.R)}</span><span class="m">Polymarket</span>`);
+    if (r.pm) out.push(`<em>${esc(r.short)}</em> <span class="m">closes ${hourLabel((r.closeTs - MIDNIGHT) / 3600e3)} ·</span><span class="${r.dSide.toLowerCase()}">${esc(lastName(r.dName))} ${pcPair(r.pm)[0]}</span><span class="r">${esc(lastName(r.rName))} ${pcPair(r.pm)[1]}</span><span class="m">Polymarket</span>`);
     else if (r.poll) out.push(`<em>${esc(r.short)}</em> <span class="m">final polls</span><span class="${r.poll.m >= 0 ? r.dSide.toLowerCase() : 'r'}">${sideMargin(r.poll.m, r)}</span>`);
   }
   const h = counts('H');
