@@ -1,0 +1,1 @@
+{"name": "pixabay-234516", "frames": 1064, "fps": 29.97, "seconds": 35.5, "static": 0.559, "drift": 0.0092, "median": 0.1157, "step": 0.088, "loop": {"a": 184, "b": 982, "seconds": 26.6, "cost": 0.0277, "vs_step": 0.31, "vs_median": 0.239}, "splices_great": 920640, "splices_ok": 3340}

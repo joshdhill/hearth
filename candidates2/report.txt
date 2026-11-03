@@ -1,4 +1,40 @@
-== pixabay-334256  file://dl/pixabay-334256.mp4
-stream|codec_name=h264|width=3840|height=2160|pix_fmt=yuv420p|color_transfer=bt709|color_primaries=bt709|r_frame_rate=30/1|bit_rate=15890437
-format|duration=50.633333|size=100586985
-{"name": "pixabay-334256", "frames": 1519, "fps": 30.0, "seconds": 50.6, "static": 0.539, "drift": 0.0189, "median": 0.1249, "step": 0.0223, "loop": {"a": 0, "b": 915, "seconds": 30.5, "cost": 0.1316, "vs_step": 5.89, "vs_median": 1.054}, "splices_great": 72626, "splices_ok": 98570}
+== pixabay-123069  file://dl/pixabay-123069.mp4
+stream|codec_name=h264|width=3840|height=2160|pix_fmt=yuv420p|color_transfer=bt709|color_primaries=bt709|r_frame_rate=30000/1001|bit_rate=15802395
+format|duration=59.192467|size=116946421
+{"name": "pixabay-123069", "frames": 1774, "fps": 29.97, "seconds": 59.2, "static": 0.78, "drift": 0.0014, "median": 0.0881, "step": 0.0694, "loop": {"a": 128, "b": 1514, "seconds": 46.2, "cost": 0.0781, "vs_step": 1.13, "vs_median": 0.886}, "splices_great": 2787230, "splices_ok": 0}
+== pixabay-15178  file://dl/pixabay-15178.mp4
+stream|codec_name=h264|width=3840|height=2160|pix_fmt=yuv420p|color_transfer=bt709|color_primaries=bt709|r_frame_rate=25/1|bit_rate=18099370
+format|duration=64.320000|size=147605798
+{"name": "pixabay-15178", "frames": 1608, "fps": 25.0, "seconds": 64.3, "static": 0.451, "drift": 0.0009, "median": 0.1708, "step": 0.1202, "loop": {"a": 40, "b": 1555, "seconds": 60.6, "cost": 0.1245, "vs_step": 1.04, "vs_median": 0.729}, "splices_great": 2311920, "splices_ok": 0}
+== pixabay-234515  file://dl/pixabay-234515.mp4
+stream|codec_name=h264|width=3840|height=2160|pix_fmt=yuv420p|color_transfer=unknown|color_primaries=unknown|r_frame_rate=30000/1001|bit_rate=39683748
+format|duration=36.369667|size=180420702
+{"name": "pixabay-234515", "frames": 1090, "fps": 29.97, "seconds": 36.4, "static": 0.766, "drift": 0.0071, "median": 0.0658, "step": 0.0438, "loop": {"a": 38, "b": 973, "seconds": 31.2, "cost": 0.003, "vs_step": 0.07, "vs_median": 0.046}, "splices_great": 971210, "splices_ok": 9414}
+== pixabay-234516  file://dl/pixabay-234516.mp4
+stream|codec_name=h264|width=3840|height=2160|pix_fmt=yuv420p|color_transfer=unknown|color_primaries=unknown|r_frame_rate=30000/1001|bit_rate=33412757
+format|duration=35.502133|size=148287927
+{"name": "pixabay-234516", "frames": 1064, "fps": 29.97, "seconds": 35.5, "static": 0.559, "drift": 0.0092, "median": 0.1157, "step": 0.088, "loop": {"a": 184, "b": 982, "seconds": 26.6, "cost": 0.0277, "vs_step": 0.31, "vs_median": 0.239}, "splices_great": 920640, "splices_ok": 3340}
+== pixabay-236567  file://dl/pixabay-236567.mp4
+stream|codec_name=h264|width=3840|height=2160|pix_fmt=yuv420p|color_transfer=unknown|color_primaries=unknown|r_frame_rate=25/1|bit_rate=30495329
+format|duration=38.560000|size=146996484
+{"name": "pixabay-236567", "frames": 964, "fps": 25.0, "seconds": 38.6, "static": 0.389, "drift": 0.0092, "median": 0.1848, "step": 0.1544, "loop": {"a": 219, "b": 942, "seconds": 28.9, "cost": 0.0037, "vs_step": 0.02, "vs_median": 0.02}, "splices_great": 768252, "splices_ok": 2820}
+== pixabay-239514  file://dl/pixabay-239514.mp4
+stream|codec_name=h264|width=3840|height=2160|pix_fmt=yuv420p|color_transfer=unknown|color_primaries=unknown|r_frame_rate=30000/1001|bit_rate=50736606
+format|duration=34.200833|size=216913871
+{"name": "pixabay-239514", "frames": 1025, "fps": 29.97, "seconds": 34.2, "static": 0.341, "drift": 0.0089, "median": 0.1445, "step": 0.0846, "loop": {"a": 6, "b": 860, "seconds": 28.5, "cost": 0.0091, "vs_step": 0.11, "vs_median": 0.063}, "splices_great": 847320, "splices_ok": 9520}
+== pixabay-262032  file://dl/pixabay-262032.mp4
+stream|codec_name=h264|width=3840|height=2160|pix_fmt=yuv420p|color_transfer=unknown|color_primaries=unknown|r_frame_rate=30000/1001|bit_rate=38870023
+format|duration=22.422400|size=108951447
+{"name": "pixabay-262032", "frames": 672, "fps": 29.97, "seconds": 22.4, "static": 0.487, "drift": 0.0079, "median": 0.1309, "step": 0.0857, "loop": {"a": 141, "b": 645, "seconds": 16.8, "cost": 0.0372, "vs_step": 0.43, "vs_median": 0.284}, "splices_great": 322056, "splices_ok": 2792}
+== pixabay-262228  file://dl/pixabay-262228.mp4
+stream|codec_name=h264|width=3840|height=2160|pix_fmt=yuv420p|color_transfer=unknown|color_primaries=unknown|r_frame_rate=25/1|bit_rate=32710738
+format|duration=36.160000|size=147861052
+{"name": "pixabay-262228", "frames": 904, "fps": 25.0, "seconds": 36.2, "static": 0.434, "drift": 0.0033, "median": 0.2049, "step": 0.1822, "loop": {"a": 46, "b": 611, "seconds": 22.6, "cost": 0.0039, "vs_step": 0.02, "vs_median": 0.019}, "splices_great": 666672, "splices_ok": 6160}
+== pixabay-275774  file://dl/pixabay-275774.mp4
+stream|codec_name=h264|width=2560|height=1440|pix_fmt=yuv420p|color_transfer=bt709|color_primaries=bt709|r_frame_rate=30000/1001|bit_rate=1950068
+format|duration=30.030000|size=7328557
+{"name": "pixabay-275774", "frames": 900, "fps": 29.97, "seconds": 30.0, "static": 0.997, "drift": 0.0011, "median": 0.0053, "step": 0.0021, "loop": {"a": 242, "b": 834, "seconds": 19.8, "cost": 0.0027, "vs_step": 1.29, "vs_median": 0.506}, "splices_great": 592965, "splices_ok": 844}
+== pixabay-306771  file://dl/pixabay-306771.mp4
+stream|codec_name=h264|width=3840|height=2160|pix_fmt=yuv420p|color_transfer=unknown|color_primaries=unknown|r_frame_rate=60/1|bit_rate=41417423
+format|duration=36.300000|size=187950826
+{"name": "pixabay-306771", "frames": 2178, "fps": 60.0, "seconds": 36.3, "static": 0.508, "drift": 0.017, "median": 0.1471, "step": 0.0626, "loop": {"a": 483, "b": 1935, "seconds": 24.2, "cost": 0.0028, "vs_step": 0.04, "vs_median": 0.019}, "splices_great": 3871056, "splices_ok": 13096}
