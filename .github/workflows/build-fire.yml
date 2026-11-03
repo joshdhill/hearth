@@ -16,7 +16,7 @@ jobs:
         fire: [ 'a', 'b' ]
     steps:
       - uses: actions/checkout@v4
-      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg >/dev/null && pip install -q opencv-python-headless numpy
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg >/dev/null && pip install -q opencv-python-headless numpy playwright && python -m playwright install --with-deps chromium >/dev/null
       - name: Pick this job's clip
         id: pick
         run: |
@@ -28,8 +28,11 @@ jobs:
       - name: Download
         run: |
           mkdir -p dl
-          curl -sL --max-time 600 -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36" \
-            -e https://pixabay.com/ -o dl/src.mp4 "${{ steps.pick.outputs.url }}"
+          url="${{ steps.pick.outputs.url }}"
+          case "$url" in
+            *pixabay.com/videos/*) python3 tools/fire/resolve_pixabay.py dl "$url"; mv dl/pixabay-*.mp4 dl/src.mp4 ;;
+            *) curl -sL --max-time 600 -o dl/src.mp4 "$url" ;;
+          esac
           ffprobe -v error -show_entries stream=codec_name,width,height,r_frame_rate,pix_fmt:format=duration -of compact dl/src.mp4
       - name: Build the long loop
         run: python3 tools/fire/build_long.py dl/src.mp4 "${{ steps.pick.outputs.name }}" "${{ steps.pick.outputs.tv }}" "${{ steps.pick.outputs.web }}" out

@@ -1,1 +1,3 @@
-# name  url  tv_seconds  web_seconds   (first line builds as job a, second as job b)
+# name  source  tv_seconds  web_seconds   (first line builds as job a, second as job b)
+roaring https://pixabay.com/videos/roaring-fireplace-fireplace-334256/ 360 150
+stove https://pixabay.com/videos/fireplace-wood-burner-log-fire-261768/ 300 120
