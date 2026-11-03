@@ -3,27 +3,16 @@
 set -u
 OUT=cand; mkdir -p "$OUT" dl
 UA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
-python3 tools/fire/resolve_pixabay.py $PIXABAY > "$OUT/pixabay.jsonl" 2> "$OUT/pixabay.err" || true
+python3 tools/fire/resolve_pixabay.py dl $PIXABAY > "$OUT/pixabay.jsonl" 2> "$OUT/pixabay.err" || true
 cat "$OUT/pixabay.jsonl"
-{
-  for p in $PEXELS; do echo "pexels-${p%%|*} ${p#*|}"; done
-  python3 - "$OUT/pixabay.jsonl" <<'PY'
-import json, re, sys
-for line in open(sys.argv[1]):
-    d = json.loads(line)
-    m = re.search(r'-(\d+)/?$', d['page'].rstrip('/'))
-    if not m: continue
-    vid = m.group(1)
-    mine = [u for u in d.get('large', []) if re.search(rf'/{vid}[-_]', u)]
-    if mine: print(f"pixabay-{vid} {mine[0]}")
-    else: print(f"# pixabay-{vid} not found ({d.get('title','')})")
-PY
-} > "$OUT/list.txt"
+: > "$OUT/list.txt"
+for p in $PEXELS; do [ "${p%%|*}" = 0 ] && continue; echo "pexels-${p%%|*} ${p#*|}" >> "$OUT/list.txt"; done
+for f in dl/pixabay-*.mp4; do [ -f "$f" ] && echo "$(basename "$f" .mp4) file://$f" >> "$OUT/list.txt"; done
 cat "$OUT/list.txt"
 grep -v "^#" "$OUT/list.txt" > "$OUT/todo.txt"
 while read -r name url; do
   f="dl/$name.mp4"
-  curl -sL --max-time 300 -A "$UA" -e "https://pixabay.com/" -o "$f" "$url"
+  case "$url" in file://*) ;; *) curl -sL --max-time 300 -A "$UA" -o "$f" "$url";; esac
   if ! ffprobe -v error "$f" >/dev/null 2>&1; then echo "$name download failed ($(stat -c %s "$f" 2>/dev/null) bytes)" | tee -a "$OUT/report.txt"; continue; fi
   {
     echo "== $name  $url"

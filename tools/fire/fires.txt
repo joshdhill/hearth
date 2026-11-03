@@ -1,0 +1,1 @@
+# name  url  tv_seconds  web_seconds   (first line builds as job a, second as job b)

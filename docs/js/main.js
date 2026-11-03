@@ -87,13 +87,29 @@ class App {
       return;
     }
     const v = this.videoEl;
-    if (!f) { v.pause(); v.removeAttribute('src'); v.load(); v.style.backgroundImage = ''; return; }
+    if (this.hls) { this.hls.destroy(); this.hls = null; }
+    if (!f) { v.pause(); v.removeAttribute('src'); v.load(); v.style.backgroundImage = ''; v.dataset.src = ''; return; }
     v.style.backgroundImage = `url("${f.poster}")`;
     // start muted so phones allow it to play on its own; the first tap turns sound on
-    v.muted = !this.touched; v.loop = true; v.autoplay = true; v.playsInline = true;
-    v.setAttribute('playsinline', ''); v.setAttribute('webkit-playsinline', '');
-    if (v.dataset.src !== f.web) { v.dataset.src = f.web; v.src = f.web; v.load(); }
-    v.play().catch(() => { v.muted = true; v.play().catch(() => this.toast('Tap to start the fire', 5000)); });
+    v.muted = !this.touched; v.defaultMuted = true; v.loop = true; v.autoplay = true; v.playsInline = true;
+    v.setAttribute('muted', ''); v.setAttribute('playsinline', ''); v.setAttribute('webkit-playsinline', '');
+    const go = () => v.play().catch(() => { v.muted = true; v.play().catch(() => this.toast('Tap to start the fire', 5000)); });
+    const src = f.hls || f.web;
+    if (v.dataset.src === src && !v.paused) return;
+    v.dataset.src = src;
+    if (!f.hls || v.canPlayType('application/vnd.apple.mpegurl')) {
+      // Safari and iPhones stream HLS themselves
+      v.src = src; v.load(); go();
+      return;
+    }
+    loadHls().then(Hls => {
+      if (v.dataset.src !== src) return;
+      if (!Hls || !Hls.isSupported()) { v.src = f.web || src; v.load(); go(); return; }
+      const h = this.hls = new Hls({ maxBufferLength: 30, capLevelToPlayerSize: true });
+      h.loadSource(src); h.attachMedia(v);
+      h.on(Hls.Events.MANIFEST_PARSED, go);
+      h.on(Hls.Events.ERROR, (_e, d) => { if (d.fatal && f.web) { h.destroy(); this.hls = null; v.src = f.web; v.load(); go(); } });
+    });
   }
 
   // any tap or key press: allowed to make sound now, and restart anything the phone held back
@@ -224,6 +240,17 @@ const music = {
 };
 const nameOf = uri => (PRESETS.find(p => p.uri === uri) || {}).name || store.get('names', {})[uri] || 'Playlist';
 const sleep = ms => new Promise(r => setTimeout(r, ms));
+let hlsLoading = null;
+function loadHls() {
+  if (window.Hls) return Promise.resolve(window.Hls);
+  if (!hlsLoading) hlsLoading = new Promise(res => {
+    const sc = document.createElement('script');
+    sc.src = 'https://cdn.jsdelivr.net/npm/hls.js@1.6.6/dist/hls.min.js';
+    sc.onload = () => res(window.Hls); sc.onerror = () => res(null);
+    document.head.appendChild(sc);
+  });
+  return hlsLoading;
+}
 
 // Now-playing card
 const np = {
