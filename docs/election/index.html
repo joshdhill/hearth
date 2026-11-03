@@ -1,0 +1,1463 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Midterms Desk 2026</title>
+<meta name="description" content="Full-screen election-night monitor for the November 3, 2026 midterms: live results and race calls, Polymarket and Kalshi odds, final polls, poll closings.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500..900&display=swap">
+<style>
+/* Layout: a fixed 1920x1080 broadcast stage, scaled to fit the screen (TV / cast tab).
+   On phones and narrow windows it unfolds into one scrolling column. Deliberately dark-only. */
+:root{
+  --ink:#060a12;        /* page */
+  --deck:#0a101c;       /* panel base */
+  --deck2:#0f1727;      /* panel top */
+  --well:#141d30;       /* inset wells, open seats */
+  --rule:#1c263a;
+  --rule2:#2b3753;
+  --text:#e7ebf3;
+  --dim:#8f99ae;
+  --faint:#58637c;
+  --cream:#f2e6c9;      /* ballot-paper accent */
+  --cream-ink:#17130b;
+  --dem:#3b87ff; --dem-hi:#86b4ff; --dem-lo:#173464; --dem-wash:rgba(59,135,255,.22);
+  --rep:#ff4458; --rep-hi:#ff8a97; --rep-lo:#5f1922; --rep-wash:rgba(255,68,88,.22);
+  --ind:#efb440; --ind-hi:#f7d17f; --ind-lo:#5b4416; --ind-wash:rgba(239,180,64,.22);
+  --ok:#55d28a; --warn:#efb440; --bad:#ff6b6b;
+  --f-display:"Big Shoulders Display","Big Shoulders","Bahnschrift Condensed","Bahnschrift","Arial Narrow","DejaVu Sans Condensed",sans-serif;
+  --f-ui:"Archivo","Bahnschrift","Segoe UI","DejaVu Sans Condensed",Roboto,Helvetica,Arial,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;height:100%;background:var(--ink);color:var(--text);font-family:var(--f-ui);-webkit-font-smoothing:antialiased}
+body{font-size:16px;line-height:1.3}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--cream);outline-offset:2px}
+.num,time,.tab{font-variant-numeric:tabular-nums}
+body.idle,body.idle *{cursor:none!important}
+
+/* ---------- stage ---------- */
+#stage{position:relative}
+body.tv{overflow:hidden}
+body.tv #stage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;
+  display:grid;grid-template-columns:1372px 460px;column-gap:24px;
+  grid-template-rows:96px 300px 572px 64px;row-gap:16px;padding:0 32px;
+  grid-template-areas:"hdr hdr" "cards feed" "lower feed" "tick tick"}
+body.compact #stage{display:flex;flex-direction:column;gap:14px;
+  padding-block:10px 28px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+.card{background:linear-gradient(180deg,var(--deck2),var(--deck) 70%);border:1px solid var(--rule);border-radius:6px;position:relative;min-width:0}
+.card-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+h2{margin:0;font-family:var(--f-display);font-weight:800;text-transform:uppercase;letter-spacing:.02em;color:var(--cream);font-size:32px;line-height:1}
+.over{font-stretch:75%;text-transform:uppercase;letter-spacing:.09em;font-size:13px;color:var(--dim);font-weight:600}
+
+/* ---------- header ---------- */
+#hdr{grid-area:hdr;margin:0 -32px;padding:0 32px;display:flex;align-items:center;gap:28px;
+  background:linear-gradient(180deg,#0c1323,#080d17);border-bottom:1px solid var(--rule)}
+.brand{display:flex;flex-direction:column;gap:6px;min-width:0}
+.wordmark{font-family:var(--f-display);font-weight:900;font-size:46px;line-height:.9;letter-spacing:.015em;color:var(--cream);text-transform:uppercase;white-space:nowrap}
+.wordmark span{color:transparent;-webkit-text-stroke:1.5px var(--cream);margin-left:.18em}
+.brand .sub{font-stretch:80%;font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);white-space:nowrap;display:flex;align-items:center;gap:8px}
+.livedot{width:10px;height:10px;border-radius:50%;background:var(--cream);box-shadow:0 0 0 0 rgba(242,230,201,.6);animation:pulse 2s infinite}
+body.pre .livedot{background:var(--faint);animation:none}
+#liveLabel{color:var(--cream);font-weight:800}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(242,230,201,.55)}70%{box-shadow:0 0 0 10px rgba(242,230,201,0)}100%{box-shadow:0 0 0 0 rgba(242,230,201,0)}}
+
+.next{flex:1;min-width:0;display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;column-gap:18px;row-gap:4px;align-items:baseline;padding-left:26px;border-left:1px solid var(--rule)}
+.next .over{grid-column:1/3}
+.next .t{font-family:var(--f-display);font-weight:800;font-size:40px;line-height:.95;color:var(--cream);white-space:nowrap}
+.next .t small{font-size:.5em;letter-spacing:.06em;margin-left:4px}
+.next .rest{display:flex;flex-direction:column;gap:3px;min-width:0}
+.next .cd{font-weight:700;font-size:20px;font-stretch:85%;white-space:nowrap}
+.next .sts{font-size:14px;color:var(--dim);font-stretch:85%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.next .sts b{color:var(--text);font-weight:700}
+
+#srcs{display:flex;flex-direction:column;gap:5px;font-size:12px;font-stretch:80%;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);min-width:150px}
+.src{display:flex;align-items:center;gap:7px;white-space:nowrap}
+.src i{width:8px;height:8px;border-radius:50%;background:var(--faint);flex:none}
+.src.ok i{background:var(--ok)} .src.stale i{background:var(--warn)} .src.err i{background:var(--bad)}
+.src b{color:var(--text);font-weight:700}
+.src button{background:none;border:0;padding:0;color:var(--cream);text-decoration:underline;text-underline-offset:2px;font-size:inherit;letter-spacing:inherit;text-transform:inherit;cursor:pointer}
+
+.clockbox{text-align:right;white-space:nowrap}
+.clock{font-family:var(--f-display);font-weight:800;font-size:58px;line-height:.9;color:var(--text)}
+.clock small{font-size:.42em;letter-spacing:.05em;color:var(--cream);margin-left:6px}
+.clockbox .date{font-size:13px;font-stretch:80%;letter-spacing:.09em;text-transform:uppercase;color:var(--dim);margin-top:4px}
+.tools{display:flex;flex-direction:column;gap:8px}
+.tools button{width:38px;height:38px;border-radius:6px;border:1px solid var(--rule2);background:var(--deck2);display:grid;place-items:center;cursor:pointer}
+.tools button:hover{border-color:var(--cream)}
+.tools svg{width:18px;height:18px;stroke:var(--text);fill:none;stroke-width:2}
+
+/* ---------- chamber cards ---------- */
+#cards{grid-area:cards;display:grid;grid-template-columns:560px 560px 220px;gap:16px;min-width:0}
+.chamber{padding:14px 20px 12px;display:flex;flex-direction:column;gap:6px}
+.chamber .card-h .over{font-size:12px}
+.tally{display:grid;grid-template-columns:1fr auto 1fr;align-items:end;gap:10px}
+.tally .side{display:flex;flex-direction:column;gap:1px;min-width:0}
+.tally .side.r{align-items:flex-end;text-align:right}
+.tally .n{font-family:var(--f-display);font-weight:900;font-size:84px;line-height:.8;font-variant-numeric:tabular-nums;transition:color .4s}
+.tally .d .n{color:var(--dem-hi)} .tally .r .n{color:var(--rep-hi)}
+.tally .lab{font-size:13px;font-stretch:80%;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);font-weight:600}
+.tally .won{font-size:14px;font-weight:700;font-stretch:85%;color:var(--text)}
+.tally .mid{text-align:center;padding-bottom:6px;min-width:0}
+.tally .mid .big{font-family:var(--f-display);font-weight:800;font-size:30px;color:var(--cream);line-height:1}
+.tally .mid .small{font-size:12px;font-stretch:80%;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+.tally .mid .ctl{display:inline-block;margin-top:4px;padding:3px 8px;border-radius:3px;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.ctl.p-D{background:var(--dem);color:#fff} .ctl.p-R{background:var(--rep);color:#fff}
+
+.seatbar{position:relative;height:22px;margin-top:12px;border-radius:3px;background:var(--well);display:flex;overflow:visible}
+.seatbar>i{display:block;height:100%;transition:width .9s cubic-bezier(.2,.8,.2,1);flex:none}
+.seatbar .hd{background:repeating-linear-gradient(135deg,var(--dem-lo) 0 6px,#1a3b70 6px 12px)}
+.seatbar .wd{background:var(--dem)}
+.seatbar .ld{background:var(--dem-wash);box-shadow:inset 0 0 0 1px rgba(59,135,255,.45)}
+.seatbar .wi{background:var(--ind)}
+.seatbar .op{flex:1;background:repeating-linear-gradient(90deg,transparent 0 3px,rgba(255,255,255,.035) 3px 4px)}
+.seatbar .lr{background:var(--rep-wash);box-shadow:inset 0 0 0 1px rgba(255,68,88,.45)}
+.seatbar .wr{background:var(--rep)}
+.seatbar .hr{background:repeating-linear-gradient(135deg,var(--rep-lo) 0 6px,#6d1f2a 6px 12px)}
+.seatbar>i:first-child{border-radius:3px 0 0 3px}
+.seatbar>i:last-of-type{border-radius:0 3px 3px 0}
+.seatbar .mk{position:absolute;top:-6px;bottom:-6px;width:2px;background:var(--cream);transform:translateX(-1px)}
+.seatbar .mk b{display:none}
+.cmeta{display:flex;justify-content:space-between;gap:10px;font-size:13px;font-stretch:85%;color:var(--dim);margin-top:2px}
+.cmeta b{color:var(--text)}
+.odds{margin-top:auto;display:grid;grid-template-columns:auto 1.45fr 1fr;gap:10px 16px;align-items:center;border-top:1px solid var(--rule);padding-top:10px}
+.odds .over{font-size:11px}
+.mkt{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center;min-width:0}
+.mkt .nm{font-size:11px;font-stretch:80%;letter-spacing:.09em;text-transform:uppercase;color:var(--dim);font-weight:700}
+.mkt .split{grid-column:1;display:flex;height:8px;border-radius:2px;overflow:hidden;background:var(--well)}
+.mkt .split i{display:block;height:100%;transition:width .8s}
+.mkt .split .a{background:var(--dem)} .mkt .split .b{background:var(--rep);margin-left:auto}
+.mkt .vals{grid-column:1;display:flex;justify-content:space-between;gap:8px;font-weight:800;font-size:17px;font-stretch:85%;white-space:nowrap}
+.mkt .vals .a{color:var(--dem-hi)} .mkt .vals .b{color:var(--rep-hi)}
+.mkt svg{grid-column:2;grid-row:2/4;width:84px;height:30px;overflow:visible}
+.mkt .off{grid-column:1/3;font-size:13px;color:var(--faint);font-stretch:85%}
+.mkt .off button{background:none;border:0;padding:0;color:var(--cream);cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.pv{font-size:13px;font-stretch:85%;color:var(--dim)}
+.pv b{color:var(--text)}
+
+#gov h2{font-size:28px;white-space:nowrap}
+#gov{padding:16px 16px 14px;display:flex;flex-direction:column;gap:6px}
+#gov .gt{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:4px}
+#gov .gt div{display:flex;flex-direction:column}
+#gov .gt .n{font-family:var(--f-display);font-weight:900;font-size:58px;line-height:.85;font-variant-numeric:tabular-nums}
+#gov .gt .d .n{color:var(--dem-hi)} #gov .gt .r{align-items:flex-end} #gov .gt .r .n{color:var(--rep-hi)}
+#gov .gt small{font-size:12px;font-stretch:80%;letter-spacing:.06em;text-transform:uppercase;color:var(--dim)}
+#gov .seatbar{height:16px;margin-top:16px}
+#gov .gl{font-size:13px;font-stretch:85%;color:var(--dim);display:flex;flex-direction:column;gap:3px;margin-top:6px}
+#gov .gl b{color:var(--text)}
+
+/* ---------- lower: map + board ---------- */
+#lower{grid-area:lower;display:grid;grid-template-columns:560px 796px;gap:16px;min-width:0}
+#mapcard{padding:14px 12px 12px;display:flex;flex-direction:column;gap:10px}
+.tabs{display:flex;align-items:center;gap:6px;position:relative;padding:0 6px}
+.tabs button{background:none;border:1px solid transparent;border-radius:4px;padding:6px 12px 5px;cursor:pointer;font-family:var(--f-display);font-weight:800;font-size:22px;letter-spacing:.03em;text-transform:uppercase;color:var(--faint)}
+.tabs button[aria-pressed="true"]{color:var(--cream);border-color:var(--rule2);background:var(--well)}
+.tabs .rot{margin-left:auto;font-size:11px;font-stretch:80%;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);display:flex;align-items:center;gap:8px}
+.tabs .rot i{display:block;width:70px;height:3px;background:var(--rule);border-radius:2px;overflow:hidden;position:relative}
+.tabs .rot i::after{content:"";position:absolute;inset:0;width:var(--p,0%);background:var(--cream);transition:width .25s linear}
+.mapbody{position:relative;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:0}
+.mapsum{align-self:stretch;display:flex;justify-content:space-between;gap:10px;padding:0 10px;font-size:14px;font-stretch:85%;color:var(--dim)}
+.mapsum b{color:var(--text);font-weight:800}
+.tiles{display:grid;grid-template-columns:repeat(11,44px);grid-auto-rows:44px;gap:4px;margin-top:6px}
+.tile{position:relative;border-radius:4px;background:var(--well);border:1px solid var(--rule);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;overflow:hidden;transition:background-color .6s,border-color .6s}
+.tile b{font-size:14px;font-weight:800;font-stretch:90%;letter-spacing:.02em;line-height:1}
+.tile i{font-style:normal;font-size:9px;font-weight:700;font-stretch:80%;letter-spacing:.04em;color:var(--dim);line-height:1;white-space:nowrap}
+.tile u{position:absolute;left:0;right:0;bottom:0;height:4px;text-decoration:none;display:flex}
+.tile u s{display:block;height:100%;text-decoration:none}
+.tile.off{background:transparent;border-color:rgba(28,38,58,.55)}
+.tile.off b{color:#2a3448} .tile.off i{display:none}
+.tile.closed{border-color:var(--cream)} .tile.closed i{color:var(--cream)}
+.tile.flash{animation:flash 1.4s ease-out 2}
+@keyframes flash{0%{box-shadow:0 0 0 0 rgba(242,230,201,.9)}100%{box-shadow:0 0 0 12px rgba(242,230,201,0)}}
+.tile.lead.p-D{background:var(--dem-wash);border-color:var(--dem)} .tile.lead.p-R{background:var(--rep-wash);border-color:var(--rep)} .tile.lead.p-I{background:var(--ind-wash);border-color:var(--ind)}
+.tile.lead.s2.p-D{background:rgba(59,135,255,.38)} .tile.lead.s2.p-R{background:rgba(255,68,88,.38)} .tile.lead.s2.p-I{background:rgba(239,180,64,.38)}
+.tile.lead i{color:var(--text)}
+.tile.won.p-D{background:var(--dem);border-color:var(--dem)} .tile.won.p-R{background:var(--rep);border-color:var(--rep)} .tile.won.p-I{background:var(--ind);border-color:var(--ind)}
+.tile.won b,.tile.won i{color:#fff} .tile.won.p-I b,.tile.won.p-I i{color:var(--cream-ink)}
+.tile.won.flip::after{content:"";position:absolute;top:0;right:0;border-style:solid;border-width:0 14px 14px 0;border-color:transparent var(--cream) transparent transparent}
+.waffle{display:grid;grid-auto-flow:column;grid-template-rows:repeat(15,15px);grid-auto-columns:15px;gap:3px;position:relative;margin-top:22px}
+.waffle i{display:block;border-radius:2px;background:var(--well);transition:background-color .6s}
+.waffle i.wd{background:var(--dem)} .waffle i.ld{background:var(--dem-wash);box-shadow:inset 0 0 0 1px rgba(59,135,255,.5)}
+.waffle i.wr{background:var(--rep)} .waffle i.lr{background:var(--rep-wash);box-shadow:inset 0 0 0 1px rgba(255,68,88,.5)}
+.waffle i.wi{background:var(--ind)} .waffle i.li{background:var(--ind-wash)}
+.waffle .mk{position:absolute;top:-16px;bottom:-4px;width:2px;background:var(--cream)}
+.waffle .mk b{position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:800;color:var(--cream)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;justify-content:center;font-size:12px;font-stretch:80%;letter-spacing:.05em;text-transform:uppercase;color:var(--dim)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:12px;height:12px;border-radius:2px;display:inline-block}
+.lg-wd{background:var(--dem)} .lg-wr{background:var(--rep)} .lg-ld{background:var(--dem-wash);box-shadow:inset 0 0 0 1px var(--dem)} .lg-lr{background:var(--rep-wash);box-shadow:inset 0 0 0 1px var(--rep)}
+.lg-cl{background:var(--well);box-shadow:inset 0 0 0 1px var(--cream)} .lg-op{background:var(--well);box-shadow:inset 0 0 0 1px var(--rule2)} .lg-mk{background:linear-gradient(90deg,var(--dem) 50%,var(--rep) 50%);height:4px!important;margin-top:8px}
+
+#board{padding:14px 18px 10px;display:flex;flex-direction:column;gap:8px}
+#board .card-h h2{font-size:30px}
+.pager{display:flex;gap:5px;align-items:center}
+.pager i{width:18px;height:4px;border-radius:2px;background:var(--rule2)}
+.pager i.on{background:var(--cream)}
+.bcols{display:grid;grid-template-columns:56px 186px minmax(0,1fr) 186px 150px;gap:12px;font-size:11px;font-stretch:80%;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);padding:0 4px;border-bottom:1px solid var(--rule);padding-bottom:6px}
+.bcols span:nth-child(4){text-align:right}
+#rows{display:flex;flex-direction:column;gap:0;flex:1;min-height:0}
+.row{display:grid;grid-template-columns:56px 186px minmax(0,1fr) 186px 150px;grid-template-rows:32px 15px;grid-template-areas:"tag l bar r st" "tag sub sub sub st";column-gap:12px;row-gap:3px;align-content:center;align-items:center;height:58px;padding:0 4px;border-bottom:1px solid rgba(28,38,58,.6);animation:rowin .45s ease-out both}
+.row .tag{grid-area:tag} .row .cand.l{grid-area:l} .row .vwrap{grid-area:bar} .row .cand.r{grid-area:r} .row .st{grid-area:st}
+.row .sub{grid-area:sub;font-size:12px;font-stretch:82%;letter-spacing:.02em;color:var(--dim);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.row .sub b{color:var(--text);font-weight:700}
+@keyframes rowin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.row .tag{display:flex;flex-direction:column;align-items:center;justify-content:center;height:44px;border-radius:4px;background:var(--well);border:1px solid var(--rule)}
+.row .tag b{font-family:var(--f-display);font-weight:900;font-size:24px;line-height:.95}
+.row .tag span{font-size:10px;font-weight:800;letter-spacing:.1em;color:var(--dim)}
+.row.won .tag{border-color:transparent}
+.row.won.p-D .tag{background:var(--dem)} .row.won.p-R .tag{background:var(--rep)} .row.won.p-I .tag{background:var(--ind);color:var(--cream-ink)}
+.row.won.p-I .tag span{color:var(--cream-ink)} .row.won.p-D .tag span,.row.won.p-R .tag span{color:rgba(255,255,255,.85)}
+.cand{display:flex;align-items:baseline;gap:8px;min-width:0}
+.cand.r{justify-content:flex-end;text-align:right}
+.cand .nm{font-weight:700;font-size:18px;font-stretch:85%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.cand .nm sup{font-size:11px;font-weight:800;margin-left:3px;vertical-align:4px}
+.cand .pc{font-family:var(--f-display);font-weight:800;font-size:28px;line-height:1;font-variant-numeric:tabular-nums;flex:none}
+.cand.p-D .pc,.cand.p-D sup{color:var(--dem-hi)} .cand.p-R .pc,.cand.p-R sup{color:var(--rep-hi)} .cand.p-I .pc,.cand.p-I sup{color:var(--ind-hi)} .cand.p-O .pc,.cand.p-O sup{color:var(--dim)}
+.cand .ck{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--cream);color:var(--cream-ink);font-size:13px;font-weight:900;flex:none}
+.cand.lost .nm,.cand.lost .pc{opacity:.45}
+.vbar{position:relative;height:16px;border-radius:2px;background:var(--well);display:flex;overflow:hidden}
+.vbar i{display:block;height:100%;transition:width .9s cubic-bezier(.2,.8,.2,1)}
+.vbar i.b{margin-left:auto}
+.vbar .p-D{background:var(--dem)} .vbar .p-R{background:var(--rep)} .vbar .p-I{background:var(--ind)} .vbar .p-O{background:#56607a}
+.vbar em{position:absolute;left:50%;top:-3px;bottom:-3px;width:2px;background:rgba(242,230,201,.75)}
+.vbar.mkt{height:8px;opacity:.85}
+.vbar.mkt i{opacity:.55}
+.vcap{font-size:11px;font-stretch:80%;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);text-align:center;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vwrap{min-width:0}
+.st{display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:2px;min-width:0}
+.st .s1{font-weight:800;font-size:16px;font-stretch:85%;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.st .s2{font-size:12px;font-stretch:80%;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.st .flipchip{display:inline-block;margin-left:6px;padding:1px 5px;border-radius:2px;background:var(--cream);color:var(--cream-ink);font-size:10px;letter-spacing:.08em;vertical-align:2px}
+.st .closed{color:var(--cream)}
+.empty{flex:1;display:grid;place-items:center;color:var(--faint);font-size:15px;text-align:center;padding:20px}
+
+/* ---------- feed column ---------- */
+#feedcol{grid-area:feed;padding:16px 18px 12px;display:flex;flex-direction:column;gap:12px;min-height:0;overflow:hidden}
+.pulse{display:flex;flex-direction:column;gap:7px;padding-bottom:12px;border-bottom:1px solid var(--rule)}
+.bop{display:flex;height:22px;border-radius:3px;overflow:hidden;background:var(--well)}
+.bop i{display:block;height:100%;transition:width .8s;position:relative}
+.bop .DD{background:var(--dem)} .bop .DR{background:linear-gradient(90deg,var(--dem) 50%,var(--rep) 50%)} .bop .RD{background:linear-gradient(90deg,var(--rep) 50%,var(--dem) 50%)} .bop .RR{background:var(--rep)} .bop .OT{background:#56607a}
+.bopk{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;font-size:12px;font-stretch:80%;color:var(--dim);text-transform:uppercase;letter-spacing:.04em}
+.bopk b{display:block;font-family:var(--f-display);font-size:24px;font-weight:800;color:var(--text);letter-spacing:0;line-height:1}
+.pulse .gb{font-size:13px;font-stretch:85%;color:var(--dim)} .pulse .gb b{color:var(--text)}
+#feed{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;flex:1;min-height:0;overflow:hidden}
+.ev{border-left:4px solid var(--rule2);background:rgba(20,29,48,.55);border-radius:0 4px 4px 0;padding:8px 12px 9px;animation:evin .6s cubic-bezier(.2,.8,.2,1) both}
+@keyframes evin{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+.ev-h{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.ev .chip{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:2px 6px;border-radius:2px;background:var(--rule2);color:var(--text)}
+.ev time{font-size:12px;color:var(--dim)}
+.ev-t{font-weight:700;font-size:17px;font-stretch:88%;margin-top:4px;line-height:1.2}
+.ev-s{font-size:13px;color:var(--dim);margin-top:2px;font-stretch:90%}
+.ev.p-D{border-left-color:var(--dem)} .ev.p-R{border-left-color:var(--rep)} .ev.p-I{border-left-color:var(--ind)}
+.ev.k-call .chip,.ev.k-flip .chip{background:var(--cream);color:var(--cream-ink)}
+.ev.k-flip .chip{box-shadow:0 0 0 2px var(--cream) inset}
+.ev.k-polls{border-left-color:var(--cream)}
+.ev.k-market .chip{background:#2c2240;color:#d7c6ff}
+.ev.earlier{opacity:.72}
+.credits{font-size:11px;line-height:1.35;color:var(--faint);font-stretch:85%;border-top:1px solid var(--rule);padding-top:8px}
+.credits b{color:var(--dim);font-weight:600}
+
+/* ---------- ticker ---------- */
+#ticker{grid-area:tick;margin:0 -32px;display:flex;align-items:stretch;background:#0b1221;border-top:2px solid var(--cream);overflow:hidden;min-width:0}
+.tk-label{flex:none;display:flex;align-items:center;padding:0 22px;background:var(--cream);color:var(--cream-ink);font-family:var(--f-display);font-weight:900;font-size:28px;letter-spacing:.04em;text-transform:uppercase}
+.tk-track{position:relative;flex:1;overflow:hidden;min-width:0;display:flex;align-items:center}
+.tk-run{display:flex;white-space:nowrap;will-change:transform;animation:crawl var(--dur,90s) linear infinite}
+.tk-run span{display:inline-flex;align-items:center;gap:10px;padding:0 28px;font-size:22px;font-weight:700;font-stretch:85%;border-right:1px solid var(--rule2)}
+.tk-run span em{font-style:normal;color:var(--cream);font-weight:800;letter-spacing:.04em}
+.tk-run .d{color:var(--dem-hi)} .tk-run .r{color:var(--rep-hi)} .tk-run .i{color:var(--ind-hi)} .tk-run .m{color:var(--dim);font-weight:600}
+@keyframes crawl{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* ---------- call banner ---------- */
+#banner{position:absolute;left:32px;top:112px;width:1372px;height:300px;z-index:20;display:grid;grid-template-columns:22px 1fr;
+  background:var(--cream);color:var(--cream-ink);border-radius:6px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.6);
+  transform:translateY(-30px);opacity:0;pointer-events:none;transition:transform .5s cubic-bezier(.2,.8,.2,1),opacity .4s}
+#banner.on{transform:none;opacity:1}
+#banner .stripe{background:var(--dem)} #banner.p-R .stripe{background:var(--rep)} #banner.p-I .stripe{background:var(--ind)}
+#banner .bb{padding:26px 40px;display:flex;flex-direction:column;justify-content:center;gap:6px}
+#banner .k{font-size:17px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}
+#banner .rc{font-family:var(--f-display);font-weight:800;font-size:40px;text-transform:uppercase;letter-spacing:.02em}
+#banner .wn{font-family:var(--f-display);font-weight:900;font-size:104px;line-height:.86;text-transform:uppercase}
+#banner .ft{display:flex;gap:14px;align-items:center;font-size:20px;font-weight:700;font-stretch:88%}
+#banner .pp{padding:4px 10px;border-radius:3px;color:#fff;background:var(--dem);font-weight:800;letter-spacing:.06em;text-transform:uppercase;font-size:16px}
+#banner.p-R .pp{background:var(--rep)} #banner.p-I .pp{background:var(--ind);color:var(--cream-ink)}
+#banner .fl{padding:4px 10px;border-radius:3px;background:var(--cream-ink);color:var(--cream);font-weight:800;letter-spacing:.1em;font-size:16px}
+
+/* ---------- settings ---------- */
+dialog{border:1px solid var(--rule2);border-radius:8px;background:var(--deck);color:var(--text);padding:0;width:min(760px,calc(100vw - 32px));max-height:calc(100vh - 40px)}
+dialog::backdrop{background:rgba(3,6,12,.72)}
+.dlg{padding:22px 26px 24px;display:flex;flex-direction:column;gap:18px}
+.dlg h2{font-size:34px}
+.dlg h3{margin:0 0 6px;font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:var(--cream);font-stretch:85%}
+.dlg p,.dlg li{color:var(--dim);font-size:14px;line-height:1.5;margin:0}
+.dlg ol{margin:6px 0 0;padding-left:20px;display:flex;flex-direction:column;gap:4px}
+.dlg a{color:var(--cream)}
+.dlg .rowf{display:flex;gap:8px;flex-wrap:wrap}
+.dlg input[type=url]{flex:1;min-width:220px;background:var(--well);border:1px solid var(--rule2);border-radius:5px;padding:10px 12px;color:var(--text);font:inherit;font-size:14px}
+.btn{border:1px solid var(--rule2);background:var(--well);border-radius:5px;padding:9px 14px;cursor:pointer;font-weight:700;font-size:14px}
+.btn.pri{background:var(--cream);color:var(--cream-ink);border-color:var(--cream)}
+.btn:hover{border-color:var(--cream)}
+.dlg pre{margin:8px 0 0;max-height:190px;overflow:auto;background:#050810;border:1px solid var(--rule);border-radius:5px;padding:10px 12px;font-size:12px;line-height:1.45;color:#c9d3e6}
+.dlg label{display:flex;gap:10px;align-items:center;font-size:14px;color:var(--text);cursor:pointer}
+.dlg .note{font-size:13px;color:var(--dim)}
+.dlg .kbd{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:13px;color:var(--dim)}
+.dlg kbd{font:inherit;font-weight:800;color:var(--text);background:var(--well);border:1px solid var(--rule2);border-radius:3px;padding:0 6px}
+.dlg .close{position:absolute;top:14px;right:14px}
+
+#toast{position:fixed;left:50%;bottom:90px;transform:translate(-50%,20px);opacity:0;background:var(--deck2);border:1px solid var(--rule2);border-radius:6px;padding:10px 16px;font-size:14px;color:var(--text);transition:all .4s;pointer-events:none;z-index:40;white-space:nowrap}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+
+/* ---------- compact (phone / narrow) ---------- */
+body.compact h2{font-size:26px}
+body.compact #hdr{margin:0;padding:12px 14px;border:1px solid var(--rule);border-radius:6px;flex-wrap:wrap;gap:12px 16px}
+body.compact .wordmark{font-size:34px}
+body.compact .brand .sub{font-size:11px;white-space:normal}
+body.compact .next{order:3;flex-basis:100%;padding-left:0;border-left:0;border-top:1px solid var(--rule);padding-top:10px}
+body.compact .next .t{font-size:30px}
+body.compact .next .sts{white-space:normal}
+body.compact .clockbox{margin-left:auto}
+body.compact .clock{font-size:40px}
+body.compact #srcs{order:4;flex-direction:row;flex-wrap:wrap;gap:6px 14px;min-width:0}
+body.compact .tools{order:2;flex-direction:row}
+body.compact #cards,body.compact #lower{display:flex;flex-direction:column;gap:14px}
+body.compact .tally .n{font-size:68px}
+body.compact .odds{grid-template-columns:1fr;gap:10px}
+body.compact #gov .gt .n{font-size:52px}
+body.compact .tabs button{font-size:18px;padding:5px 9px}
+body.compact .tabs .rot{display:none}
+body.compact .tiles{grid-template-columns:repeat(11,minmax(0,1fr));grid-auto-rows:auto;gap:3px;width:100%}
+body.compact .tile{aspect-ratio:1;max-width:100%}
+body.compact .tile b{font-size:11px} body.compact .tile i{font-size:7px}
+body.compact .waffle{grid-template-rows:repeat(15,minmax(0,1fr));grid-auto-columns:minmax(0,1fr);width:100%;aspect-ratio:29/15;gap:2px}
+body.compact .bcols{display:none}
+body.compact .row{grid-template-columns:42px minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto;grid-template-areas:"tag l r" "bar bar bar" "sub sub sub" "st st st";height:auto;column-gap:8px;row-gap:6px;padding:10px 2px;animation:none}
+body.compact .row .tag{grid-area:tag;height:40px}
+body.compact .row .cand.l{grid-area:l} body.compact .row .cand.r{grid-area:r}
+body.compact .row .vwrap{grid-area:bar}
+body.compact .row .st{grid-area:st;flex-direction:row;justify-content:space-between;align-items:baseline;gap:10px}
+body.compact .cand .nm{font-size:15px} body.compact .cand .pc{font-size:22px}
+body.compact #board{padding:12px 12px 8px}
+body.compact .row .sub{text-align:left;white-space:normal}
+body.compact #feedcol{overflow:visible}
+body.compact #feed{overflow:visible}
+body.compact #ticker{margin:0;border-radius:6px;height:52px}
+body.compact .tk-label{font-size:20px;padding:0 12px}
+body.compact .tk-run span{font-size:16px;padding:0 16px}
+body.compact #banner{position:fixed;left:12px;right:12px;top:12px;width:auto;height:auto;grid-template-columns:12px 1fr}
+body.compact #banner .bb{padding:16px 18px}
+body.compact #banner .wn{font-size:52px} body.compact #banner .rc{font-size:24px} body.compact #banner .ft{font-size:15px;flex-wrap:wrap}
+
+@media (prefers-reduced-motion: reduce){
+  .tk-run{animation:none}
+  .livedot,.tile.flash,.row,.ev{animation:none}
+  .seatbar>i,.vbar i,.bop i,.mkt .split i{transition:none}
+}
+</style>
+</head>
+<body class="tv pre">
+<div id="stage">
+  <header id="hdr">
+    <div class="brand">
+      <div class="wordmark">Midterms<span>Desk</span></div>
+      <div class="sub"><i class="livedot" aria-hidden="true"></i><span id="liveLabel">Pre-results</span><span>· General election · Tue Nov 3, 2026</span></div>
+    </div>
+    <div class="next" id="next">
+      <div class="over" id="nextLbl">Next poll closing</div>
+      <div class="t" id="nextT">—</div>
+      <div class="rest"><div class="cd num" id="nextCd"></div><div class="sts" id="nextSts"></div></div>
+    </div>
+    <div id="srcs" aria-live="polite"></div>
+    <div class="clockbox"><div class="clock num" id="clock">--:--<small>ET</small></div><div class="date" id="clockDate">Tuesday · Nov 3</div></div>
+    <div class="tools">
+      <button id="btnFull" type="button" title="Full screen (F)" aria-label="Full screen"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+      <button id="btnSet" type="button" title="Settings (S)" aria-label="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
+    </div>
+  </header>
+
+  <div id="cards">
+    <section class="card chamber" id="sen" aria-label="Senate balance of power">
+      <div class="card-h"><h2>Senate</h2><span class="over">51 for control · VP breaks ties (R)</span></div>
+      <div class="tally">
+        <div class="side d"><div class="n" data-f="dn">34</div><div class="lab">Dem <small data-f="dlab">+ 2 Ind caucus</small></div><div class="won" data-f="dw">Holdovers only</div></div>
+        <div class="mid"><div class="big num" data-f="left">35</div><div class="small">races to call</div><div data-f="ctl"></div></div>
+        <div class="side r"><div class="n" data-f="rn">31</div><div class="lab">Rep</div><div class="won" data-f="rw">Holdovers only</div></div>
+      </div>
+      <div class="seatbar" data-f="bar"></div>
+      <div class="cmeta"><span data-f="meta1"></span><span data-f="meta2"></span></div>
+      <div class="odds" data-f="odds"></div>
+    </section>
+    <section class="card chamber" id="house" aria-label="House balance of power">
+      <div class="card-h"><h2>House</h2><span class="over">218 for control · 435 seats</span></div>
+      <div class="tally">
+        <div class="side d"><div class="n" data-f="dn">0</div><div class="lab">Dem</div><div class="won" data-f="dw"></div></div>
+        <div class="mid"><div class="big num" data-f="left">435</div><div class="small">races to call</div><div data-f="ctl"></div></div>
+        <div class="side r"><div class="n" data-f="rn">0</div><div class="lab">Rep</div><div class="won" data-f="rw"></div></div>
+      </div>
+      <div class="seatbar" data-f="bar"></div>
+      <div class="cmeta"><span data-f="meta1"></span><span data-f="meta2"></span></div>
+      <div class="odds" data-f="odds"></div>
+    </section>
+    <section class="card" id="gov" aria-label="Governors">
+      <div class="card-h"><h2>Governors</h2></div>
+      <div class="over">36 races · 26 = majority</div>
+      <div class="gt"><div class="d"><span class="n" data-f="dn">6</span><small>Dem</small></div><div class="r"><span class="n" data-f="rn">8</span><small>Rep</small></div></div>
+      <div class="seatbar" data-f="bar"></div>
+      <div class="gl" data-f="gl"></div>
+    </section>
+  </div>
+
+  <div id="lower">
+    <section class="card" id="mapcard" aria-label="Map">
+      <div class="tabs" role="group" aria-label="Map view">
+        <button type="button" data-mode="sen" aria-pressed="true">Senate</button>
+        <button type="button" data-mode="gov" aria-pressed="false">Governors</button>
+        <button type="button" data-mode="house" aria-pressed="false">House</button>
+        <div class="rot"><span id="rotLbl">Auto</span><i id="rotBar"></i></div>
+      </div>
+      <div class="mapsum" id="mapsum"></div>
+      <div class="mapbody">
+        <div class="tiles" id="tiles"></div>
+        <div class="waffle" id="waffle" hidden></div>
+      </div>
+      <div class="legend" id="legend"></div>
+    </section>
+    <section class="card" id="board" aria-label="Key races">
+      <div class="card-h"><h2 id="boardTitle">Key Senate races</h2><div class="pager" id="pager"></div></div>
+      <div class="bcols"><span>Race</span><span>Dem side</span><span style="text-align:center">Vote share</span><span>Rep side</span><span style="text-align:right">Status</span></div>
+      <div id="rows"></div>
+    </section>
+  </div>
+
+  <aside class="card" id="feedcol" aria-label="Decision desk">
+    <div class="pulse">
+      <div class="card-h"><span class="over">Balance of power · Polymarket</span><span class="over" id="bopAge"></span></div>
+      <div class="bop" id="bop"></div>
+      <div class="bopk" id="bopk"></div>
+      <div class="gb" id="gb"></div>
+    </div>
+    <div class="card-h"><h2>Decision desk</h2><span class="over">Newest first</span></div>
+    <ol id="feed" aria-live="polite"></ol>
+    <div class="credits"><b>Results &amp; race calls:</b> civicAPI (civicapi.org) decision desk, not AP. <b>Odds:</b> Polymarket, Kalshi. <b>Final polls:</b> Wikipedia contributors &amp; VoteHub via MIDTERMS2026 (CC BY-SA 4.0). <b>Closing times:</b> 270toWin.</div>
+  </aside>
+
+  <footer id="ticker"><div class="tk-label">Live</div><div class="tk-track"><div class="tk-run" id="tkRun"></div></div></footer>
+
+  <div id="banner" role="status" aria-live="assertive"><div class="stripe"></div><div class="bb"><div class="k" id="bnK">Projected winner · civicAPI decision desk</div><div class="rc" id="bnR"></div><div class="wn" id="bnN"></div><div class="ft" id="bnF"></div></div></div>
+</div>
+
+<dialog id="settings" aria-labelledby="setTitle">
+  <div class="dlg">
+    <div class="card-h"><h2 id="setTitle">Desk settings</h2><button class="btn" id="setClose" type="button">Close</button></div>
+    <section>
+      <h3>Display</h3>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <label><input type="checkbox" id="optRotate"> Rotate Senate → Governors → House automatically</label>
+        <label><input type="checkbox" id="optSound"> Chime when a key race is called</label>
+        <label><input type="checkbox" id="optHouseFeed"> List every House call in the feed (otherwise batched)</label>
+      </div>
+      <div class="rowf" style="margin-top:10px"><button class="btn" id="resetFeed" type="button">Clear the decision desk feed</button></div>
+    </section>
+    <section>
+      <h3>Keys</h3>
+      <div class="kbd"><kbd>F</kbd><span>Full screen</span><kbd>1 2 3</kbd><span>Pin Senate, Governors or House</span><kbd>0</kbd><span>Resume rotation</span><kbd>M</kbd><span>Chime on or off</span><kbd>S</kbd><span>This panel</span></div>
+    </section>
+    <section>
+      <h3>Where the numbers come from</h3>
+      <p>Results and race calls come from <a href="https://civicapi.org" target="_blank" rel="noopener">civicAPI</a>, which reads secretary-of-state feeds every few seconds and makes calls with its own decision desk. Its calls can come earlier or later than AP or network calls. Odds are live market prices, shown as each party's chance. Polymarket is read directly every 15 seconds. Kalshi doesn't let other websites read its prices, so a GitHub Action in the hearth repo copies them about once a minute and Kalshi can trail by a few minutes; the age next to its name says how fresh it is. Final polls are each pollster's latest survey from the last three weeks, averaged, from poll lists compiled on Wikipedia and VoteHub (snapshot Nov 3, 10 a.m. ET). Poll closing times come from 270toWin.</p>
+    </section>
+  </div>
+</dialog>
+<div id="toast" role="status"></div>
+
+<script>
+(() => {
+'use strict';
+const DATA = {"asOf":"2026-11-03T15:10Z","senate":[{"id":"senate:AL","st":"AL","sp":false,"name":"Alabama","inc":"Tommy Tuberville","held":"R","incRun":false,"d":"Everett Wess","dS":"D","r":"Barry Moore","rS":"R","lean":-29.63,"poll":{"d":36.7,"r":51.3,"m":-14.7,"n":3,"w":21,"last":"2026-10-24"},"close":[20,20]},{"id":"senate:AK","st":"AK","sp":false,"name":"Alaska","inc":"Dan S. Sullivan","held":"R","incRun":true,"d":"Mary Peltola","dS":"D","r":"Dan S. Sullivan","rS":"R","lean":-12.91,"poll":{"d":48.2,"r":46.1,"m":2.1,"n":7,"w":21,"last":"2026-11-01"},"close":[24,25]},{"id":"senate:AR","st":"AR","sp":false,"name":"Arkansas","inc":"Tom Cotton","held":"R","incRun":true,"d":"Hallie Shoffner","dS":"D","r":"Tom Cotton","rS":"R","lean":-30.62,"poll":{"d":40.0,"r":52.5,"m":-12.5,"n":2,"w":21,"last":"2026-10-28"},"close":[20.5,20.5]},{"id":"senate:CO","st":"CO","sp":false,"name":"Colorado","inc":"John Hickenlooper","held":"D","incRun":true,"d":"John Hickenlooper","dS":"D","r":"Mark Baisley","rS":"R","lean":11.93,"poll":{"d":57.0,"r":37.0,"m":20.0,"n":2,"w":21,"last":"2026-11-02"},"close":[21,21]},{"id":"senate:DE","st":"DE","sp":false,"name":"Delaware","inc":"Chris Coons","held":"D","incRun":true,"d":"Chris Coons","dS":"D","r":"Michael Katz","rS":"R","lean":16.02,"poll":null,"close":[20,20]},{"id":"senate:GA","st":"GA","sp":false,"name":"Georgia","inc":"Jon Ossoff","held":"D","incRun":true,"d":"Jon Ossoff","dS":"D","r":"Mike Collins","rS":"R","lean":-1.61,"poll":{"d":52.5,"r":43.2,"m":9.3,"n":6,"w":21,"last":"2026-11-02"},"close":[19,19]},{"id":"senate:ID","st":"ID","sp":false,"name":"Idaho","inc":"Jim Risch","held":"R","incRun":true,"d":"Todd Achilles","dS":"I","r":"Jim Risch","rS":"R","lean":-36.09,"poll":{"d":33.5,"r":49.0,"m":-15.5,"n":2,"w":45,"last":"2026-10-22"},"close":[22,23]},{"id":"senate:IL","st":"IL","sp":false,"name":"Illinois","inc":"Dick Durbin","held":"D","incRun":false,"d":"Juliana Stratton","dS":"D","r":"Don Tracy","rS":"R","lean":12.67,"poll":{"d":54.5,"r":42.5,"m":12.0,"n":2,"w":21,"last":"2026-11-02"},"close":[20,20]},{"id":"senate:IA","st":"IA","sp":false,"name":"Iowa","inc":"Joni Ernst","held":"R","incRun":false,"d":"Josh Turek","dS":"D","r":"Ashley Hinson","rS":"R","lean":-12.19,"poll":{"d":46.7,"r":46.5,"m":0.2,"n":10,"w":21,"last":"2026-11-01"},"close":[21,21]},{"id":"senate:KS","st":"KS","sp":false,"name":"Kansas","inc":"","held":"R","incRun":true,"d":"Adam Hamilton","dS":"D","r":"Roger Marshall","rS":"R","lean":-16.07,"poll":{"d":49.4,"r":45.5,"m":3.9,"n":9,"w":21,"last":"2026-11-01"},"close":[20,21]},{"id":"senate:KY","st":"KY","sp":false,"name":"Kentucky","inc":"Mitch McConnell","held":"R","incRun":false,"d":"Charles Booker","dS":"D","r":"Andy Barr","rS":"R","lean":-29.88,"poll":null,"close":[18,19]},{"id":"senate:LA","st":"LA","sp":false,"name":"Louisiana","inc":"Bill Cassidy","held":"R","incRun":false,"d":"Jamie Davis","dS":"D","r":"Julia Letlow","rS":"R","lean":-21.51,"poll":{"d":46.0,"r":46.0,"m":0.0,"n":2,"w":21,"last":"2026-10-31"},"close":[21,21]},{"id":"senate:ME","st":"ME","sp":false,"name":"Maine","inc":"Susan Collins","held":"R","incRun":true,"d":"Troy Jackson","dS":"D","r":"Susan Collins","rS":"R","lean":7.64,"poll":{"d":50.3,"r":46.2,"m":4.1,"n":14,"w":21,"last":"2026-11-02"},"close":[20,20]},{"id":"senate:MA","st":"MA","sp":false,"name":"Massachusetts","inc":"Ed Markey","held":"D","incRun":true,"d":"Ed Markey","dS":"D","r":"John Deaton","rS":"R","lean":27.98,"poll":{"d":56.0,"r":30.0,"m":26.0,"n":3,"w":21,"last":"2026-10-31"},"close":[20,20]},{"id":"senate:MI","st":"MI","sp":false,"name":"Michigan","inc":"Gary Peters","held":"D","incRun":false,"d":"Abdul El-Sayed","dS":"D","r":"Mike Rogers","rS":"R","lean":-0.39,"poll":{"d":50.1,"r":44.6,"m":5.5,"n":18,"w":21,"last":"2026-11-02"},"close":[20,21]},{"id":"senate:MN","st":"MN","sp":false,"name":"Minnesota","inc":"Tina Smith","held":"D","incRun":false,"d":"Peggy Flanagan","dS":"D","r":"Michele Tafoya","rS":"R","lean":5.07,"poll":{"d":49.2,"r":43.6,"m":5.6,"n":9,"w":21,"last":"2026-11-01"},"close":[21,21]},{"id":"senate:MS","st":"MS","sp":false,"name":"Mississippi","inc":"Cindy Hyde-Smith","held":"R","incRun":true,"d":"Scott Colom","dS":"D","r":"Cindy Hyde-Smith","rS":"R","lean":-21.56,"poll":{"d":40.0,"r":43.0,"m":-3.0,"n":1,"w":45,"last":"2026-10-22"},"close":[20,20]},{"id":"senate:MT","st":"MT","sp":false,"name":"Montana","inc":"Steve Daines","held":"R","incRun":false,"d":"Seth Bodnar","dS":"I","r":"Kurt Alme","rS":"R","lean":-19.64,"poll":{"d":31.4,"r":37.9,"m":-6.4,"n":3,"w":21,"last":"2026-10-23"},"close":[22,22]},{"id":"senate:NE","st":"NE","sp":false,"name":"Nebraska","inc":"Pete Ricketts","held":"R","incRun":true,"d":"Dan Osborn","dS":"I","r":"Pete Ricketts","rS":"R","lean":-20.53,"poll":{"d":46.2,"r":47.2,"m":-1.0,"n":8,"w":21,"last":"2026-11-01"},"close":[21,21]},{"id":"senate:NH","st":"NH","sp":false,"name":"New Hampshire","inc":"Jeanne Shaheen","held":"D","incRun":false,"d":"Chris Pappas","dS":"D","r":"John E. Sununu","rS":"R","lean":3.98,"poll":{"d":50.8,"r":43.2,"m":7.7,"n":6,"w":21,"last":"2026-11-01"},"close":[19,20]},{"id":"senate:NJ","st":"NJ","sp":false,"name":"New Jersey","inc":"Cory Booker","held":"D","incRun":true,"d":"Cory Booker","dS":"D","r":"Justin Murphy","rS":"R","lean":8.55,"poll":null,"close":[20,20]},{"id":"senate:NM","st":"NM","sp":false,"name":"New Mexico","inc":"Ben Ray Luján","held":"D","incRun":true,"d":"Ben Ray Luján","dS":"D","r":"Larry Marker","rS":"R","lean":7.36,"poll":{"d":54.3,"r":36.7,"m":17.7,"n":3,"w":45,"last":"2026-11-02"},"close":[21,21]},{"id":"senate:NC","st":"NC","sp":false,"name":"North Carolina","inc":"Thom Tillis","held":"R","incRun":false,"d":"Roy Cooper","dS":"D","r":"Michael Whatley","rS":"R","lean":-2.8,"poll":{"d":53.6,"r":42.7,"m":11.0,"n":8,"w":21,"last":"2026-11-01"},"close":[19.5,19.5]},{"id":"senate:OK","st":"OK","sp":false,"name":"Oklahoma","inc":"Alan Armstrong","held":"R","incRun":false,"d":"N'Kiyla Jasmine Thomas","dS":"D","r":"Kevin Hern","rS":"R","lean":-34.68,"poll":null,"close":[20,20]},{"id":"senate:OR","st":"OR","sp":false,"name":"Oregon","inc":"Jeff Merkley","held":"D","incRun":true,"d":"Jeff Merkley","dS":"D","r":"David Brock Smith","rS":"R","lean":15.29,"poll":null,"close":[22,23]},{"id":"senate:RI","st":"RI","sp":false,"name":"Rhode Island","inc":"Jack Reed","held":"D","incRun":true,"d":"Jack Reed","dS":"D","r":"Raymond McKay","rS":"R","lean":15.91,"poll":{"d":59.0,"r":29.7,"m":29.3,"n":3,"w":45,"last":"2026-10-31"},"close":[20,20]},{"id":"senate:SC","st":"SC","sp":false,"name":"South Carolina","inc":"Darline Graham","held":"R","incRun":true,"d":"Annie Andrews","dS":"D","r":"Darline Graham","rS":"R","lean":-16.57,"poll":{"d":45.8,"r":46.1,"m":-0.3,"n":9,"w":21,"last":"2026-11-01"},"close":[19,19]},{"id":"senate:SD","st":"SD","sp":false,"name":"South Dakota","inc":"Mike Rounds","held":"R","incRun":true,"d":"Brian Bengs","dS":"I","r":"Mike Rounds","rS":"R","lean":-29.14,"poll":{"d":39.2,"r":51.8,"m":-12.6,"n":5,"w":21,"last":"2026-10-26"},"close":[20,21]},{"id":"senate:TN","st":"TN","sp":false,"name":"Tennessee","inc":"Bill Hagerty","held":"R","incRun":true,"d":"Marquita Bradshaw","dS":"D","r":"Bill Hagerty","rS":"R","lean":-28.51,"poll":{"d":37.0,"r":57.0,"m":-20.0,"n":1,"w":45,"last":"2026-11-02"},"close":[20,20]},{"id":"senate:TX","st":"TX","sp":false,"name":"Texas","inc":"John Cornyn","held":"R","incRun":false,"d":"James Talarico","dS":"D","r":"Ken Paxton","rS":"R","lean":-11.83,"poll":{"d":49.0,"r":45.7,"m":3.3,"n":25,"w":21,"last":"2026-11-02"},"close":[20,21]},{"id":"senate:VA","st":"VA","sp":false,"name":"Virginia","inc":"Mark Warner","held":"D","incRun":true,"d":"Mark Warner","dS":"D","r":"Bert Mizusawa","rS":"R","lean":7.1,"poll":null,"close":[19,19]},{"id":"senate:WV","st":"WV","sp":false,"name":"West Virginia","inc":"Shelley Moore Capito","held":"R","incRun":true,"d":"Rachel Fetty Anderson","dS":"D","r":"Shelley Moore Capito","rS":"R","lean":-41.92,"poll":null,"close":[19.5,19.5]},{"id":"senate:WY","st":"WY","sp":false,"name":"Wyoming","inc":"Cynthia Lummis","held":"R","incRun":false,"d":"James Byrd","dS":"D","r":"Harriet Hageman","rS":"R","lean":-46.47,"poll":null,"close":[21,21]},{"id":"senate:OH-special","st":"OH","sp":true,"name":"Ohio (special)","inc":"Jon Husted","held":"R","incRun":true,"d":"Sherrod Brown","dS":"D","r":"Jon Husted","rS":"R","lean":-10.53,"poll":{"d":48.2,"r":45.2,"m":3.0,"n":18,"w":21,"last":"2026-11-01"},"close":[19.5,19.5]},{"id":"senate:FL-special","st":"FL","sp":true,"name":"Florida (special)","inc":"Ashley Moody","held":"R","incRun":true,"d":"Angie Nixon","dS":"D","r":"Ashley Moody","rS":"R","lean":-10.77,"poll":{"d":43.5,"r":49.1,"m":-5.6,"n":14,"w":21,"last":"2026-11-02"},"close":[19,20]}],"gov":[{"id":"governor:AL","st":"AL","sp":false,"name":"Alabama","inc":"Kay Ivey","held":"R","incRun":false,"d":"Doug Jones","dS":"D","r":"Tommy Tuberville","rS":"R","lean":-29.63,"poll":{"d":41.3,"r":50.0,"m":-8.7,"n":3,"w":21,"last":"2026-10-24"},"close":[20,20]},{"id":"governor:AK","st":"AK","sp":false,"name":"Alaska","inc":"Mike Dunleavy","held":"R","incRun":false,"d":"Jonathan Kreiss-Tomkins","dS":"D","r":"Bernadette Wilson","rS":"R","lean":-12.91,"poll":{"d":49.1,"r":35.9,"m":13.2,"n":4,"w":21,"last":"2026-11-01"},"close":[24,25]},{"id":"governor:AZ","st":"AZ","sp":false,"name":"Arizona","inc":"Katie Hobbs","held":"D","incRun":true,"d":"Katie Hobbs","dS":"D","r":"Andy Biggs","rS":"R","lean":-4.12,"poll":{"d":49.6,"r":42.8,"m":6.8,"n":5,"w":21,"last":"2026-10-29"},"close":[21,21]},{"id":"governor:AR","st":"AR","sp":false,"name":"Arkansas","inc":"Sarah Huckabee Sanders","held":"R","incRun":true,"d":"Fredrick Love","dS":"D","r":"Sarah Huckabee Sanders","rS":"R","lean":-30.62,"poll":{"d":32.0,"r":51.0,"m":-19.0,"n":1,"w":45,"last":"2026-10-13"},"close":[20.5,20.5]},{"id":"governor:CA","st":"CA","sp":false,"name":"California","inc":"Gavin Newsom","held":"D","incRun":false,"d":"Xavier Becerra","dS":"D","r":"Steve Hilton","rS":"R","lean":23.05,"poll":{"d":58.8,"r":35.6,"m":23.2,"n":8,"w":21,"last":"2026-10-31"},"close":[23,23]},{"id":"governor:CO","st":"CO","sp":false,"name":"Colorado","inc":"Jared Polis","held":"D","incRun":false,"d":"Phil Weiser","dS":"D","r":"Victor Marx","rS":"R","lean":11.93,"poll":{"d":53.7,"r":37.0,"m":16.7,"n":3,"w":21,"last":"2026-11-02"},"close":[21,21]},{"id":"governor:CT","st":"CT","sp":false,"name":"Connecticut","inc":"Ned Lamont","held":"D","incRun":true,"d":"Ned Lamont","dS":"D","r":"Ryan Fazio","rS":"R","lean":16.14,"poll":{"d":54.5,"r":36.4,"m":18.1,"n":5,"w":45,"last":"2026-10-31"},"close":[20,20]},{"id":"governor:FL","st":"FL","sp":false,"name":"Florida","inc":"Ron DeSantis","held":"R","incRun":false,"d":"David Jolly","dS":"D","r":"Byron Donalds","rS":"R","lean":-10.77,"poll":{"d":44.3,"r":48.0,"m":-3.7,"n":14,"w":21,"last":"2026-11-02"},"close":[19,20]},{"id":"governor:GA","st":"GA","sp":false,"name":"Georgia","inc":"Brian Kemp","held":"R","incRun":false,"d":"Keisha Lance Bottoms","dS":"D","r":"Rick Jackson","rS":"R","lean":-1.61,"poll":{"d":47.9,"r":48.0,"m":-0.0,"n":7,"w":21,"last":"2026-11-02"},"close":[19,19]},{"id":"governor:HI","st":"HI","sp":false,"name":"Hawaii","inc":"Josh Green","held":"D","incRun":true,"d":"Josh Green","dS":"D","r":"Gary Cordery","rS":"R","lean":25.18,"poll":null,"close":[24,24]},{"id":"governor:ID","st":"ID","sp":false,"name":"Idaho","inc":"Brad Little","held":"R","incRun":true,"d":"Terri Pickens","dS":"D","r":"Brad Little","rS":"R","lean":-36.09,"poll":{"d":30.0,"r":49.0,"m":-19.0,"n":1,"w":45,"last":"2026-10-22"},"close":[22,23]},{"id":"governor:IL","st":"IL","sp":false,"name":"Illinois","inc":"JB Pritzker","held":"D","incRun":true,"d":"JB Pritzker","dS":"D","r":"Darren Bailey","rS":"R","lean":12.67,"poll":{"d":58.0,"r":38.5,"m":19.5,"n":2,"w":21,"last":"2026-11-02"},"close":[20,20]},{"id":"governor:IA","st":"IA","sp":false,"name":"Iowa","inc":"Kim Reynolds","held":"R","incRun":false,"d":"Rob Sand","dS":"D","r":"Zach Lahn","rS":"R","lean":-12.19,"poll":{"d":51.7,"r":44.6,"m":7.1,"n":7,"w":21,"last":"2026-11-01"},"close":[21,21]},{"id":"governor:KS","st":"KS","sp":false,"name":"Kansas","inc":"Laura Kelly","held":"D","incRun":false,"d":"Cindy Holscher","dS":"D","r":"Ty Masterson","rS":"R","lean":-16.07,"poll":{"d":48.2,"r":48.0,"m":0.2,"n":8,"w":21,"last":"2026-11-01"},"close":[20,21]},{"id":"governor:ME","st":"ME","sp":false,"name":"Maine","inc":"Janet Mills","held":"D","incRun":false,"d":"Hannah Pingree","dS":"D","r":"Bobby Charles","rS":"R","lean":7.64,"poll":{"d":50.8,"r":40.2,"m":10.5,"n":11,"w":21,"last":"2026-11-01"},"close":[20,20]},{"id":"governor:MD","st":"MD","sp":false,"name":"Maryland","inc":"Wes Moore","held":"D","incRun":true,"d":"Wes Moore","dS":"D","r":"Dan Cox","rS":"R","lean":30.64,"poll":{"d":51.0,"r":24.0,"m":27.0,"n":1,"w":45,"last":"2026-09-27"},"close":[20,20]},{"id":"governor:MA","st":"MA","sp":false,"name":"Massachusetts","inc":"Maura Healey","held":"D","incRun":true,"d":"Maura Healey","dS":"D","r":"Michael Minogue","rS":"R","lean":27.98,"poll":{"d":57.0,"r":33.7,"m":23.3,"n":3,"w":21,"last":"2026-10-31"},"close":[20,20]},{"id":"governor:MI","st":"MI","sp":false,"name":"Michigan","inc":"Gretchen Whitmer","held":"D","incRun":false,"d":"Jocelyn Benson","dS":"D","r":"John James","rS":"R","lean":-0.39,"poll":{"d":50.9,"r":42.8,"m":8.2,"n":15,"w":21,"last":"2026-11-01"},"close":[20,21]},{"id":"governor:MN","st":"MN","sp":false,"name":"Minnesota","inc":"Tim Walz","held":"D","incRun":false,"d":"Amy Klobuchar","dS":"D","r":"Lisa Demuth","rS":"R","lean":5.07,"poll":{"d":52.5,"r":40.7,"m":11.8,"n":6,"w":21,"last":"2026-11-01"},"close":[21,21]},{"id":"governor:NE","st":"NE","sp":false,"name":"Nebraska","inc":"Jim Pillen","held":"R","incRun":true,"d":"Lynne Walz","dS":"D","r":"Jim Pillen","rS":"R","lean":-20.53,"poll":{"d":42.1,"r":46.1,"m":-4.1,"n":7,"w":21,"last":"2026-10-29"},"close":[21,21]},{"id":"governor:NV","st":"NV","sp":false,"name":"Nevada","inc":"Joe Lombardo","held":"R","incRun":true,"d":"Aaron Ford","dS":"D","r":"Joe Lombardo","rS":"R","lean":-1.77,"poll":{"d":47.2,"r":45.8,"m":1.5,"n":4,"w":21,"last":"2026-10-28"},"close":[22,22]},{"id":"governor:NH","st":"NH","sp":false,"name":"New Hampshire","inc":"Kelly Ayotte","held":"R","incRun":true,"d":"Cinde Warmington","dS":"D","r":"Kelly Ayotte","rS":"R","lean":3.98,"poll":{"d":43.5,"r":50.0,"m":-6.5,"n":6,"w":21,"last":"2026-11-01"},"close":[19,20]},{"id":"governor:NM","st":"NM","sp":false,"name":"New Mexico","inc":"Michelle Lujan Grisham","held":"D","incRun":false,"d":"Deb Haaland","dS":"D","r":"Gregg Hull","rS":"R","lean":7.36,"poll":{"d":49.0,"r":42.3,"m":6.7,"n":3,"w":45,"last":"2026-11-02"},"close":[21,21]},{"id":"governor:NY","st":"NY","sp":false,"name":"New York","inc":"Kathy Hochul","held":"D","incRun":true,"d":"Kathy Hochul","dS":"D","r":"Bruce Blakeman","rS":"R","lean":15.37,"poll":{"d":54.8,"r":41.3,"m":13.5,"n":5,"w":21,"last":"2026-11-01"},"close":[21,21]},{"id":"governor:OH","st":"OH","sp":false,"name":"Ohio","inc":"Mike DeWine","held":"R","incRun":false,"d":"Amy Acton","dS":"D","r":"Vivek Ramaswamy","rS":"R","lean":-10.53,"poll":{"d":49.0,"r":44.7,"m":4.4,"n":16,"w":21,"last":"2026-11-01"},"close":[19.5,19.5]},{"id":"governor:OK","st":"OK","sp":false,"name":"Oklahoma","inc":"Kevin Stitt","held":"R","incRun":false,"d":"Cyndi Munson","dS":"D","r":"Mike Mazzei","rS":"R","lean":-34.68,"poll":{"d":39.0,"r":42.5,"m":-3.5,"n":2,"w":45,"last":"2026-10-13"},"close":[20,20]},{"id":"governor:OR","st":"OR","sp":false,"name":"Oregon","inc":"Tina Kotek","held":"D","incRun":true,"d":"Tina Kotek","dS":"D","r":"Christine Drazan","rS":"R","lean":15.29,"poll":{"d":46.0,"r":43.0,"m":3.0,"n":2,"w":45,"last":"2026-10-04"},"close":[22,23]},{"id":"governor:PA","st":"PA","sp":false,"name":"Pennsylvania","inc":"Josh Shapiro","held":"D","incRun":true,"d":"Josh Shapiro","dS":"D","r":"Stacy Garrity","rS":"R","lean":-1.0,"poll":{"d":57.8,"r":34.7,"m":23.2,"n":3,"w":21,"last":"2026-11-01"},"close":[20,20]},{"id":"governor:RI","st":"RI","sp":false,"name":"Rhode Island","inc":"Dan McKee","held":"D","incRun":false,"d":"Helena Buonanno Foulkes","dS":"D","r":"Aaron C. Guckian","rS":"R","lean":15.91,"poll":{"d":45.2,"r":13.8,"m":31.5,"n":4,"w":45,"last":"2026-10-31"},"close":[20,20]},{"id":"governor:SC","st":"SC","sp":false,"name":"South Carolina","inc":"Henry McMaster","held":"R","incRun":false,"d":"Jermaine Johnson","dS":"D","r":"Alan Wilson","rS":"R","lean":-16.57,"poll":{"d":39.8,"r":49.5,"m":-9.8,"n":6,"w":21,"last":"2026-11-01"},"close":[19,19]},{"id":"governor:SD","st":"SD","sp":false,"name":"South Dakota","inc":"Larry Rhoden","held":"R","incRun":true,"d":"Dan Ahlers","dS":"D","r":"Larry Rhoden","rS":"R","lean":-29.14,"poll":{"d":38.7,"r":54.7,"m":-16.0,"n":3,"w":21,"last":"2026-10-26"},"close":[20,21]},{"id":"governor:TN","st":"TN","sp":false,"name":"Tennessee","inc":"Bill Lee","held":"R","incRun":false,"d":"Jerri Green","dS":"D","r":"Marsha Blackburn","rS":"R","lean":-28.51,"poll":{"d":32.3,"r":44.3,"m":-12.0,"n":3,"w":21,"last":"2026-11-02"},"close":[20,20]},{"id":"governor:TX","st":"TX","sp":false,"name":"Texas","inc":"Greg Abbott","held":"R","incRun":true,"d":"Gina Hinojosa","dS":"D","r":"Greg Abbott","rS":"R","lean":-11.83,"poll":{"d":47.0,"r":48.9,"m":-1.8,"n":20,"w":21,"last":"2026-11-02"},"close":[20,21]},{"id":"governor:VT","st":"VT","sp":false,"name":"Vermont","inc":"Phil Scott","held":"R","incRun":true,"d":"Amanda Janoo","dS":"D","r":"Phil Scott","rS":"R","lean":33.72,"poll":{"d":48.5,"r":45.8,"m":2.8,"n":2,"w":21,"last":"2026-10-31"},"close":[19,19]},{"id":"governor:WI","st":"WI","sp":false,"name":"Wisconsin","inc":"Tony Evers","held":"D","incRun":false,"d":"David Crowley","dS":"D","r":"Tom Tiffany","rS":"R","lean":-0.51,"poll":{"d":49.0,"r":44.7,"m":4.3,"n":3,"w":21,"last":"2026-11-01"},"close":[21,21]},{"id":"governor:WY","st":"WY","sp":false,"name":"Wyoming","inc":"Mark Gordon","held":"R","incRun":false,"d":"Kenneth Casner","dS":"D","r":"Eric Barlow","rS":"R","lean":-46.47,"poll":null,"close":[21,21]}],"house":[["AK-AL","Bill Hill","I","Nick Begich III","R","R",-12.91,"",-2.1,4,25],["AL-01","Clyde Jones","D","Jerry Carl","R","R",-34.88,"",null,0,20],["AL-02","Shomari Figures","D","Rhett Marques","R","D",-13.04,"",-2.0,1,20],["AL-03","Lee McInnis","D","Mike Rogers","R","R",-45.67,"",null,0,20],["AL-04","Amanda Pusczek","D","Robert Aderholt","R","R",-65.88,"",null,0,20],["AL-05","Andrew Sneed","D","Dale Strong","R","R",-29.02,"",null,0,20],["AL-06","Maurice Mercer","D","Gary Palmer","R","R",-34.58,"",null,0,20],["AL-07","Terri Sewell","D","Ammie Akin","R","D",19.27,"",null,0,20],["AR-01","Terri Yarbrough","D","Rick Crawford","R","R",-45.18,"",null,0,20.5],["AR-02","Chris Jones","D","French Hill","R","R",-15.32,"",-4.0,1,20.5],["AR-03","Robb Ryerse","D","Steve Womack","R","R",-25.24,"",null,0,20.5],["AR-04","James Russell","D","Bruce Westerman","R","R",-39.57,"",null,0,20.5],["AZ-01","Amish Shah","D","Jay Feely","R","R",-1.99,"",3.0,2,21],["AZ-02","Jonathan Nez","D","Eli Crane","R","R",-13.35,"",2.0,1,21],["AZ-03","Yassamin Ansari","D","Jacob Parkman","R","D",43.09,"",null,0,21],["AZ-04","Greg Stanton","D","Zuhdi Jasser","R","D",7.69,"",null,0,21],["AZ-05","Elizabeth Lee","D","Mark Lamb","R","R",-19.31,"",null,0,21],["AZ-06","JoAnna Mendoza","D","Juan Ciscomani","R","R",-0.56,"",null,0,21],["AZ-07","Adelita Grijalva","D","Daniel Butierez","R","D",25.1,"",null,0,21],["AZ-08","Bernadette Greene-Placentia","D","Abraham Hamadeh","R","R",-15.8,"",null,0,21],["AZ-09","Danielle Sterbinsky","D","Paul Gosar","R","R",-30.05,"",null,0,21],["CA-01","Mike McGuire","D","James Gallagher","R","R",14.04,"",14.5,1,23],["CA-02","Jared Huffman","D","Robin Littau","R","D",26.35,"",null,0,23],["CA-03","Ami Bera","D","Robb Tucker","R","IND",11.46,"",null,0,23],["CA-04","Mike Thompson","D","","R","D",16.6,"D",null,0,23],["CA-05","Michael Masuda","D","Tom McClintock","R","R",-19.65,"",null,0,23],["CA-06","Richard Pan","D","Kevin Kiley","I","D",9.73,"",12.5,1,23],["CA-07","Doris Matsui","D","","R","D",14.95,"D",null,0,23],["CA-08","John Garamendi","D","Rudy Recile","R","D",37.26,"",null,0,23],["CA-09","Josh Harder","D","John McBride","R","D",15.53,"",null,0,23],["CA-10","Mark DeSaulnier","D","Jeff Frese","R","D",35.88,"",null,0,23],["CA-11","Scott Wiener","D","","R","D",71.97,"D",null,0,23],["CA-12","Lateefah Simon","D","","R","D",78.83,"D",null,0,23],["CA-13","Adam Gray","D","Kevin Lincoln","R","D",4.81,"",null,0,23],["CA-14","Aisha Wahab","D","","R","D",38.75,"D",null,0,23],["CA-15","Kevin Mullin","D","Charles Hoelter","R","D",51.83,"",null,0,23],["CA-16","Sam Liccardo","D","Peter Sundin Soulé","R","D",50.89,"",null,0,23],["CA-17","Ro Khanna","D","Ritesh Tandon","R","D",42.85,"",null,0,23],["CA-18","Zoe Lofgren","D","Shane Lewis","R","D",32.93,"",null,0,23],["CA-19","Jimmy Panetta","D","Peter Verbica","R","D",36.86,"",null,0,23],["CA-20","Sandra Van Scotter","D","Vince Fong","R","R",-31.44,"",null,0,23],["CA-21","Jim Costa","D","Kyle Kirkland","R","D",9.99,"",null,0,23],["CA-22","Randy Villegas","D","David Valadao","R","R",2.92,"",10.5,1,23],["CA-23","Tessa Lynn Hodge","D","Jay Obernolte","R","R",-18.04,"",null,0,23],["CA-24","Salud Carbajal","D","Bob Smith","R","D",26.72,"",null,0,23],["CA-25","Raul Ruiz","D","Joe Males","R","D",8.63,"",null,0,23],["CA-26","Jacqui Irwin","D","Sam Gallucci","R","D",17.49,"",null,0,23],["CA-27","George Whitesides","D","Jason Gibbs","R","D",12.53,"",null,0,23],["CA-28","Judy Chu","D","April Verlato","R","D",27.94,"",null,0,23],["CA-29","Luz Rivas","D","","R","D",38.78,"D",null,0,23],["CA-30","Laura Friedman","D","Scott Meyers","R","D",42.51,"",null,0,23],["CA-31","Gil Cisneros","D","Eric Ching","R","D",15.85,"",null,0,23],["CA-32","Brad Sherman","D","Larry Thompson","R","D",27.87,"",null,0,23],["CA-33","Pete Aguilar","D","Stephanie Vargas","R","D",14.16,"",null,0,23],["CA-34","Jimmy Gomez","D","","R","D",56.22,"D",null,0,23],["CA-35","Norma Torres","D","Mike Cargile","R","D",12.03,"",null,0,23],["CA-36","Ted Lieu","D","Houston Brignano","R","D",41.58,"",null,0,23],["CA-37","Sydney Kamlager-Dove","D","","R","D",65.39,"D",null,0,23],["CA-38","Hilda Solis","D","Pedro Casas","R","D",16.67,"",null,0,23],["CA-39","Mark Takano","D","Steve Manos","R","D",13.98,"",null,0,23],["CA-40","","D","Ken Calvert","R","R",-11.41,"R",null,0,23],["CA-41","Linda Sánchez","D","Mitch Clemmons","R","R",17.57,"",null,0,23],["CA-42","Robert Garcia","D","Brian Burley","R","D",15.21,"",null,0,23],["CA-43","Maxine Waters","D","Cristian Morales","R","D",54.24,"",null,0,23],["CA-44","Nanette Barragán","D","Genevieve Angel","R","D",40.81,"",null,0,23],["CA-45","Derek Tran","D","Chuong Vo","R","D",5.61,"",null,0,23],["CA-46","Lou Correa","D","David Pan","R","D",19.72,"",null,0,23],["CA-47","Dave Min","D","Jenny Le Roux","R","D",11.96,"",null,0,23],["CA-48","Marni von Wilpert","D","Jim Desmond","R","R",4.46,"",5.3,3,23],["CA-49","Mike Levin","D","Armen Kurdian","R","D",13.22,"",null,0,23],["CA-50","Scott Peters","D","Steve Cohen","R","D",19.53,"",null,0,23],["CA-51","Sara Jacobs","D","Ricardo Cabrera","R","D",19.93,"",null,0,23],["CA-52","Juan Vargas","D","Jeff Belle","R","D",22.01,"",null,0,23],["CO-01","Melat Kiros","D","Christy Peterson","R","D",58.88,"",null,0,21],["CO-02","Joe Neguse","D","Kelley Dennison","R","D",40.91,"",null,0,21],["CO-03","Dwayne Romero","D","Jeff Hurd","R","R",-9.61,"",1.0,1,21],["CO-04","Eileen Laubacher","D","Lauren Boebert","R","R",-18.8,"",-5.0,1,21],["CO-05","Jessica Killin","D","Jeff Crank","R","R",-9.64,"",1.8,2,21],["CO-06","Jason Crow","D","Jason Clark","R","D",21.37,"",null,0,21],["CO-07","Brittany Pettersen","D","Tim Bennett","R","D",15.2,"",null,0,21],["CO-08","Manny Rutinel","D","Gabe Evans","R","R",-0.25,"",null,0,21],["CT-01","Luke Bronin","D","Amy Chai","R","D",24.57,"",null,0,20],["CT-02","Joe Courtney","D","George Austin","R","D",8.8,"",19.0,1,20],["CT-03","Rosa DeLauro","D","Christopher Lancia","R","D",15.73,"",null,0,20],["CT-04","Jim Himes","D","Michael Goldstein","R","D",25.64,"",null,0,20],["CT-05","Jahana Hayes","D","Chris Shea","R","D",6.97,"",6.0,1,20],["DE-AL","Sarah McBride","D","Joseph Arminio","R","D",16.02,"",null,0,20],["FL-01","Gay Valimont","D","Jimmy Patronis","R","R",-36.42,"",null,0,20],["FL-02","Amanda Green","D","Austin Rogers","R","R",-16.42,"",null,0,20],["FL-03","Seth Harp","D","Kat Cammack","R","R",-19.56,"",null,0,19],["FL-04","LaShonda Holloway","D","Aaron Bean","R","R",-10.68,"",null,0,19],["FL-05","Rachel Grage","D","John Rutherford","R","R",-20.26,"",null,0,19],["FL-06","Eric Yonce","D","Randy Fine","R","R",-28.71,"",null,0,19],["FL-07","Bale Dalton","D","Ryan Elijah","R","R",-10.87,"",0.0,1,19],["FL-08","Jennifer Jenkins","D","Mike Haridopolos","R","R",-15.03,"",null,0,19],["FL-09","Darren Soto","D","Dan Green","R","D",-15.17,"",0.0,1,19],["FL-10","Maxwell Frost","D","","R","D",26.54,"D",null,0,19],["FL-11","James Pericola","D","Joe Strada","R","R",-14.31,"",null,0,19],["FL-12","Kimberly Overman","D","Gus Bilirakis","R","R",-13.16,"",null,0,19],["FL-13","Leela Gray","D","Anna Paulina Luna","R","R",-12.07,"",-1.0,2,19],["FL-14","Kathy Castor","D","Mike Beltran","R","D",-8.7,"",5.0,1,19],["FL-15","Robert People","D","Laurel Lee","R","R",-17.77,"",null,0,19],["FL-16","Kelly Kirschner","D","Sydney Gruters","R","R",-11.75,"",-4.0,1,19],["FL-17","Matthew Montavon","D","Greg Steube","R","R",-20.19,"",null,0,19],["FL-18","Curtis Gibson","D","Scott Franklin","R","R",-15.39,"",null,0,19],["FL-19","Victor Arias","D","Jim Schwartzel","R","R",-28.37,"",null,0,19],["FL-20","Debbie Wasserman Schultz","D","Brent Andersen","R","D",40.27,"",null,0,19],["FL-21","James Martin","D","Brian Mast","R","R",-14.54,"",-11.0,1,19],["FL-22","Pia Dandiya","D","Casey Askar","R","D",-7.06,"",null,0,19],["FL-23","Lois Frankel","D","Deborah Adeimy","R","D",17.09,"",null,0,19],["FL-24","Oliver Gilbert","D","Mayonna Te Brown","R","D",43.5,"",null,0,19],["FL-25","Jared Moskowitz","D","Scott Singer","R","D",-5.65,"",-0.5,2,19],["FL-26","Nicole Locklin","D","Mario Díaz-Balart","R","R",-14.21,"",null,0,19],["FL-27","Eliott Rodriguez","D","María Elvira Salazar","R","R",-11.09,"",null,0,19],["FL-28","Phil Ehr","D","Carlos Giménez","R","R",-20.89,"",null,0,19],["GA-01","Amanda Hollowell","D","Jim Kingston","R","R",-15.33,"",null,0,19],["GA-02","Sanford Bishop","D","Matt Day","R","D",8.34,"",null,0,19],["GA-03","Maura Keller","D","Brian Jack","R","R",-30.03,"",-5.0,1,19],["GA-04","Hank Johnson","D","James Duffe","R","D",54.36,"",null,0,19],["GA-05","Nikema Williams","D","John Salvesen","R","D",72.64,"",null,0,19],["GA-06","Lucy McBath","D","Kevin Martin","R","D",50.26,"",null,0,19],["GA-07","Anthony Kozycki","D","Rich McCormick","R","R",-21.67,"",2.0,1,19],["GA-08","Kelly Esti","D","Austin Scott","R","R",-30.03,"",null,0,19],["GA-09","Caitlyn Gegan","D","Andrew Clyde","R","R",-33.94,"",null,0,19],["GA-10","Pamela DeLancy","D","Houston Gaines","R","R",-21.07,"",null,0,19],["GA-11","Chris Harden","D","John Cowan","R","R",-23.26,"",null,0,19],["GA-12","Ceretta Smith","D","Rick Allen","R","R",-13.25,"",null,0,19],["GA-13","Jasmine Clark","D","Jonathan Chavez","R","D",42.28,"",null,0,19],["GA-14","Shawn Harris","D","Clay Fuller","R","R",-37.28,"",null,0,19],["HI-01","Ed Case","D","Adriel Lam","R","D",26.35,"",null,0,24],["HI-02","Jill Tokuda","D","Brenton Awa","R","D",24.09,"",null,0,24],["IA-01","Christina Bohannan","D","Mariannette Miller-Meeks","R","R",-7.19,"",16.0,1,21],["IA-02","Lindsay James","D","Joe Mitchell","R","R",-8.73,"",3.0,1,21],["IA-03","Sarah Trone Garriott","D","Zach Nunn","R","R",-3.45,"",null,0,21],["IA-04","Dave Dawson","D","Chris McGowan","R","R",-30.56,"",null,0,21],["ID-01","Kaylee Peterson","D","Russ Fulcher","R","R",-44.47,"",-26.0,1,23],["ID-02","Ellie Gilbreath","D","Mike Simpson","R","R",-26.61,"",-15.0,1,23],["IL-01","Jonathan Jackson","D","Christian Maxwell","R","D",35.07,"",null,0,20],["IL-02","Donna Miller","D","Michael Noack","R","D",35.32,"",null,0,20],["IL-03","Delia Ramirez","D","Angel Oakley","R","D",34.43,"",null,0,20],["IL-04","Patty Garcia","D","Lupe Castillo","R","D",33.38,"",null,0,20],["IL-05","Mike Quigley","D","Tommy Hanson","R","D",38.25,"",null,0,20],["IL-06","Sean Casten","D","Niki Conforti","R","D",6.94,"",null,0,20],["IL-07","La Shawn Ford","D","Chad Koppie","R","D",68.11,"",null,0,20],["IL-08","Melissa Bean","D","Jennifer Davis","R","D",9.17,"",null,0,20],["IL-09","Daniel Biss","D","John Elleson","R","D",38.29,"",null,0,20],["IL-10","Brad Schneider","D","Carl Lambrecht","R","D",23.34,"",null,0,20],["IL-11","Bill Foster","D","Jeff Walter","R","D",12.6,"",null,0,20],["IL-12","Julie Fortier","D","Mike Bost","R","R",-43.96,"",null,0,20],["IL-13","Nikki Budzinski","D","Jeff Wilson","R","D",10.85,"",null,0,20],["IL-14","Lauren Underwood","D","James Marter","R","D",6.86,"",null,0,20],["IL-15","Jennifer Todd","D","Mary Miller","R","R",-40.22,"",null,0,20],["IL-16","Paul Nolley","D","Darin LaHood","R","R",-22.8,"",null,0,20],["IL-17","Eric Sorensen","D","Dillan Vancil","R","D",5.61,"",null,0,20],["IN-01","Frank Mrvan","D","Barb Regnitz","R","D",2.42,"",null,0,19],["IN-02","Jamee Decio","D","Rudy Yakym","R","R",-25.95,"",null,0,19],["IN-03","Kelly Thompson","D","Marlin Stutzman","R","R",-31.44,"",null,0,19],["IN-04","Drew Cox","D","Jim Baird","R","R",-29.87,"",null,0,19],["IN-05","J.D. Ford","D","Victoria Spartz","R","R",-16.92,"",-1.8,2,19],["IN-06","Cynthia Wirth","D","Jefferson Shreve","R","R",-32.99,"",null,0,19],["IN-07","André Carson","D","Patrick McAuley","R","D",42.4,"",null,0,19],["IN-08","Mary Allen","D","Mark Messmer","R","R",-35.74,"",null,0,19],["IN-09","Brad Meyer","D","Erin Houchin","R","R",-29.76,"",null,0,19],["KS-01","Lauren Reinhold","D","Tracey Mann","R","R",-31.47,"",null,0,21],["KS-02","Don Coover","D","Derek Schmidt","R","R",-19.22,"",-3.0,1,21],["KS-03","Sharice Davids","D","Eric Jenkins","R","D",4.26,"",null,0,21],["KS-04","Katy Tyndell","D","Ron Estes","R","R",-23.35,"",null,0,21],["KY-01","John \"Drew\" Williams","D","James R. Comer","R","R",-46.79,"",null,0,19],["KY-02","Megan Wingfield","D","S. Brett Guthrie","R","R",-40.8,"",null,0,19],["KY-03","Morgan McGarvey","D","Maria Teresa Rodriguez","R","D",20.14,"",null,0,19],["KY-04","Melissa Claire Strange","D","Ed Gallrein","R","R",-35.41,"",null,0,19],["KY-05","Ned Pillersdorf","D","Hal Rogers","R","R",-63.55,"",null,0,19],["KY-06","Zach Dembo","D","Ralph Alvarado","R","R",-14.3,"",6.0,5,19],["LA-01","Lauren Jewett","D","Randall Arrington","R","R",-39.2,"",null,0,21],["LA-02","Troy Carter","D","Peter Williams","R","D",49.53,"",null,0,21],["LA-03","John Day","D","Kate Cotten","R","R",-35.61,"",null,0,21],["LA-04","Conrad Cable","D","Gordon Heslop","R","R",-33.61,"",null,0,21],["LA-05","Dan McKay","D","Stewart Cathey Jr.","R","R",-33.22,"",null,0,21],["LA-06","Chauna Banks","D","Rick Edmonds","R","D",-31.15,"",null,0,21],["MA-01","Richard Neal","D","Nadia Milleron","I","D",15.95,"D",null,0,20],["MA-02","Jim McGovern","D","","R","D",26.08,"D",null,0,20],["MA-03","Lori Trahan","D","Gary Grossi","R","D",21.53,"",null,0,20],["MA-04","Jake Auchincloss","D","Tom Stalcup","R","D",22.34,"",null,0,20],["MA-05","Katherine Clark","D","","R","D",47.75,"D",null,0,20],["MA-06","Dan Koh","D","Micah Jones","R","D",22.83,"",null,0,20],["MA-07","Ayanna Pressley","D","","R","D",67.21,"D",null,0,20],["MA-08","Stephen Lynch","D","Robert Burke","R","D",29.25,"",null,0,20],["MA-09","Bill Keating","D","Tyler MacAllister","R","D",12.82,"",null,0,20],["MD-01","Dan Schwartz","D","Andy Harris","R","R",-16.7,"",null,0,20],["MD-02","Johnny Olszewski","D","Dave Wallace","R","D",19.51,"",null,0,20],["MD-03","Sarah Elfreth","D","Berney Flowers","R","D",24.87,"",null,0,20],["MD-04","Glenn Ivey","D","George McDermott","R","D",77.33,"",null,0,20],["MD-05","Adrian Boafo","D","Chris Chaffee","R","D",34.81,"",null,0,20],["MD-06","April McClain Delaney","D","Robin Ficker","R","D",6.94,"",null,0,20],["MD-07","Kweisi Mfume","D","Scott Collier","R","D",61.49,"",null,0,20],["MD-08","Jamie Raskin","D","Cheryl Riley","R","D",59.43,"",null,0,20],["ME-01","Chellie Pingree","D","Ronald Russell","R","D",22.42,"",33.0,1,20],["ME-02","Matthew Dunlap","D","Paul LePage","R","D",-8.51,"",-0.5,2,20],["MI-01","Callie Barr","D","Jack Bergman","R","R",-21.17,"",null,0,21],["MI-02","Benjamin Ambrose","D","John Moolenaar","R","R",-30.09,"",null,0,21],["MI-03","Hillary Scholten","D","Terri DeBoer","R","D",8.13,"",null,0,21],["MI-04","Sean McCann","D","Bill Huizenga","R","R",-5.23,"",-3.0,1,21],["MI-05","Christian Vukasovich","D","Tim Walberg","R","R",-26.71,"",null,0,21],["MI-06","Debbie Dingell","D","Heather Smiley","R","D",24.69,"",null,0,21],["MI-07","William Lawrence","D","Tom Barrett","R","R",-0.85,"",8.0,1,21],["MI-08","Kristen McDonald Rivet","D","Thomas J. Smith","R","D",-1.0,"",null,0,21],["MI-09","Ray Pooley","D","Lisa McClain","R","R",-32.06,"",null,0,21],["MI-10","Christina Hines","D","Michael Bouchard Jr.","R","R",-5.27,"",-5.0,1,21],["MI-11","Jeremy Moss","D","Ethan Baker","R","D",17.33,"",null,0,21],["MI-12","Rashida Tlaib","D","James D. Hooper","R","D",42.19,"",null,0,21],["MI-13","Donavan McKinney","D","T.P. Nykoriak","R","D",44.02,"",50.0,1,21],["MN-01","Jake Johnson","D","Brad Finstad","R","R",-11.54,"",1.0,3,21],["MN-02","Matt Little","D","Eric Pratt","R","D",6.29,"",null,0,21],["MN-03","Kelly Morrison","D","Tyler Bass","R","D",21.63,"",null,0,21],["MN-04","Betty McCollum","D","Paul Wikstrom","R","D",36.94,"",null,0,21],["MN-05","Ilhan Omar","D","John Nagel","R","D",63.75,"",null,0,21],["MN-06","Doug Chapin","D","Tom Emmer","R","R",-19.57,"",null,0,21],["MN-07","Erik Osberg","D","Michelle Fischbach","R","R",-36.29,"",null,0,21],["MN-08","Trina Swanson","D","Pete Stauber","R","R",-13.79,"",-6.0,1,21],["MO-01","Wesley Bell","D","Paul Berry","R","D",58.46,"",null,0,20],["MO-02","Fred Wellman","D","Ann Wagner","R","R",-8.01,"",1.0,2,20],["MO-03","Bethany Mann","D","Bob Onder","R","R",-27.04,"",null,0,20],["MO-04","Jordan Herrera","D","Mark Alford","R","R",-42.15,"",null,0,20],["MO-05","Emanuel Cleaver","D","Rick Brattin","R","D",24.33,"",null,0,20],["MO-06","Josh Smead","D","Chris Stigall","R","R",-38.94,"",null,0,20],["MO-07","Missi Hesketh","D","Eric Burlison","R","R",-42.89,"",null,0,20],["MO-08","Christopher Riechard","D","Jason Smith","R","R",-53.99,"",null,0,20],["MS-01","Cliff Johnson","D","Trent Kelly","R","R",-36.2,"",null,0,20],["MS-02","Bennie Thompson","D","Ron Eller","R","D",22.02,"",null,0,20],["MS-03","Michael Chiaradio","D","Michael Guest","R","R",-28.27,"",null,0,20],["MS-04","Jeffrey Hulum III","D","Mike Ezell","R","R",-41.89,"",null,0,20],["MT-01","Sam Forstag","D","Aaron Flint","R","R",-10.72,"",4.5,4,22],["MT-02","Brian Miller","D","Troy Downing","R","R",-29.78,"",-11.0,1,22],["NC-01","Don Davis","D","Laurie Buckhout","R","D",-10.48,"",4.5,4,19.5],["NC-02","Deborah Ross","D","Eugene Douglass","R","D",34.79,"",null,0,19.5],["NC-03","Raymond Smith Jr.","D","Greg Murphy","R","R",-12.44,"",null,0,19.5],["NC-04","Valerie Foushee","D","Max Ganorkar","R","D",46.24,"",null,0,19.5],["NC-05","Chuck Hubbard","D","Virginia Foxx","R","R",-17.37,"",null,0,19.5],["NC-06","Cyril Jefferson","D","Addison McDowell","R","R",-17.15,"",null,0,19.5],["NC-07","Kimberly Hardy","D","David Rouzer","R","R",-13.26,"",null,0,19.5],["NC-08","Colby Watson","D","Mark Harris","R","R",-19.19,"",null,0,19.5],["NC-09","Richard Ojeda","D","Richard Hudson","R","R",-15.54,"",-4.0,1,19.5],["NC-10","Ashley Bell","D","Pat Harrigan","R","R",-17.5,"",null,0,19.5],["NC-11","Jamie Ager","D","Jennifer Balkcom","R","R",-10.01,"",9.5,2,19.5],["NC-12","Alma Adams","D","Jack Codiga","R","D",48.02,"",null,0,19.5],["NC-13","Paul Barringer","D","Brad Knott","R","R",-16.87,"",null,0,19.5],["NC-14","LaKesha Womack","D","Tim Moore","R","R",-15.51,"",null,0,19.5],["ND-AL","Trygve Hammer","D","Julie Fedorchak","R","R",-36.66,"",null,0,21],["NE-01","Chris Backemeyer","D","Mike Flood","R","R",-12.76,"",-1.0,1,21],["NE-02","Denise Powell","D","Brinker Harding","R","R",5.12,"",12.0,1,21],["NE-03","Becky Stille","D","Adrian Smith","R","R",-54.06,"",null,0,21],["NH-01","Stefany Shaheen","D","Anthony DiLorenzo","R","D",3.01,"",8.5,2,20],["NH-02","Maggie Goodlander","D","Lily Tang Williams","R","D",4.96,"",15.5,2,20],["NJ-01","Donald Norcross","D","Damon Galdo","R","D",20.44,"",null,0,20],["NJ-02","Zack Mullock","D","Jeff Van Drew","R","R",-10.81,"",-10.0,1,20],["NJ-03","Herb Conaway","D","Michael McGuire","R","D",9.91,"",null,0,20],["NJ-04","Rachel Peace","D","Chris Smith","R","R",-28.59,"",null,0,20],["NJ-05","Josh Gottheimer","D","Sean Kirrane","R","D",4.29,"",null,0,20],["NJ-06","Frank Pallone","D","Hillary Herzig","R","D",9.81,"",null,0,20],["NJ-07","Rebecca Bennett","D","Thomas Kean Jr.","R","R",0.07,"",null,0,20],["NJ-08","Rob Menendez","D","Aristotle Eliopoulos","I","D",30.05,"D",null,0,20],["NJ-09","Nellie Pou","D","Rosie Pino","R","D",3.89,"",null,0,20],["NJ-10","LaMonica McIver","D","Carmen Bucco","R","D",54.38,"",null,0,20],["NJ-11","Analilia Mejia","D","Joe Hathaway","R","D",10.95,"",null,0,20],["NJ-12","Adam Hamawy","D","Gregg Mele","R","D",27.11,"",null,0,20],["NM-01","Melanie Stansbury","D","Didi Okapareke","R","D",13.44,"",18.0,1,21],["NM-02","Gabe Vasquez","D","Greg Cunningham","R","D",0.11,"",4.0,1,21],["NM-03","Teresa Leger Fernández","D","Martin Zamora","R","D",6.72,"",14.0,1,21],["NV-01","Dina Titus","D","Carrie Buck","R","D",3.89,"",null,0,22],["NV-02","Teresa Benitez-Thompson","D","David Flippo","R","R",-13.55,"",-2.0,1,22],["NV-03","Susie Lee","D","Martin O'Donnell","R","D",1.12,"",7.0,1,22],["NV-04","Steven Horsford","D","Cody Whipple","R","D",3.87,"",null,0,22],["NY-01","Chris Gallant","D","Nick LaLota","R","R",-8.1,"",null,0,21],["NY-02","Patrick Halpin","D","Andrew Garbarino","R","R",-11.19,"",null,0,21],["NY-03","Tom Suozzi","D","Mike LiPetri","R","D",-0.41,"",null,0,21],["NY-04","Laura Gillen","D","Jeanine Driscoll","R","D",4.63,"",null,0,21],["NY-05","Gregory Meeks","D","George Marsh","R","D",47.77,"",null,0,21],["NY-06","Grace Meng","D","Joseph Chou","R","D",12.29,"",null,0,21],["NY-07","Claire Valdez","D","Melvin Rivera","R","D",50.66,"",null,0,21],["NY-08","Hakeem Jeffries","D","Lewis Mizrahi","R","D",47.49,"",null,0,21],["NY-09","Yvette Clarke","D","Joel Anabilah-Azumah","R","D",44.21,"",null,0,21],["NY-10","Brad Lander","D","Jennifer Moore","R","D",64.28,"",null,0,21],["NY-11","Michael DeCillis","D","Nicole Malliotakis","R","R",-20.56,"",null,0,21],["NY-12","Micah Lasher","D","Caroline Shinkle","R","D",66.69,"",null,0,21],["NY-13","Darializa Avila Chevalier","D","Jomo Williams","R","D",64.61,"",null,0,21],["NY-14","Alexandria Ocasio-Cortez","D","Diamant Hysenaj","R","D",38.17,"",null,0,21],["NY-15","Ritchie Torres","D","Stylo Sapaskis","R","D",54.34,"",null,0,21],["NY-16","George Latimer","D","Joseph Cinquemani","R","D",36.23,"",null,0,21],["NY-17","Cait Conley","D","Mike Lawler","R","R",2.95,"",0.3,3,21],["NY-18","Pat Ryan","D","Jacqueline Auringer","R","D",4.81,"",17.0,1,21],["NY-19","Josh Riley","D","Peter Oberacker","R","D",2.48,"",null,0,21],["NY-20","Paul Tonko","D","Ralph Ambrosio","R","D",15.62,"",null,0,21],["NY-21","Blake Gendebien","D","Anthony Constantino","R","R",-19.57,"",-0.3,3,21],["NY-22","John Mannion","D","Kailee Buller","R","D",8.66,"",null,0,21],["NY-23","Aaron Gies","D","Nick Langworthy","R","R",-20.54,"",-19.0,2,21],["NY-24","Alissa Ellman","D","Claudia Tenney","R","R",-22.62,"",null,0,21],["NY-25","Joseph Morelle","D","Virginia McIntyre","R","D",19.25,"",null,0,21],["NY-26","Tim Kennedy","D","Dennis Hannon","R","D",21.06,"",null,0,21],["OH-01","Greg Landsman","D","Eric Conroy","R","D",-1.93,"",6.5,2,19.5],["OH-02","Jennifer Mazzuckelli","D","David Taylor","R","R",-41.92,"",null,0,19.5],["OH-03","Joyce Beatty","D","Cleophus Dulaney","R","D",41.59,"",null,0,19.5],["OH-04","Joshua Kolasinski","D","Jim Jordan","R","R",-42.53,"",null,0,19.5],["OH-05","Brian Shaver","D","Bob Latta","R","R",-23.37,"",null,0,19.5],["OH-06","Elizabeth Kirtley","D","Michael Rulli","R","R",-33.76,"",null,0,19.5],["OH-07","Brian Poindexter","D","Max Miller","R","R",-10.8,"",4.0,1,19.5],["OH-08","Vanessa Enoch","D","Warren Davidson","R","R",-15.58,"",null,0,19.5],["OH-09","Marcy Kaptur","D","Derek Merrin","R","D",-9.73,"",3.0,2,19.5],["OH-10","Kristina Knickerbocker","D","Mike Turner","R","R",-7.37,"",3.0,1,19.5],["OH-11","Shontel Brown","D","Mike Krichner","R","D",56.14,"",null,0,19.5],["OH-12","Jerrad Christian","D","Troy Balderson","R","R",-30.12,"",null,0,19.5],["OH-13","Emilia Sykes","D","Carey Coleman","R","D",3.98,"",null,0,19.5],["OH-14","Maria Jukic","D","David Joyce","R","R",-19.72,"",null,0,19.5],["OH-15","Don Leonard","D","Mike Carey","R","R",-9.46,"",3.0,1,19.5],["OK-01","John Croisant","D","Mark Tedford","R","R",-21.99,"",null,0,20],["OK-02","Brandon Wade","D","Josh Brecheen","R","R",-55.99,"",null,0,20],["OK-03","Suzie Byrd","D","Frank Lucas","R","R",-46.24,"",null,0,20],["OK-04","Mitchell Jacob","D","Tom Cole","R","R",-33.53,"",null,0,20],["OK-05","Jena Nelson","D","Stephanie Bice","R","R",-17.93,"",-5.0,1,20],["OR-01","Suzanne Bonamici","D","Barbara Kahl","R","D",39.41,"",null,0,23],["OR-02","Chris Beck","D","Cliff Bentz","R","R",-27.17,"",null,0,23],["OR-03","Maxine Dexter","D","Loran Ayles","R","D",47.8,"",null,0,23],["OR-04","Val Hoyle","D","Monique DeSpain","R","D",12.59,"",null,0,23],["OR-05","Janelle Bynum","D","Patti Adair","R","D",8.87,"",null,0,23],["OR-06","Andrea Salinas","D","David Russ","R","D",12.18,"",null,0,23],["PA-01","Bob Harvie","D","Brian Fitzpatrick","R","R",1.4,"",1.0,2,20],["PA-02","Brendan Boyle","D","Jessica Arriaga","R","D",37.89,"",null,0,20],["PA-03","Chris Rabb","D","Dennis Mahoney","I","D",79.03,"D",null,0,20],["PA-04","Madeleine Dean","D","Aurora Stuski","R","D",16.75,"",null,0,20],["PA-05","Mary Gay Scanlon","D","Nicholas Manganaro","R","D",29.83,"",null,0,20],["PA-06","Chrissy Houlahan","D","Marty Young","R","D",12.36,"",null,0,20],["PA-07","Bob Brooks","D","Ryan Mackenzie","R","R",-2.28,"",5.3,3,20],["PA-08","Paige Cognetti","D","Rob Bresnahan","R","R",-7.17,"",4.0,3,20],["PA-09","Rachel Wallace","D","Dan Meuser","R","R",-37.99,"",null,0,20],["PA-10","Janelle Stelson","D","Scott Perry","R","R",-5.03,"",1.5,2,20],["PA-11","Nancy Mannion","D","Lloyd Smucker","R","R",-21.59,"",null,0,20],["PA-12","Summer Lee","D","James Hayes","R","D",19.56,"",null,0,20],["PA-13","Beth Farnham","D","John Joyce","R","R",-45.88,"",null,0,20],["PA-14","Alan Bradstock","D","Guy Reschenthaler","R","R",-33.17,"",null,0,20],["PA-15","Ray Bilger","D","Glenn Thompson","R","R",-38.11,"",null,0,20],["PA-16","Justin Wagner","D","Mike Kelly","R","R",-22.46,"",null,0,20],["PA-17","Chris Deluzio","D","Tony Guy","R","D",5.63,"",null,0,20],["RI-01","Gabe Amo","D","Kellie Keenan","R","D",24.37,"",23.5,2,20],["RI-02","Seth Magaziner","D","Victor Mellor","R","D",8.68,"",14.5,2,20],["SC-01","Nancy Lacore","D","Jenny Costa Honeycutt","R","R",-12.11,"",-0.3,3,19],["SC-02","Zyon Khalifa","D","Joe Wilson","R","R",-13.29,"",null,0,19],["SC-03","Eunice Lehmacher","D","Sheri Biggs","R","R",-42.23,"",null,0,19],["SC-04","Courtney McClain","D","William Timmons","R","R",-22.71,"",null,0,19],["SC-05","Mallory Dittmer","D","Wes Climer","R","R",-21.93,"",null,0,19],["SC-06","Jim Clyburn","D","John Peterson","R","D",25.42,"",null,0,19],["SC-07","John Vincent","D","Russell Fry","R","R",-24.69,"",null,0,19],["SD-AL","Nicole Gronli","D","Marty Jackley","R","R",-29.14,"",-28.0,1,21],["TN-01","Kristi Burke","D","Diana Harshbarger","R","R",-57.63,"",null,0,20],["TN-02","Michaela Barnett","D","Tim Burchett","R","R",-33.2,"",null,0,20],["TN-03","Anna Golladay","D","Chuck Fleischmann","R","R",-35.24,"",null,0,20],["TN-04","Victoria Broderick","D","Scott DesJarlais","R","R",-22.15,"",null,0,20],["TN-05","Chaz Molder","D","Charlie Hatcher","R","R",-20.76,"",-5.0,1,20],["TN-06","Mike Croley","D","Johnny Garrett","R","R",-25.31,"",null,0,20],["TN-07","Darden Copeland","D","Matt Van Epps","R","R",-21.69,"",null,0,20],["TN-08","Heidi Kuhn","D","David Kustoff","R","R",-19.3,"",null,0,20],["TN-09","Justin J. Pearson","D","Brent Taylor","R","D",-18.74,"",null,0,20],["TX-01","Yolanda Prince","D","Nathaniel Moran","R","R",-48.52,"",null,0,21],["TX-02","Shaun Finnie","D","Steve Toth","R","R",-22.81,"",-9.0,1,21],["TX-03","Evan Hunt","D","Keith Self","R","R",-22.44,"",null,0,21],["TX-04","Jason Pearce","D","Pat Fallon","R","R",-23.4,"",null,0,21],["TX-05","Chelsey Hockett","D","Lance Gooden","R","R",-20.5,"",null,0,21],["TX-06","Danny Minton","D","Jake Ellzey","R","R",-22.4,"",null,0,21],["TX-07","Lizzie Fletcher","D","Alexander Hale","R","D",26.05,"",null,0,21],["TX-08","Laura Jones","D","Jessica Steinmann","R","R",-25.67,"",null,0,21],["TX-09","Leticia Gutierrez","D","Alex Mealer","R","D",-17.17,"",-4.3,3,21],["TX-10","Caitlin Rourk","D","Chris Gober","R","R",-20.98,"",-7.0,1,21],["TX-11","Claire Reynolds","D","August Pfluger","R","R",-33.72,"",null,0,21],["TX-12","Angela Rodriguez Prilliman","D","Craig Goldman","R","R",-22.62,"",null,0,21],["TX-13","Mark Nair","D","Ronny Jackson","R","R",-46.21,"",null,0,21],["TX-14","Thurman Bartie","D","Randy Weber","R","R",-23.89,"",null,0,21],["TX-15","Bobby Pulido","D","Monica De La Cruz","R","R",-14.12,"",10.0,2,21],["TX-16","Veronica Escobar","D","Adam Bauman","R","D",21.51,"",null,0,21],["TX-17","Casey Shepard","D","Pete Sessions","R","R",-20.35,"",null,0,21],["TX-18","Christian Menefee","D","Ronald Whitfield","R","D",57.87,"",null,0,21],["TX-19","Kyle Rable","D","Tom Sell","R","R",-50.86,"",null,0,21],["TX-20","Joaquin Castro","D","Edgardo Baez","R","D",31.88,"",null,0,21],["TX-21","Kristin Hook","D","Mark Teixeira","R","R",-20.82,"",null,0,21],["TX-22","Marquette Greene-Scott","D","Trever Nehls","R","R",-21.43,"",null,0,21],["TX-23","Katy Padilla Stout","D","Brandon Herrera","R","R",-13.06,"",0.0,1,21],["TX-24","Kevin Burge","D","Beth Van Duyne","R","R",-15.44,"",null,0,21],["TX-25","Dione Sims","D","Roger Williams","R","R",-22.28,"",null,0,21],["TX-26","Steven Shook","D","Brandon Gill","R","R",-22.81,"",null,0,21],["TX-27","Tanya Lloyd","D","Michael Cloud","R","R",-20.48,"",null,0,21],["TX-28","Henry Cuellar","D","Tano Tijerina","R","D",-5.43,"",20.0,1,21],["TX-29","Sylvia Garcia","D","Martha Fierro","R","D",34.03,"",null,0,21],["TX-30","Frederick Haynes III","D","Everett Jackson","R","D",50.2,"",null,0,21],["TX-31","Justin Early","D","John Carter","R","R",-21.16,"",null,0,21],["TX-32","Dan Barrios","D","Jace Yarbrough","R","D",-16.15,"",null,0,21],["TX-33","Colin Allred","D","Patrick Gillespie","R","D",36.41,"",null,0,21],["TX-34","Vicente Gonzalez","D","Eric Flores","R","D",-6.93,"",7.0,1,21],["TX-35","Johnny Garcia","D","Carlos De La Cruz","R","D",-8.41,"",1.0,3,21],["TX-36","Rhonda Hart","D","Brian Babin","R","R",-23.65,"",null,0,21],["TX-37","Greg Casar","D","Lauren Peña","R","D",59.2,"",null,0,21],["TX-38","Melissa McDonough","D","Jon Bonck","R","R",-20.51,"",null,0,21],["UT-01","Ben McAdams","D","Riley Owen","R","R",24.63,"",null,0,22],["UT-02","Peter Crosby","D","Blake Moore","R","R",-30.41,"",-1.0,2,22],["UT-03","Kent Udell","D","Celeste Maloy","R","R",-42.41,"",null,0,22],["UT-04","Jonny Larsen","D","Mike Kennedy","R","R",-33.71,"",null,0,22],["VA-01","Shannon Taylor","D","Rob Wittman","R","R",-5.33,"",1.0,2,19],["VA-02","Elaine Luria","D","Jen Kiggans","R","R",0.29,"",3.0,1,19],["VA-03","Bobby Scott","D","Edwin Rivera","R","D",36.12,"",null,0,19],["VA-04","Jennifer McClellan","D","Robert Murray","R","D",33.91,"",null,0,19],["VA-05","Tom Perriello","D","John McGuire","R","R",-11.41,"",-3.5,2,19],["VA-06","Beth Macy","D","Ben Cline","R","R",-23.59,"",-30.0,1,19],["VA-07","Eugene Vindman","D","Doug Ollivant","R","D",3.9,"",null,0,19],["VA-08","Don Beyer","D","Tony Sabio","R","D",52.36,"",null,0,19],["VA-09","Joy Powers","D","Morgan Griffith","R","R",-43.92,"",null,0,19],["VA-10","Suhas Subramanyam","D","Dave Beckwith","R","D",11.0,"",null,0,19],["VA-11","James Walkinshaw","D","Arthur Purves","R","D",36.92,"",null,0,19],["VT-AL","Becca Balint","D","Gerald Malloy","R","D",33.72,"",26.0,2,19],["WA-01","Suzan DelBene","D","Mary Silva","R","D",30.15,"",null,0,23],["WA-02","Rick Larsen","D","Edwin H. Feller","R","D",24.21,"",null,0,23],["WA-03","Marie Gluesenkamp Perez","D","John Braun","R","D",-3.64,"",0.0,2,23],["WA-04","John Duresky","D","Amanda McKinney","R","R",-20.28,"",null,0,23],["WA-05","Carmela Conroy","D","Michael Baumgartner","R","R",-10.91,"",null,0,23],["WA-06","Emily Randall","D","Teresa Fox","R","D",19.35,"",null,0,23],["WA-07","Pramila Jayapal","D","Nirav Sheth","R","D",77.41,"",null,0,23],["WA-08","Kim Schrier","D","Spencer Meline","R","D",6.19,"",null,0,23],["WA-09","Adam Smith","D","Doug Basler","R","D",43.55,"",null,0,23],["WA-10","Marilyn Strickland","D","Chris D. Chung","R","D",18.51,"",null,0,23],["WI-01","Mitchell Berman","D","Bryan Steil","R","R",-3.95,"",0.5,2,21],["WI-02","Mark Pocan","D","","R","D",41.13,"D",null,0,21],["WI-03","Rebecca Cooke","D","Derrick Van Orden","R","R",-6.84,"",null,0,21],["WI-04","Gwen Moore","D","Tim Rogers","R","D",52.78,"",null,0,21],["WI-05","Andrew Beck","D","Scott Fitzgerald","R","R",-22.65,"",null,0,21],["WI-06","Brad Smith","D","Glenn Grothman","R","R",-16.51,"",null,0,21],["WI-07","Fred Clark","D","Michael Alfonso","R","R",-22.21,"",null,0,21],["WI-08","Rick Crosson","D","Tony Wied","R","R",-16.29,"",null,0,21],["WV-01","Vince George","D","Carol Miller","R","R",-44.3,"",null,0,19.5],["WV-02","Ace Parsi","D","Riley Moore","R","R",-39.72,"",null,0,19.5],["WY-AL","Lisa Kinney","D","Chuck Gray","R","R",-46.47,"",null,0,21]],"generic":{"d":51.0,"r":43.1,"m":7.9,"n":27,"w":21,"last":"2026-11-02"},"close":{"AL":[20,20],"AK":[24,25],"AZ":[21,21],"AR":[20.5,20.5],"CA":[23,23],"CO":[21,21],"CT":[20,20],"DE":[20,20],"FL":[19,20],"GA":[19,19],"HI":[24,24],"ID":[22,23],"IL":[20,20],"IN":[18,19],"IA":[21,21],"KS":[20,21],"KY":[18,19],"LA":[21,21],"ME":[20,20],"MD":[20,20],"MA":[20,20],"MI":[20,21],"MN":[21,21],"MS":[20,20],"MO":[20,20],"MT":[22,22],"NE":[21,21],"NV":[22,22],"NH":[19,20],"NJ":[20,20],"NM":[21,21],"NY":[21,21],"NC":[19.5,19.5],"ND":[20,21],"OH":[19.5,19.5],"OK":[20,20],"OR":[22,23],"PA":[20,20],"RI":[20,20],"SC":[19,19],"SD":[20,21],"TN":[20,20],"TX":[20,21],"UT":[22,22],"VT":[19,19],"VA":[19,19],"WA":[23,23],"WV":[19.5,19.5],"WI":[21,21],"WY":[21,21],"DC":[20,20]}};
+
+/* ================= constants ================= */
+const ET = 'America/New_York';
+const MIDNIGHT = Date.UTC(2026, 10, 3, 5, 0, 0);         // 12:00 AM EST, Nov 3 2026
+const hourTs = h => MIDNIGHT + h * 3600e3;
+const RESULTS_START = hourTs(17.75);                       // poll civicAPI fast from 5:45 PM ET
+const CIVIC = 'https://civicapi.org/api/v2/race/search';
+const PM = 'https://gamma-api.polymarket.com';
+const CLOB = 'https://clob.polymarket.com';
+const PM_SLUG = { senate: 'which-party-will-win-the-senate-in-2026', house: 'which-party-will-win-the-house-in-2026', bop: 'balance-of-power-2026-midterms' };
+const KS_FEED = 'https://raw.githubusercontent.com/joshdhill/hearth/desk-data/kalshi.json';   // written by .github/workflows/desk-kalshi.yml
+const SEN_HOLD = { D: 32, I: 2, R: 31 };                   // not up in 2026; the 2 independents caucus with Democrats
+const GOV_HOLD = { D: 6, R: 8 };
+const NAMES = {AL:'Alabama',AK:'Alaska',AZ:'Arizona',AR:'Arkansas',CA:'California',CO:'Colorado',CT:'Connecticut',DE:'Delaware',DC:'District of Columbia',FL:'Florida',GA:'Georgia',HI:'Hawaii',ID:'Idaho',IL:'Illinois',IN:'Indiana',IA:'Iowa',KS:'Kansas',KY:'Kentucky',LA:'Louisiana',ME:'Maine',MD:'Maryland',MA:'Massachusetts',MI:'Michigan',MN:'Minnesota',MS:'Mississippi',MO:'Missouri',MT:'Montana',NE:'Nebraska',NV:'Nevada',NH:'New Hampshire',NJ:'New Jersey',NM:'New Mexico',NY:'New York',NC:'North Carolina',ND:'North Dakota',OH:'Ohio',OK:'Oklahoma',OR:'Oregon',PA:'Pennsylvania',RI:'Rhode Island',SC:'South Carolina',SD:'South Dakota',TN:'Tennessee',TX:'Texas',UT:'Utah',VT:'Vermont',VA:'Virginia',WA:'Washington',WV:'West Virginia',WI:'Wisconsin',WY:'Wyoming'};
+const NAME_LIST = Object.entries(NAMES).sort((a, b) => b[1].length - a[1].length);
+const AT_LARGE = new Set(['AK', 'DE', 'ND', 'SD', 'VT', 'WY']);
+const TILE = {AK:[0,0],ME:[10,0],VT:[9,1],NH:[10,1],WA:[0,2],ID:[1,2],MT:[2,2],ND:[3,2],MN:[4,2],IL:[5,2],WI:[6,2],MI:[7,2],NY:[8,2],RI:[9,2],MA:[10,2],OR:[0,3],NV:[1,3],WY:[2,3],SD:[3,3],IA:[4,3],IN:[5,3],OH:[6,3],PA:[7,3],NJ:[8,3],CT:[9,3],CA:[0,4],UT:[1,4],CO:[2,4],NE:[3,4],MO:[4,4],KY:[5,4],WV:[6,4],VA:[7,4],MD:[8,4],DE:[9,4],AZ:[1,5],NM:[2,5],KS:[3,5],AR:[4,5],TN:[5,5],NC:[6,5],SC:[7,5],DC:[8,5],OK:[3,6],LA:[4,6],MS:[5,6],AL:[6,6],GA:[7,6],HI:[0,7],TX:[3,7],FL:[8,7]};
+const FIRST_NOTE = { NH: 'some', OR: 'part' };
+const PNAME = { D: 'Dem', R: 'Rep', I: 'Ind', O: 'Other' };
+const PLONG = { D: 'Democrats', R: 'Republicans', I: 'independents', O: 'others' };
+const KIND = { call: 'Projected', flip: 'Pickup', votes: 'Votes in', lead: 'Lead change', market: 'Market move', polls: 'Polls closed', runoff: 'Runoff', house: 'House calls', info: 'Desk' };
+
+/* ================= helpers ================= */
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const num = v => { const n = typeof v === 'string' ? parseFloat(v) : v; return Number.isFinite(n) ? n : null; };
+const arr = v => { if (Array.isArray(v)) return v; try { const a = JSON.parse(v || '[]'); return Array.isArray(a) ? a : []; } catch { return []; } };
+const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+const fmtInt = n => Math.round(n).toLocaleString('en-US');
+const pc0 = p => p == null ? '—' : Math.round(p * 100) + '%';
+const fmtPct = x => x == null ? '—' : (Math.round(x * 10) / 10).toFixed(1);
+const etFmt = new Intl.DateTimeFormat('en-US', { timeZone: ET, hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true });
+const etShort = new Intl.DateTimeFormat('en-US', { timeZone: ET, hour: 'numeric', minute: '2-digit', hour12: true });
+const etDate = new Intl.DateTimeFormat('en-US', { timeZone: ET, weekday: 'long', month: 'short', day: 'numeric' });
+const clockOf = t => etShort.format(new Date(t));
+function hourLabel(h, compact) {
+  const H = Math.floor(h) % 24, m = Math.round((h % 1) * 60), ap = H >= 12 ? 'PM' : 'AM', h12 = ((H + 11) % 12) + 1;
+  if (compact) return h12 + (m ? ':' + String(m).padStart(2, '0') : '') + (ap === 'PM' ? 'p' : 'a');
+  return `${h12}:${String(m).padStart(2, '0')} ${ap}`;
+}
+function hms(ms) { ms = Math.max(0, ms); const s = Math.floor(ms / 1000), h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60; return (h ? h + ':' + String(m).padStart(2, '0') : String(m)) + ':' + String(x).padStart(2, '0'); }
+function ago(t) { if (!t) return ''; const s = Math.round((Date.now() - t) / 1000); return s < 60 ? s + 's' : Math.round(s / 60) + 'm'; }
+const LS = {
+  get(k, d) { try { const v = localStorage.getItem('md26.' + k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem('md26.' + k, JSON.stringify(v)); } catch { /* storage unavailable */ } }
+};
+function partyCode(p) {
+  p = String(p || '').toLowerCase();
+  if (!p) return '';
+  if (/democrat|^dem\b|dfl|farmer.?labor/.test(p)) return 'D';
+  if (/republican|^rep\b|^gop/.test(p)) return 'R';
+  return 'I';
+}
+function lastName(n) {
+  n = String(n || '').replace(/\(.*?\)/g, ' ').replace(/[“”"]/g, ' ').replace(/,?\s+(jr|sr|ii|iii|iv)\.?\s*$/i, '').trim();
+  const parts = n.split(/\s+/).filter(Boolean);
+  return parts.length ? parts[parts.length - 1] : '';
+}
+const lnKey = n => lastName(n).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z'-]/g, '');
+const fiKey = n => String(n || '').trim().charAt(0).toLowerCase();
+function nameMatch(a, b) {
+  const la = lnKey(a), lb = lnKey(b);
+  if (!la || !lb || la !== lb) return false;
+  const fa = fiKey(a), fb = fiKey(b);
+  return !fa || !fb || fa === fb;
+}
+
+/* ================= settings ================= */
+const params = new URLSearchParams(location.search);
+const SET = Object.assign({ sound: false, rotate: true, houseFeed: false }, LS.get('settings', {}));
+delete SET.relay;
+LS.set('settings', SET);
+
+/* ================= races ================= */
+const races = new Map();
+const normHeld = p => { p = String(p || '').toUpperCase(); return p === 'IND' || p === 'I' ? 'I' : p === 'D' || p === 'R' ? p : ''; };
+function blank(o) { return Object.assign({ cands: [], total: 0, rep: 0, winner: null, winP: '', lead: null, margin: null, dm: null, pm: null, ks: null, bg: false, civAt: 0 }, o); }
+for (const x of DATA.senate) races.set('S-' + x.st, blank({ key: 'S-' + x.st, ch: 'S', st: x.st, name: x.name, sp: x.sp, label: `${x.name} Senate${x.sp ? ' (special)' : ''}`, short: x.st + ' Sen', held: normHeld(x.held), dName: x.d, dSide: x.dS === 'I' ? 'I' : 'D', rName: x.r, lean: x.lean, poll: x.poll, firstTs: hourTs(x.close[0]), closeTs: hourTs(x.close[1]), fixed: '' }));
+for (const x of DATA.gov) races.set('G-' + x.st, blank({ key: 'G-' + x.st, ch: 'G', st: x.st, name: x.name, label: `${x.name} Governor`, short: x.st + ' Gov', held: normHeld(x.held), dName: x.d, dSide: x.dS === 'I' ? 'I' : 'D', rName: x.r, lean: x.lean, poll: x.poll, firstTs: hourTs(x.close[0]), closeTs: hourTs(x.close[1]), fixed: '' }));
+for (const h of DATA.house) {
+  const [dist, d, dS, r, , held, lean, fixed, pm, pn, cl] = h;
+  const st = dist.slice(0, 2);
+  races.set('H-' + dist, blank({ key: 'H-' + dist, ch: 'H', st, dist, name: NAMES[st], label: dist, short: dist, held: normHeld(held), dName: d, dSide: dS === 'I' ? 'I' : 'D', rName: r, lean, poll: pm == null ? null : { m: pm, n: pn }, firstTs: st === 'FL' ? hourTs(cl) : hourTs(DATA.close[st][0]), closeTs: hourTs(cl), fixed: normHeld(fixed) }));
+}
+const byCh = ch => [...races.values()].filter(r => r.ch === ch);
+
+function statusOf(r, now = Date.now()) {
+  if (r.winner) return 'won';
+  if (r.fixed && now >= r.closeTs) return 'uncontested';
+  if (r.total > 0) return 'counting';
+  if (now >= r.closeTs) return 'closed';
+  if (now >= r.firstTs) return 'partial';
+  return 'open';
+}
+const winnerParty = r => r.winner ? r.winP : r.fixed && Date.now() >= r.closeTs ? r.fixed : '';
+const isFlip = r => { const p = winnerParty(r); return !!(p && r.held && p !== r.held); };
+function sideMargin(m, r) { if (m == null) return '—'; if (Math.abs(m) < 0.05) return 'Even'; return (m > 0 ? (r && r.dSide === 'I' ? 'I+' : 'D+') : 'R+') + Math.abs(m).toFixed(1); }
+
+/* ================= state ================= */
+const S = {
+  src: {
+    civic: { label: 'Results', at: 0, err: '', ok: null },
+    pm: { label: 'Polymarket', at: 0, err: '', ok: null },
+    ks: { label: 'Kalshi', at: 0, err: '', ok: null }
+  },
+  civicSeen: {},
+  ctl: { pm: { senate: null, house: null }, ks: { senate: null, house: null } },
+  live: { senate: [], house: [] },          // in-session Polymarket samples {t,p}
+  hist: { senate: [], house: [] },          // CLOB 24h history
+  tok: { senate: null, house: null },
+  bop: null, bopAt: 0,
+  pmSlugs: new Map(), pmKeyBest: new Map(), pmDiscAt: 0, pmBatchBroken: false,
+  events: LS.get('events', []).filter(e => e && e.id && e.t),
+  bannerQ: [], bannerOn: false,
+  houseBuf: [],
+  lastMkt: {}, mode: 'sen', page: 0, pinned: false, modeStart: Date.now(), pageStart: Date.now()
+};
+const KEYS_BEFORE = r => ({ winner: r.winner ? r.winner.name : '', total: r.total, lead: r.lead ? r.lead.name : '', rep: r.rep });
+
+/* ================= networking ================= */
+async function getJSON(url, ms = 25000) {
+  const ac = new AbortController();
+  const t = setTimeout(() => ac.abort(), ms);
+  try {
+    const res = await fetch(url, { signal: ac.signal, cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return await res.json();
+  } finally { clearTimeout(t); }
+}
+function poller(name, fn, interval) {
+  let fails = 0, timer = 0;
+  const run = async () => {
+    clearTimeout(timer);
+    try { await fn(); fails = 0; } catch (e) { fails++; console.warn(name, e); }
+    const base = interval();
+    const wait = fails ? Math.min(base * 2 ** Math.min(fails, 4), 300e3) : base;
+    timer = setTimeout(run, wait * (0.9 + Math.random() * 0.2));
+  };
+  return { start: run, kick: run };
+}
+function mark(src, ok, err) { const s = S.src[src]; s.ok = ok; if (ok) { s.at = Date.now(); s.err = ''; } else s.err = err || 'error'; renderSources(); }
+
+/* ================= civicAPI: results + calls ================= */
+const CIVIC_TYPE = { S: ['US Senate'], G: ['Governor'], H: ['House of Representatives', 'US House'] };
+function normDist(d, st, name) {
+  if (AT_LARGE.has(st)) return st + '-AL';
+  let s = String(d || '').toUpperCase().trim();
+  if (!s && name) { const m = String(name).match(/district\s+(\d+)/i); if (m) s = m[1]; }
+  if (!s) return null;
+  if (/AT[\s-]?LARGE|-AL$/.test(s)) return st + '-AL';
+  const m = s.match(/(\d+)\s*$/);
+  if (!m) return null;
+  const n = parseInt(m[1], 10);
+  return n ? st + '-' + String(n).padStart(2, '0') : st + '-AL';
+}
+function civicKey(ch, x) {
+  if (x.country && x.country !== 'US') return null;
+  const st = String(x.province || '').toUpperCase();
+  if (!NAMES[st]) return null;
+  if (ch === 'H') { const d = normDist(x.district, st, x.election_name); return d ? 'H-' + d : null; }
+  return ch + '-' + st;
+}
+const sumVotes = x => (x.candidates || []).reduce((s, c) => s + (num(c.votes) || 0), 0);
+async function pullCivic(ch) {
+  const best = new Map();
+  for (const [i, type] of CIVIC_TYPE[ch].entries()) {
+    if (i > 0 && best.size >= (ch === 'H' ? 380 : 1)) break;     // second House type only if the first came back thin
+    const url = `${CIVIC}?startDate=2026-11-03&endDate=2026-11-03&country=US&type=${encodeURIComponent(type)}&limit=${ch === 'H' ? 1000 : 200}`;
+    let j;
+    try { j = await getJSON(url, 45000); } catch (e) { if (i === 0) throw e; else continue; }
+    const list = Array.isArray(j) ? j : (j && (j.races || j.data)) || [];
+    for (const x of list) {
+      const key = civicKey(ch, x);
+      if (!key || !races.has(key)) continue;
+      const tv = sumVotes(x), prev = best.get(key);
+      if (!prev || tv > prev.tv || (tv === prev.tv && (x.candidates || []).length > (prev.x.candidates || []).length)) best.set(key, { x, tv });
+    }
+  }
+  const initial = !S.civicSeen[ch];
+  for (const [key, { x }] of best) applyCivic(races.get(key), x, initial);
+  S.civicSeen[ch] = true;
+  if (ch === 'H') flushHouseCalls(initial);
+  schedule();
+}
+function sideOf(c, r) {
+  const p = c.p;
+  const mD = r.dName && nameMatch(c.name, r.dName), mR = r.rName && nameMatch(c.name, r.rName);
+  if (mD && mR) return p === 'R' ? 'R' : 'D';
+  if (mD && (r.dSide === 'I' || p !== 'R')) return 'D';
+  if (mR && (p === 'R' || p === '')) return 'R';
+  if (p === 'D' && r.dSide === 'D' && !mR) return 'D';
+  if (p === 'R') return 'R';
+  return 'O';
+}
+function applyCivic(r, x, initial) {
+  const before = KEYS_BEFORE(r);
+  const cands = (x.candidates || []).map(c => ({ name: String(c.name || '').trim(), party: String(c.party || ''), votes: Math.max(0, num(c.votes) || 0), winner: c.winner === true }));
+  for (const c of cands) { c.p = partyCode(c.party); c.side = sideOf(c, r); if (!c.p) c.p = c.side === 'D' ? r.dSide : c.side === 'R' ? 'R' : 'I'; }
+  if (x.test_data === true || x.test === true || Date.now() < r.firstTs - 10 * 60e3) for (const c of cands) { c.votes = 0; c.winner = false; }
+  cands.sort((a, b) => b.votes - a.votes);
+  r.cands = cands;
+  r.total = cands.reduce((s, c) => s + c.votes, 0);
+  r.rep = cands.some(c => c.votes > 0) ? clamp(num(x.percent_reporting) || 0, 0, 100) : 0;
+  r.civAt = Date.now();
+  const ws = cands.filter(c => c.winner);
+  r.winner = ws.length === 1 ? ws[0] : ws.length > 1 ? ws.sort((a, b) => b.votes - a.votes)[0] : null;
+  r.winP = r.winner ? r.winner.p : '';
+  derive(r);
+  diffEvents(r, before, initial);
+}
+function pairOf(r) {
+  const D = r.cands.find(c => c.side === 'D'), R = r.cands.find(c => c.side === 'R');
+  if (D && R) return [D, R];
+  if (r.cands.length >= 2) { const [a, b] = r.cands; return a.p === 'R' && b.p !== 'R' ? [b, a] : [a, b]; }
+  if (r.cands.length === 1) return r.cands[0].p === 'R' ? [null, r.cands[0]] : [r.cands[0], null];
+  return [null, null];
+}
+function derive(r) {
+  r.lead = null; r.margin = null; r.dm = null; r.runoff = false;
+  if (r.total > 0 && r.cands.length) {
+    const [a, b] = r.cands;
+    r.lead = a; r.margin = b ? (a.votes - b.votes) / r.total * 100 : 100;
+    const D = r.cands.find(c => c.side === 'D'), R = r.cands.find(c => c.side === 'R');
+    if (D && R) r.dm = (D.votes - R.votes) / r.total * 100;
+    if (r.st === 'GA' && r.ch !== 'H' && !r.winner && r.rep >= 95 && a.votes / r.total < 0.5) r.runoff = true;
+  }
+}
+function share(c, r) { return r.total ? c.votes / r.total * 100 : null; }
+
+/* ================= Polymarket ================= */
+function pmYes(m) {
+  if (m.closed) { const v = num(arr(m.outcomePrices)[0]); if (v != null) return v; }
+  const bb = num(m.bestBid), ba = num(m.bestAsk);
+  if (bb != null && ba != null && ba > 0 && ba >= bb && ba - bb <= 0.1) return (bb + ba) / 2;
+  const lt = num(m.lastTradePrice);
+  if (lt != null && lt > 0) return lt;
+  return num(arr(m.outcomePrices)[0]);
+}
+function sideFromText(txt, r) {
+  const t = String(txt || ''), low = t.toLowerCase();
+  if (/democrat/i.test(t)) return 'D';
+  if (/republican|\bgop\b/i.test(t)) return 'R';
+  if (r) {
+    for (const c of r.cands) if (c.side !== 'O') { const ln = lnKey(c.name); if (ln.length > 2 && low.includes(ln)) return c.side; }
+    const ld = lnKey(r.dName), lr = lnKey(r.rName);
+    if (ld.length > 2 && low.includes(ld)) return 'D';
+    if (lr.length > 2 && low.includes(lr)) return 'R';
+  }
+  return 'O';
+}
+function pmSides(ev, r) {
+  const ms = (ev.markets || []).filter(m => m && (m.active !== false || m.closed));
+  if (!ms.length) return null;
+  if (ms.length === 1) {
+    const m = ms[0], y = pmYes(m);
+    if (y == null) return null;
+    const s = sideFromText(m.groupItemTitle && !/^yes|no$/i.test(m.groupItemTitle) ? m.groupItemTitle : (m.question || ev.title), r);
+    if (s === 'D') return { D: y, R: 1 - y, O: 0 };
+    if (s === 'R') return { D: 1 - y, R: y, O: 0 };
+    return null;
+  }
+  const acc = { D: 0, R: 0, O: 0 }; let tot = 0, tokD = null;
+  for (const m of ms) {
+    const y = pmYes(m); if (y == null) continue;
+    const s = sideFromText(m.groupItemTitle || m.question, r);
+    acc[s] += y; tot += y;
+    if (s === 'D' && !tokD) tokD = arr(m.clobTokenIds)[0] || null;
+  }
+  if (tot <= 0) return null;
+  return { D: acc.D / tot, R: acc.R / tot, O: acc.O / tot, tokD };
+}
+const PM_BAD = /primar|nominee|nomination|runoff|turnout|margin|popular vote|vote share|percent|how many|\bseats\b|by how|recount|debate|endorse|approval|resign|speaker|\bstates\b|announce|before|odds|lieutenant|state senate|state house|ballot measure|amendment|referendum|proposition/i;
+function findState(title) { for (const [code, name] of NAME_LIST) if (new RegExp('\\b' + name + '\\b', 'i').test(title)) return code; return null; }
+function classifyPM(ev) {
+  const slug = ev.slug || '', title = String(ev.title || '');
+  if (slug === PM_SLUG.senate) return { ctl: 'senate' };
+  if (slug === PM_SLUG.house) return { ctl: 'house' };
+  if (slug === PM_SLUG.bop) return { bop: true };
+  if (ev.endDate && ev.endDate < '2026-10-01') return null;
+  if (/balance of power/i.test(title) && /2026|midterm/i.test(title)) return { bop: true };
+  if (!PM_BAD.test(title) && /which party|control/i.test(title) && /2026|midterm/i.test(title) && !findState(title) && !/[A-Z]{2}-\d/.test(title)) {
+    if (/\bsenate\b/i.test(title)) return { ctl: 'senate' };
+    if (/\bhouse\b/i.test(title)) return { ctl: 'house' };
+  }
+  if (PM_BAD.test(title)) return null;
+  if ((title.match(/\b[A-Z]{2}-\d{1,2}\b/g) || []).length > 1) return null;      // multi-district bundles
+  let m = title.match(/\b(A[KLRZ]|C[AOT]|DE|FL|GA|HI|I[ADLN]|K[SY]|LA|M[ADEINOST]|N[CDEHJMVY]|O[HKR]|PA|RI|S[CD]|T[NX]|UT|V[AT]|W[AIVY])[- ]?(\d{1,2}|AL)\b/);
+  if (m) {
+    const st = m[1], key = 'H-' + st + '-' + (AT_LARGE.has(st) || m[2] === 'AL' ? 'AL' : m[2].padStart(2, '0'));
+    if (races.has(key)) return { key };
+  }
+  m = title.match(/([A-Z][a-z]+(?:\s[A-Z][a-z]+)?)['’]s\s+(\d{1,2})(?:st|nd|rd|th)\b/);
+  if (m) { const st = findState(m[1]); if (st) { const key = 'H-' + st + '-' + (AT_LARGE.has(st) ? 'AL' : m[2].padStart(2, '0')); if (races.has(key)) return { key }; } }
+  const st = findState(title);
+  if (st) {
+    if (/\bsenate\b/i.test(title) && races.has('S-' + st)) return { key: 'S-' + st };
+    if (/governor|gubernatorial/i.test(title) && races.has('G-' + st)) return { key: 'G-' + st };
+  }
+  return null;
+}
+function ingestPM(ev) {
+  if (!ev || !ev.slug) return;
+  let info = S.pmSlugs.get(ev.slug);
+  if (!info) { info = classifyPM(ev); if (!info) return; S.pmSlugs.set(ev.slug, info); }
+  const vol = num(ev.volume) || 0;
+  if (info.ctl) {
+    const s = pmSides(ev, null); if (!s) return;
+    S.ctl.pm[info.ctl] = { D: s.D, R: s.R, at: Date.now(), slug: ev.slug };
+    if (s.tokD) S.tok[info.ctl] = s.tokD;
+    const series = S.live[info.ctl]; series.push({ t: Date.now(), p: s.D }); if (series.length > 800) series.splice(0, series.length - 800);
+    marketMove(info.ctl);
+  } else if (info.bop) {
+    const ms = ev.markets || []; const out = { DD: 0, DR: 0, RD: 0, RR: 0, OT: 0 }; let tot = 0;
+    for (const m of ms) {
+      const t = String(m.groupItemTitle || m.question || ''), y = pmYes(m); if (y == null) continue;
+      const k = /democrats sweep|d senate,?\s*d house/i.test(t) ? 'DD' : /republicans sweep|r senate,?\s*r house/i.test(t) ? 'RR' : /d senate,?\s*r house/i.test(t) ? 'DR' : /r senate,?\s*d house/i.test(t) ? 'RD' : 'OT';
+      out[k] += y; tot += y;
+    }
+    if (tot > 0) { for (const k in out) out[k] /= tot; S.bop = out; S.bopAt = Date.now(); }
+  } else if (info.key) {
+    const best = S.pmKeyBest.get(info.key);
+    if (best && best.slug !== ev.slug && best.vol > vol) return;            // keep the deeper market for a race
+    S.pmKeyBest.set(info.key, { slug: ev.slug, vol });
+    const r = races.get(info.key), s = pmSides(ev, r);
+    if (r && s) r.pm = { D: s.D, R: s.R, O: s.O, at: Date.now() };
+  }
+}
+async function pmDiscover() {
+  const seen = new Set();
+  const take = list => { for (const ev of list || []) if (ev && ev.slug && !seen.has(ev.slug)) { seen.add(ev.slug); ingestPM(ev); } };
+  for (const tag of ['midterms', 'senate', 'governor']) {
+    for (let off = 0; off < (tag === 'midterms' ? 800 : 300); off += 100) {
+      let page;
+      try { page = await getJSON(`${PM}/events?tag_slug=${tag}&limit=100&offset=${off}&closed=false`, 30000); } catch { break; }
+      if (!Array.isArray(page) || !page.length) break;
+      take(page);
+      if (page.length < 100) break;
+    }
+    const sen = byCh('S').filter(r => S.pmKeyBest.has(r.key)).length, gov = byCh('G').filter(r => S.pmKeyBest.has(r.key)).length;
+    if (sen >= 28 && gov >= 26) break;
+  }
+  // targeted search for any battleground still missing a market
+  const missing = [...races.values()].filter(r => r.ch !== 'H' && r.bg && !S.pmKeyBest.has(r.key)).slice(0, 12);
+  for (const r of missing) {
+    try {
+      const j = await getJSON(`${PM}/public-search?q=${encodeURIComponent(r.name + (r.ch === 'S' ? ' Senate' : ' Governor') + ' 2026')}&limit_per_type=8`, 20000);
+      take((j && j.events) || []);
+    } catch { /* keep going */ }
+  }
+  S.pmDiscAt = Date.now();
+}
+async function pmBySlugs(slugs) {
+  if (!slugs.length) return [];
+  if (!S.pmBatchBroken) {
+    try {
+      const j = await getJSON(`${PM}/events?${slugs.map(s => 'slug=' + encodeURIComponent(s)).join('&')}&limit=${slugs.length}`);
+      if (Array.isArray(j) && j.every(e => e && slugs.includes(e.slug)) && (j.length >= Math.min(2, slugs.length) || slugs.length <= 2)) return j;
+      S.pmBatchBroken = true;
+    } catch (e) { S.pmBatchBroken = true; }
+  }
+  const out = [];
+  for (const s of slugs) { try { const e = await getJSON(`${PM}/events/slug/${encodeURIComponent(s)}`); if (e && e.slug) out.push(e); } catch { /* skip */ } }
+  return out;
+}
+async function pmControl() {
+  const slugs = [PM_SLUG.senate, PM_SLUG.house, PM_SLUG.bop];
+  for (const [slug, info] of S.pmSlugs) if ((info.ctl || info.bop) && !slugs.includes(slug)) slugs.push(slug);
+  const evs = await pmBySlugs(slugs);
+  evs.forEach(ingestPM);
+  if (!evs.length) throw new Error('no control markets');
+  mark('pm', true);
+  if (!S.tickHadPM && S.ctl.pm.senate) { S.tickHadPM = true; requestAnimationFrame(() => renderTicker(true)); }
+  schedule();
+}
+async function pmRaces() {
+  if (Date.now() - S.pmDiscAt > 30 * 60e3) await pmDiscover();
+  const slugs = [...new Set([...S.pmKeyBest.values()].map(v => v.slug))];
+  for (let i = 0; i < slugs.length; i += 20) (await pmBySlugs(slugs.slice(i, i + 20))).forEach(ingestPM);
+  flagBattlegrounds();
+  mark('pm', true);
+  schedule();
+}
+async function pmHistory() {
+  for (const k of ['senate', 'house']) {
+    const tok = S.tok[k]; if (!tok) continue;
+    const j = await getJSON(`${CLOB}/prices-history?market=${encodeURIComponent(tok)}&interval=1d&fidelity=10`, 20000);
+    const h = (j && j.history) || [];
+    S.hist[k] = h.map(p => ({ t: (num(p.t) || 0) * 1000, p: num(p.p) })).filter(p => p.p != null && p.t > 0);
+  }
+  schedule();
+}
+
+/* ================= Kalshi (copied about once a minute by the hearth repo's desk-kalshi Action) ================= */
+function ksSides(x, r) {
+  if (!x) return null;
+  if (Array.isArray(x.m) && x.m.length) {
+    const acc = { D: 0, R: 0, O: 0 }; let tot = 0;
+    for (const row of x.m) {
+      const p = num(row[2]); if (p == null) continue;
+      let s = row[0] === 'D' || row[0] === 'R' ? row[0] : 'O';
+      if (s === 'O' && r) s = sideFromText(row[1], r);
+      acc[s] += p; tot += p;
+    }
+    if (tot > 0) return { D: acc.D / tot, R: acc.R / tot, O: acc.O / tot };
+  }
+  const D = num(x.D), R = num(x.R);
+  return D == null || R == null ? null : { D, R, O: num(x.O) || 0 };
+}
+async function ksFeed() {
+  const j = await getJSON(`${KS_FEED}?t=${Math.floor(Date.now() / 20000)}`, 20000);
+  const at = Date.parse(j && j.at);
+  if (!at) throw new Error('Kalshi feed not started yet');
+  for (const k of ['senate', 'house']) { const s = ksSides(j.ctl && j.ctl[k], null); if (s) S.ctl.ks[k] = { D: s.D, R: s.R, at }; }
+  for (const [key, x] of Object.entries(j.races || {})) {
+    const r = races.get(key); if (!r) continue;
+    const s = ksSides(x, r); if (s) r.ks = { D: s.D, R: s.R, O: s.O, at };
+  }
+  const src = S.src.ks; src.ok = true; src.at = at; src.err = '';
+  renderSources(); schedule();
+}
+
+/* ================= battlegrounds ================= */
+function closeness(r) {
+  if (r.total > 0 && r.margin != null && r.rep > 5) return r.margin / 2;
+  if (r.pm) return Math.abs(r.pm.D - 0.5) * 40;
+  if (r.poll) return Math.abs(r.poll.m);
+  return r.lean != null ? Math.abs(r.lean) + 3 : 99;
+}
+function flagBattlegrounds() {
+  for (const r of races.values()) {
+    const p = r.pm ? r.pm.D : null, m = r.poll ? r.poll.m : null;
+    if (r.ch === 'H') r.bg = !r.fixed && ((p != null && p > 0.12 && p < 0.88) || (p == null && m != null && Math.abs(m) <= 5) || (p == null && m == null && r.lean != null && Math.abs(r.lean) <= 4));
+    else r.bg = (p != null && p > 0.06 && p < 0.94) || (m != null && Math.abs(m) <= 10) || (m == null && r.lean != null && Math.abs(r.lean) <= 6);
+  }
+}
+
+/* ================= decision desk events ================= */
+function addEvent(ev) {
+  if (S.events.some(e => e.id === ev.id)) return false;
+  S.events.unshift(ev);
+  S.events.sort((a, b) => (a.earlier === b.earlier ? b.t - a.t : a.earlier ? 1 : -1));
+  if (S.events.length > 150) S.events.length = 150;
+  LS.set('events', S.events);
+  renderFeed(ev.id);
+  return true;
+}
+function callText(r) {
+  const p = r.winP, flip = isFlip(r);
+  const sh = share(r.winner, r);
+  return {
+    title: `${r.label}: ${r.winner.name} (${p === 'I' ? 'Ind' : p})`,
+    sub: `${flip ? `${PNAME[p]} pickup from ${PNAME[r.held] || 'the other party'}` : r.held ? `${PNAME[p]} hold` : 'Projected'}${sh != null && r.total ? ` · ${fmtPct(sh)}% with ${Math.round(r.rep)}% in` : ''}`,
+    flip
+  };
+}
+function diffEvents(r, b, initial) {
+  const now = Date.now();
+  if (r.winner && b.winner !== r.winner.name) {
+    const key = r.ch !== 'H' || r.bg || SET.houseFeed;
+    if (key) {
+      const ct = callText(r);
+      const fresh = addEvent({ id: 'call:' + r.key, t: now, kind: ct.flip ? 'flip' : 'call', party: r.winP, title: ct.title, sub: ct.sub, earlier: initial, seen: initial });
+      if (fresh && !initial) { queueBanner(r); flashTile(r); }
+    } else S.houseBuf.push(r);
+  }
+  if (initial || r.winner) return;
+  if (r.bg && b.total > 0 && r.total > b.total) {
+    const add = r.total - b.total;
+    if (add >= Math.max(5000, b.total * 0.03) && now - (r.lastVotesEv || 0) > 180e3) {
+      r.lastVotesEv = now;
+      addEvent({ id: `votes:${r.key}:${r.total}`, t: now, kind: 'votes', party: r.lead ? r.lead.p : '', title: `${r.label}: +${fmtInt(add)} votes`, sub: `${r.lead ? lastName(r.lead.name) + ' leads by ' + fmtPct(r.margin) : ''} · ${Math.round(r.rep)}% in` });
+    }
+  }
+  if (r.bg && b.lead && r.lead && b.lead !== r.lead.name && r.total >= 2000) {
+    addEvent({ id: `lead:${r.key}:${now}`, t: now, kind: 'lead', party: r.lead.p, title: `Lead change: ${r.label}`, sub: `${r.lead.name} (${r.lead.p}) now ahead by ${fmtPct(r.margin)} · ${Math.round(r.rep)}% in` });
+  }
+  if (r.runoff && !r.runoffEv) {
+    r.runoffEv = true;
+    addEvent({ id: 'runoff:' + r.key, t: now, kind: 'runoff', party: '', title: `${r.label} heading toward a runoff`, sub: `No one above 50% with ${Math.round(r.rep)}% in · Georgia runoff is Dec 1` });
+  }
+}
+function flushHouseCalls(initial) {
+  if (!S.houseBuf.length) return;
+  const list = S.houseBuf.splice(0);
+  const c = { D: 0, R: 0, I: 0 };
+  list.forEach(r => { c[r.winP in c ? r.winP : 'I']++; });
+  const names = list.slice(0, 8).map(r => r.dist).join(', ') + (list.length > 8 ? ` +${list.length - 8} more` : '');
+  addEvent({ id: 'house:' + Date.now(), t: Date.now(), kind: 'house', party: '', earlier: initial, seen: initial,
+    title: `${list.length} House race${list.length > 1 ? 's' : ''} ${initial ? 'already called' : 'called'}`,
+    sub: `D ${c.D} · R ${c.R}${c.I ? ' · Other ' + c.I : ''} — ${names}` });
+}
+function marketMove(k) {
+  const s = S.live[k], now = Date.now(); if (s.length < 2) return;
+  const cur = s[s.length - 1].p, old = s.find(p => now - p.t <= 20 * 60e3);
+  if (!old || now - old.t < 5 * 60e3) return;
+  if (Math.abs(cur - old.p) >= 0.04 && now - (S.lastMkt[k] || 0) > 15 * 60e3) {
+    S.lastMkt[k] = now;
+    const mins = Math.round((now - old.t) / 60e3);
+    addEvent({ id: `mkt:${k}:${now}`, t: now, kind: 'market', party: cur > old.p ? 'D' : 'R', title: `${k === 'senate' ? 'Senate' : 'House'} control odds moving`, sub: `Polymarket: Democrats ${pc0(old.p)} → ${pc0(cur)} in ${mins} min` });
+  }
+}
+function wavesList() {
+  const m = new Map();
+  for (const [st, [f, l]] of Object.entries(DATA.close)) {
+    if (st === 'DC') continue;
+    if (!m.has(f)) m.set(f, []);
+    m.get(f).push({ st, part: f !== l ? 'first' : '' });
+    if (l !== f) { if (!m.has(l)) m.set(l, []); m.get(l).push({ st, part: 'rest' }); }
+  }
+  return [...m.entries()].sort((a, b) => a[0] - b[0]).map(([h, sts]) => ({ h, t: hourTs(h), sts: sts.sort((a, b) => a.st.localeCompare(b.st)) }));
+}
+const WAVES = wavesList();
+function waveRaces(w) { return w.sts.flatMap(s => ['S-' + s.st, 'G-' + s.st].filter(k => races.has(k) && races.get(k).closeTs === w.t && races.get(k).bg)); }
+function checkWaves() {
+  const now = Date.now();
+  for (const w of WAVES) {
+    if (now < w.t) continue;
+    const keyRaces = waveRaces(w).map(k => races.get(k).short).join(', ');
+    addEvent({ id: 'polls:' + w.h, t: w.t, kind: 'polls', party: '', earlier: now - w.t > 30 * 60e3,
+      title: `Polls closed · ${hourLabel(w.h)} ET`,
+      sub: w.sts.map(s => s.st + (s.part === 'first' ? ` (${FIRST_NOTE[s.st] || 'most'})` : s.part === 'rest' ? ' (rest)' : '')).join(' · ') + (keyRaces ? ` — key: ${keyRaces}` : '') });
+  }
+}
+
+/* ================= banner + chime ================= */
+function queueBanner(r) { if (S.bannerQ.length < 6) S.bannerQ.push(r.key); if (!S.bannerOn) nextBanner(); }
+function nextBanner() {
+  const key = S.bannerQ.shift(); const el = $('#banner');
+  if (!key) { S.bannerOn = false; el.classList.remove('on'); return; }
+  const r = races.get(key); if (!r || !r.winner) return nextBanner();
+  S.bannerOn = true;
+  const p = r.winP, flip = isFlip(r), sh = share(r.winner, r);
+  el.className = 'p-' + (p || 'O');
+  $('#bnK').textContent = 'Projected winner · civicAPI decision desk';
+  $('#bnR').textContent = r.label;
+  $('#bnN').textContent = r.winner.name;
+  $('#bnF').innerHTML = `<span class="pp">${esc(p === 'I' ? 'Independent' : p === 'D' ? 'Democrat' : p === 'R' ? 'Republican' : 'Other')}</span>${flip ? `<span class="fl">${esc(PNAME[p])} pickup</span>` : `<span>${r.held ? esc(PNAME[p]) + ' hold' : ''}</span>`}<span>${sh != null && r.total ? fmtPct(sh) + '% · ' + fmtInt(r.winner.votes) + ' votes · ' + Math.round(r.rep) + '% in' : ''}</span>`;
+  requestAnimationFrame(() => el.classList.add('on'));
+  chime();
+  setTimeout(() => { el.classList.remove('on'); setTimeout(nextBanner, 700); }, 7000);
+}
+let actx = null;
+function chime() {
+  if (!SET.sound) return;
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    const t = actx.currentTime;
+    [659.25, 987.77].forEach((f, i) => {
+      const o = actx.createOscillator(), g = actx.createGain();
+      o.type = 'sine'; o.frequency.value = f;
+      g.gain.setValueAtTime(0.0001, t + i * 0.14); g.gain.exponentialRampToValueAtTime(0.22, t + i * 0.14 + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + i * 0.14 + 0.9);
+      o.connect(g).connect(actx.destination); o.start(t + i * 0.14); o.stop(t + i * 0.14 + 1);
+    });
+  } catch { /* audio not allowed yet */ }
+}
+function flashTile(r) { const el = tileEls[r.st]; if (el && ((S.mode === 'sen' && r.ch === 'S') || (S.mode === 'gov' && r.ch === 'G'))) { el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); } }
+
+/* ================= rendering ================= */
+let scheduled = false;
+function schedule() { if (!scheduled) { scheduled = true; requestAnimationFrame(() => { scheduled = false; renderAll(); }); } }
+function renderAll() {
+  document.body.classList.toggle('pre', Date.now() < WAVES[0].t);
+  $('#liveLabel').textContent = Date.now() < WAVES[0].t ? 'Pre-results' : 'Live';
+  renderChambers(); renderMap(); renderBoard(); renderBop(); renderTicker(false); renderSources();
+}
+
+function counts(ch) {
+  const out = { D: 0, R: 0, I: 0, called: 0, total: 0, lead: { D: 0, R: 0, I: 0 }, net: { D: 0, R: 0 }, votes: { D: 0, R: 0, all: 0 } };
+  const now = Date.now();
+  for (const r of races.values()) {
+    if (r.ch !== ch) continue;
+    out.total++;
+    const s = statusOf(r, now);
+    if (s === 'won' || s === 'uncontested') {
+      const p = winnerParty(r), k = p === 'D' || p === 'R' ? p : 'I';
+      out[k]++; out.called++;
+      if (r.held && p !== r.held) { if (p === 'D' || p === 'R') out.net[p]++; if (r.held === 'D' || r.held === 'R') out.net[r.held]--; }
+    } else if (s === 'counting' && r.lead) { const k = r.lead.p === 'D' || r.lead.p === 'R' ? r.lead.p : 'I'; out.lead[k]++; }
+    if (ch === 'H') for (const c of r.cands) { out.votes.all += c.votes; if (c.p === 'D') out.votes.D += c.votes; else if (c.p === 'R') out.votes.R += c.votes; }
+  }
+  return out;
+}
+function netText(net) {
+  const d = net.D, r = net.R;
+  if (!d && !r) return 'No seats changed hands yet';
+  const parts = [];
+  if (d > 0) parts.push(`Dem +${d}`); if (r > 0) parts.push(`Rep +${r}`);
+  return parts.length ? 'Net: ' + parts.join(' · ') : 'Net: no change';
+}
+function seatBar(el, segs, total, marker) {
+  if (!el._built) {
+    el.innerHTML = '<i class="hd"></i><i class="wd"></i><i class="ld"></i><i class="wi"></i><i class="op"></i><i class="lr"></i><i class="wr"></i><i class="hr"></i><span class="mk"><b></b></span>';
+    el._built = true;
+  }
+  const w = n => (n / total * 100) + '%';
+  const [hd, wd, ld, wi, op, lr, wr, hr] = $$('i', el);
+  hd.style.width = w(segs.hd || 0); wd.style.width = w(segs.wd || 0); ld.style.width = w(segs.ld || 0); wi.style.width = w(segs.wi || 0);
+  lr.style.width = w(segs.lr || 0); wr.style.width = w(segs.wr || 0); hr.style.width = w(segs.hr || 0);
+  const mk = $('.mk', el); mk.style.left = (marker.at / total * 100) + '%'; $('b', mk).textContent = marker.label;
+}
+function splitHTML(name, s, spark) {
+  if (!s) return `<div class="mkt"><span class="nm">${name}</span><span class="off">Waiting for prices…</span></div>`;
+  const dp = Math.round(s.D * 100), rp = (s.O || 0) < 0.005 ? 100 - dp : Math.round(s.R * 100);
+  return `<div class="mkt"><span class="nm">${name}</span>${spark || ''}<div class="vals"><span class="a">D ${dp}%</span><span class="b">R ${rp}%</span></div><div class="split"><i class="a" style="width:${s.D * 100}%"></i><i class="b" style="width:${s.R * 100}%"></i></div></div>`;
+}
+function sparkSVG(k) {
+  const pts = [...S.hist[k], ...S.live[k]].filter(p => Date.now() - p.t <= 26 * 3600e3).sort((a, b) => a.t - b.t);
+  if (pts.length < 3) return '';
+  const t0 = pts[0].t, t1 = pts[pts.length - 1].t || t0 + 1, W = 96, H = 30;
+  const x = t => (t - t0) / Math.max(1, t1 - t0) * W, y = p => H - p * H;
+  const d = pts.map((p, i) => (i ? 'L' : 'M') + x(p.t).toFixed(1) + ' ' + y(p.p).toFixed(1)).join(' ');
+  const last = pts[pts.length - 1];
+  return `<svg viewBox="0 0 ${W} ${H}" aria-label="Democrats' chance, last 24 hours"><line x1="0" x2="${W}" y1="${H / 2}" y2="${H / 2}" stroke="#2b3753" stroke-dasharray="2 3"/><path d="${d}" fill="none" stroke="#86b4ff" stroke-width="1.6" stroke-linejoin="round"/><circle cx="${x(last.t).toFixed(1)}" cy="${y(last.p).toFixed(1)}" r="2.6" fill="#86b4ff"/></svg>`;
+}
+function oddsHTML(k) {
+  const pm = S.ctl.pm[k], ks = S.ctl.ks[k];
+  return `<span class="over">Control<br>odds</span>${splitHTML('Polymarket', pm, sparkSVG(k))}${splitHTML('Kalshi', ks)}`;
+}
+function setF(card, f, v, html) { const el = $(`[data-f="${f}"]`, card); if (!el) return; if (html) { if (el.innerHTML !== v) el.innerHTML = v; } else if (el.textContent !== String(v)) el.textContent = v; }
+function renderChambers() {
+  // Senate
+  const s = counts('S'), sen = $('#sen');
+  const dn = SEN_HOLD.D + SEN_HOLD.I + s.D, rn = SEN_HOLD.R + s.R, left = s.total - s.called;
+  setF(sen, 'dn', dn); setF(sen, 'rn', rn); setF(sen, 'left', left);
+  setF(sen, 'dw', s.D ? `+${s.D} won tonight` : 'Seats not up: 34');
+  setF(sen, 'rw', s.R ? `+${s.R} won tonight` : 'Seats not up: 31');
+  const ctl = dn >= 51 ? 'D' : rn >= 50 ? 'R' : '';
+  setF(sen, 'ctl', ctl ? `<span class="ctl p-${ctl}">${ctl === 'D' ? 'Democrats' : 'Republicans'} win control</span>` : '', true);
+  seatBar($('[data-f="bar"]', sen), { hd: 34, wd: s.D, ld: s.lead.D, wi: s.I, lr: s.lead.R, wr: s.R, hr: 31 }, 100, { at: 50.5, label: '51' });
+  setF(sen, 'meta1', `<b>${s.called}</b> of 35 called${s.I ? ` · <b>${s.I}</b> independent` : ''}`, true);
+  setF(sen, 'meta2', netText(s.net));
+  setF(sen, 'odds', oddsHTML('senate'), true);
+  // House
+  const h = counts('H'), hs = $('#house');
+  setF(hs, 'dn', h.D); setF(hs, 'rn', h.R); setF(hs, 'left', h.total - h.called);
+  setF(hs, 'dw', h.lead.D ? `Leading in ${h.lead.D} more` : h.D ? `${218 - h.D > 0 ? 218 - h.D + ' short of 218' : 'Majority'}` : '—');
+  setF(hs, 'rw', h.lead.R ? `Leading in ${h.lead.R} more` : h.R ? `${218 - h.R > 0 ? 218 - h.R + ' short of 218' : 'Majority'}` : '—');
+  const hctl = h.D >= 218 ? 'D' : h.R >= 218 ? 'R' : '';
+  setF(hs, 'ctl', hctl ? `<span class="ctl p-${hctl}">${hctl === 'D' ? 'Democrats' : 'Republicans'} win control</span>` : '', true);
+  seatBar($('[data-f="bar"]', hs), { wd: h.D, ld: h.lead.D, wi: h.I, lr: h.lead.R, wr: h.R }, 435, { at: 217.5, label: '218' });
+  const pv = h.votes.all ? (h.votes.D - h.votes.R) / h.votes.all * 100 : null;
+  setF(hs, 'meta1', pv == null ? `<b>${h.called}</b> of 435 called` : `<b>${h.called}</b> called · vote so far <b>${sideMargin(pv)}</b>`, true);
+  setF(hs, 'meta2', h.called ? netText(h.net) : DATA.generic ? `Final generic-ballot polls ${sideMargin(DATA.generic.m)}` : '');
+  setF(hs, 'odds', oddsHTML('house'), true);
+  // Governors
+  const g = counts('G'), gv = $('#gov');
+  setF(gv, 'dn', GOV_HOLD.D + g.D); setF(gv, 'rn', GOV_HOLD.R + g.R);
+  seatBar($('[data-f="bar"]', gv), { hd: 6, wd: g.D, ld: g.lead.D, wi: g.I, lr: g.lead.R, wr: g.R, hr: 8 }, 50, { at: 25.5, label: '26' });
+  setF(gv, 'gl', `<span><b>${g.called}</b> of 36 called</span><span>${g.lead.D + g.lead.R ? `Leading: D ${g.lead.D} · R ${g.lead.R}` : 'Not up: D 6 · R 8'}</span><span>${netText(g.net)}</span>`, true);
+}
+
+/* --- map --- */
+const tileEls = {};
+function buildMap() {
+  const el = $('#tiles');
+  for (const [st, [c, r]] of Object.entries(TILE)) {
+    const d = document.createElement('div');
+    d.className = 'tile'; d.style.gridColumn = c + 1; d.style.gridRow = r + 1;
+    d.innerHTML = `<b>${st}</b><i></i><u><s></s><s></s></u>`;
+    d.title = NAMES[st];
+    el.appendChild(d); tileEls[st] = d;
+  }
+  const w = $('#waffle');
+  w.innerHTML = '<i></i>'.repeat(435) + '<span class="mk"><b>218</b></span>';
+}
+function tileState(r) {
+  const s = statusOf(r);
+  if (s === 'won') return { cls: 'won p-' + (r.winP || 'I') + (isFlip(r) ? ' flip' : ''), sub: 'WON' };
+  if (s === 'counting') return { cls: 'lead p-' + (r.lead ? (r.lead.p === 'D' || r.lead.p === 'R' ? r.lead.p : 'I') : 'I') + (r.margin != null && r.margin >= 6 && r.rep >= 30 ? ' s2' : ''), sub: Math.round(r.rep) + '%' };
+  if (s === 'closed') return { cls: 'closed', sub: 'CLOSED' };
+  return { cls: s === 'partial' ? 'closed' : '', sub: hourLabel((r.closeTs - MIDNIGHT) / 3600e3, true) };
+}
+function renderMap() {
+  $$('.tabs button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === S.mode)));
+  const house = S.mode === 'house';
+  $('#tiles').hidden = house; $('#waffle').hidden = !house;
+  const ms = $('#mapsum');
+  if (!house) {
+    const ch = S.mode === 'sen' ? 'S' : 'G';
+    for (const st in tileEls) {
+      const el = tileEls[st], r = races.get(ch + '-' + st);
+      const [u1, u2] = $$('s', el);
+      if (!r) { el.className = 'tile off'; u1.style.width = u2.style.width = '0'; continue; }
+      const t = tileState(r), keep = el.classList.contains('flash') ? ' flash' : '';
+      el.className = 'tile ' + t.cls + keep;
+      $('i', el).textContent = t.sub;
+      const show = r.pm && !t.cls.startsWith('won');
+      u1.style.width = show ? (r.pm.D * 100) + '%' : '0'; u1.style.background = r.dSide === 'I' ? 'var(--ind)' : 'var(--dem)';
+      u2.style.width = show ? (r.pm.R * 100) + '%' : '0'; u2.style.background = 'var(--rep)'; u2.style.marginLeft = 'auto';
+    }
+    const c = counts(ch);
+    ms.innerHTML = `<span>${ch === 'S' ? '35 Senate races' : '36 governor races'} · <b>${c.called}</b> called</span><span>Dem <b>${c.D}</b> · Rep <b>${c.R}</b>${c.I ? ` · Ind <b>${c.I}</b>` : ''} · pickups D ${c.net.D > 0 ? c.net.D : 0} / R ${c.net.R > 0 ? c.net.R : 0}</span>`;
+    $('#legend').innerHTML = '<span><i class="lg-wd"></i>Dem won</span><span><i class="lg-wr"></i>Rep won</span><span><i class="lg-ld"></i><i class="lg-lr"></i>Leading</span><span><i class="lg-cl"></i>Polls closed</span><span><i class="lg-mk"></i>Market odds</span>';
+  } else {
+    const order = [];
+    const push = (cls, n) => { for (let i = 0; i < n; i++) order.push(cls); };
+    const c = counts('H');
+    push('wd', c.D); push('ld', c.lead.D); push('wi', c.I); push('li', c.lead.I);
+    const rest = 435 - c.D - c.lead.D - c.I - c.lead.I - c.R - c.lead.R;
+    push('', rest); push('lr', c.lead.R); push('wr', c.R);
+    $$('#waffle i').forEach((el, i) => { el.className = order[i] || ''; });
+    const mk = $('#waffle .mk'); mk.style.left = (14 * 18 + 7) + 'px';
+    if (document.body.classList.contains('compact')) mk.style.left = (14.5 / 29 * 100) + '%';
+    const pv = c.votes.all ? (c.votes.D - c.votes.R) / c.votes.all * 100 : null;
+    ms.innerHTML = `<span>Called: Dem <b>${c.D}</b> · Rep <b>${c.R}</b>${c.I ? ` · Other <b>${c.I}</b>` : ''} · Leading: D ${c.lead.D} · R ${c.lead.R}</span><span>${pv == null ? `Final generic ballot <b>${DATA.generic ? sideMargin(DATA.generic.m) : '—'}</b>` : `House vote so far <b>${sideMargin(pv)}</b> · ${fmtInt(c.votes.all)} votes`}</span>`;
+    $('#legend').innerHTML = '<span><i class="lg-wd"></i>Dem won</span><span><i class="lg-ld"></i>Dem leading</span><span><i class="lg-op"></i>Not called</span><span><i class="lg-lr"></i>Rep leading</span><span><i class="lg-wr"></i>Rep won</span>';
+  }
+}
+
+/* --- board --- */
+function boardList(mode) {
+  const ch = mode === 'sen' ? 'S' : mode === 'gov' ? 'G' : 'H';
+  let list = byCh(ch).filter(r => r.bg);
+  if (ch === 'H') list = list.sort((a, b) => closeness(a) - closeness(b)).slice(0, 32);
+  if (list.length < 4) list = byCh(ch).sort((a, b) => closeness(a) - closeness(b)).slice(0, ch === 'H' ? 24 : 12);
+  return list.sort((a, b) => (a.closeTs - b.closeTs) || closeness(a) - closeness(b) || a.key.localeCompare(b.key));
+}
+const PER_PAGE = 8;
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+function pagesFor(mode) { return Math.max(1, Math.ceil(boardList(mode).length / PER_PAGE)); }
+function candCell(c, r, side, lost) {
+  const nm = c ? lastName(c.name) : side === 'D' ? lastName(r.dName) : lastName(r.rName);
+  const p = c ? (c.p || 'I') : side === 'D' ? r.dSide : 'R';
+  const pc = c && r.total ? fmtPct(share(c, r)) : '';
+  const ck = c && c.winner ? '<span class="ck" aria-label="projected winner">✓</span>' : '';
+  const label = `<span class="nm" title="${esc(c ? c.name : side === 'D' ? r.dName : r.rName)}">${esc(nm || '—')}<sup>${esc(p === 'I' ? 'I' : p)}</sup></span>`;
+  return { html: side === 'D' ? `${ck}${label}<span class="pc">${pc}</span>` : `<span class="pc">${pc}</span>${label}${ck}`, p: p === 'D' || p === 'R' ? p : p === 'O' ? 'O' : 'I', lost };
+}
+function rowHTML(r) {
+  const s = statusOf(r);
+  const [A, B] = r.cands.length ? pairOf(r) : [null, null];
+  const won = r.winner;
+  const L = candCell(A, r, 'D', won && A && !A.winner), R = candCell(B, r, 'R', won && B && !B.winner);
+  let bar;
+  if (r.total > 0) {
+    const a = A ? A.votes / r.total * 100 : 0, b = B ? B.votes / r.total * 100 : 0;
+    bar = `<div class="vbar"><i class="a p-${L.p}" style="width:${a}%"></i><i class="b p-${R.p}" style="width:${b}%"></i><em></em></div>`;
+  } else if (r.pm) {
+    bar = `<div class="vbar mkt"><i class="a p-${r.dSide}" style="width:${r.pm.D * 100}%"></i><i class="b p-R" style="width:${r.pm.R * 100}%"></i><em></em></div>`;
+  } else bar = `<div class="vbar mkt"><em></em></div>`;
+  const sub = [r.total > 0 ? `<b>${fmtInt(r.total)}</b> votes` : '', r.poll ? `Final polls ${esc(sideMargin(r.poll.m, r))}` : '', r.pm ? `Polymarket ${r.dSide} <b>${pc0(r.pm.D)}</b>` : '', r.ks ? `Kalshi ${r.dSide} <b>${pc0(r.ks.D)}</b>` : ''].filter(Boolean).join(' · ') || 'No polls or market yet';
+  let s1, s2 = '';
+  const flipChip = isFlip(r) ? `<span class="flipchip">${esc(PNAME[winnerParty(r)])} pickup</span>` : '';
+  const close = hourLabel((r.closeTs - MIDNIGHT) / 3600e3);
+  if (s === 'won') { s1 = `✓ ${esc(lastName(r.winner.name))}`; s2 = flipChip || (r.held ? `${esc(PNAME[r.winP] || '')} hold` : 'Projected'); }
+  else if (s === 'uncontested') { s1 = 'Uncontested'; s2 = flipChip; }
+  else if (s === 'counting') { s1 = r.runoff ? 'Runoff likely' : `${Math.round(r.rep)}% in`; s2 = r.lead ? `${esc(lastName(r.lead.name))} +${fmtPct(r.margin)}` : ''; }
+  else if (s === 'closed') { s1 = '<span class="closed">Polls closed</span>'; s2 = 'Awaiting first votes'; }
+  else if (s === 'partial') { s1 = '<span class="closed">Partly closed</span>'; s2 = `All close ${close}`; }
+  else { s1 = `Closes ${close}`; s2 = r.ch === 'H' ? esc(r.name) : ''; }
+  const wp = won ? (r.winP === 'D' || r.winP === 'R' ? r.winP : 'I') : '';
+  const tagSub = r.ch === 'S' ? (r.sp ? 'SEN·SP' : 'SEN') : r.ch === 'G' ? 'GOV' : r.dist.slice(3);
+  return `<div class="row${won ? ' won p-' + wp : ''}" data-key="${r.key}">
+    <div class="tag"><b>${r.st}</b><span>${tagSub}</span></div>
+    <div class="cand l p-${L.p}${L.lost ? ' lost' : ''}">${L.html}</div>
+    <div class="vwrap">${bar}</div>
+    <div class="cand r p-${R.p}${R.lost ? ' lost' : ''}">${R.html}</div>
+    <div class="st"><span class="s1">${s1}</span><span class="s2">${s2}</span></div>
+    <div class="sub">${sub}</div></div>`;
+}
+let lastBoardSig = '';
+function renderBoard() {
+  const compact = document.body.classList.contains('compact');
+  const list = boardList(S.mode);
+  const pages = compact ? 1 : Math.max(1, Math.ceil(list.length / PER_PAGE));
+  if (S.page >= pages) S.page = 0;
+  const shown = compact ? list : list.slice(S.page * PER_PAGE, S.page * PER_PAGE + PER_PAGE);
+  $('#boardTitle').textContent = S.mode === 'sen' ? 'Key Senate races' : S.mode === 'gov' ? 'Key governor races' : 'Key House races';
+  $('#pager').innerHTML = pages > 1 ? Array.from({ length: pages }, (_, i) => `<i class="${i === S.page ? 'on' : ''}"></i>`).join('') : '';
+  const sig = S.mode + S.page + compact;
+  const html = shown.length ? shown.map(rowHTML).join('') : '<div class="empty">No races to show yet.</div>';
+  const rows = $('#rows');
+  if (sig !== lastBoardSig) { rows.innerHTML = html; lastBoardSig = sig; }
+  else {
+    // same page: patch rows in place so bars animate instead of re-entering
+    const tmp = document.createElement('div'); tmp.innerHTML = html;
+    const fresh = $$('.row', tmp);
+    const cur = $$('.row', rows);
+    if (fresh.length !== cur.length) { rows.innerHTML = html; return; }
+    fresh.forEach((f, i) => {
+      const c = cur[i];
+      if (c.dataset.key !== f.dataset.key) { c.replaceWith(f); return; }
+      c.className = f.className; c.style.animation = 'none';
+      ['.tag', '.cand.l', '.cand.r', '.st', '.sub'].forEach(sel => { const a = $(sel, c), b = $(sel, f); if (a && b) { if (a.className !== b.className) a.className = b.className; if (a.innerHTML !== b.innerHTML) a.innerHTML = b.innerHTML; } });
+      const va = $('.vbar', c), vb = $('.vbar', f);
+      if (va && vb) {
+        if (va.className !== vb.className || $$('i', va).length !== $$('i', vb).length) va.replaceWith(vb);
+        else $$('i', vb).forEach((x, j) => { const y = $$('i', va)[j]; y.className = x.className; y.style.width = x.style.width; });
+      }
+    });
+  }
+}
+
+/* --- balance of power + generic ballot --- */
+function renderBop() {
+  const b = S.bop, el = $('#bop');
+  if (!b) { el.innerHTML = ''; $('#bopk').innerHTML = '<span>Waiting for Polymarket…</span>'; }
+  else {
+    const segs = [['DD', 'Dem sweep'], ['RD', 'R Senate · D House'], ['DR', 'D Senate · R House'], ['RR', 'Rep sweep']];
+    el.innerHTML = segs.map(([k, l]) => `<i class="${k}" style="width:${b[k] * 100}%" title="${l}"></i>`).join('') + (b.OT > 0.005 ? `<i class="OT" style="width:${b.OT * 100}%"></i>` : '');
+    $('#bopk').innerHTML = segs.map(([k, l]) => `<span><b>${pc0(b[k])}</b>${l}</span>`).join('');
+  }
+  $('#bopAge').textContent = S.bopAt ? 'updated ' + ago(S.bopAt) + ' ago' : '';
+  const g = DATA.generic;
+  $('#gb').innerHTML = g ? `Final generic-ballot polls: <b>Dem ${g.d.toFixed(1)} · Rep ${g.r.toFixed(1)}</b> (${sideMargin(g.m)}, ${g.n} pollsters, last 3 weeks)` : '';
+}
+
+/* --- feed --- */
+function feedItem(e) {
+  const li = document.createElement('li');
+  li.className = `ev k-${e.kind} p-${e.party || 'O'}${e.earlier ? ' earlier' : ''}`;
+  li.dataset.id = e.id;
+  li.innerHTML = `<div class="ev-h"><span class="chip">${esc(KIND[e.kind] || 'Desk')}</span><time>${e.seen ? 'By ' : ''}${esc(clockOf(e.t))} ET</time></div><div class="ev-t">${esc(e.title)}</div>${e.sub ? `<div class="ev-s">${esc(e.sub)}</div>` : ''}`;
+  return li;
+}
+function renderFeed(newId) {
+  const ol = $('#feed');
+  const list = S.events.length ? S.events : [{ id: 'hello', t: Date.now(), kind: 'info', title: 'The desk is watching', sub: `Polls first close at ${hourLabel(WAVES[0].h)} ET in parts of Indiana and Kentucky. Calls, vote updates, lead changes and market swings will appear here.` }];
+  ol.replaceChildren(...list.slice(0, document.body.classList.contains('compact') ? 15 : 40).map(e => { const li = feedItem(e); if (e.id !== newId) li.style.animation = 'none'; return li; }));
+}
+
+/* --- ticker --- */
+let tickHTML = '';
+function tickItems() {
+  const out = [];
+  const pmS = S.ctl.pm.senate, pmH = S.ctl.pm.house, ksS = S.ctl.ks.senate, ksH = S.ctl.ks.house;
+  if (pmS) out.push(`<em>Senate control</em> <span class="d">D ${pc0(pmS.D)}</span><span class="r">R ${pc0(pmS.R)}</span><span class="m">Polymarket${ksS ? ` · Kalshi D ${pc0(ksS.D)}` : ''}</span>`);
+  if (pmH) out.push(`<em>House control</em> <span class="d">D ${pc0(pmH.D)}</span><span class="r">R ${pc0(pmH.R)}</span><span class="m">Polymarket${ksH ? ` · Kalshi D ${pc0(ksH.D)}` : ''}</span>`);
+  const key = [...races.values()].filter(r => r.ch !== 'H' && r.bg).sort((a, b) => a.closeTs - b.closeTs || a.key.localeCompare(b.key));
+  for (const r of key) {
+    const s = statusOf(r);
+    if (s === 'won') { out.push(`<em>✓ ${esc(r.short)}</em> <span class="${(r.winP || 'i').toLowerCase()}">${esc(r.winner.name)}</span><span class="m">${isFlip(r) ? 'pickup' : 'projected'}</span>`); continue; }
+    if (s === 'counting') {
+      const [A, B] = pairOf(r);
+      const seg = c => c ? `<span class="${(c.p === 'D' || c.p === 'R' ? c.p : 'i').toLowerCase()}">${esc(lastName(c.name))} ${fmtPct(share(c, r))}</span>` : '';
+      out.push(`<em>${esc(r.short)}</em> ${seg(A)}${seg(B)}<span class="m">${Math.round(r.rep)}% in</span>`);
+      continue;
+    }
+    if (r.pm) out.push(`<em>${esc(r.short)}</em> <span class="m">closes ${hourLabel((r.closeTs - MIDNIGHT) / 3600e3)} ·</span><span class="${r.dSide.toLowerCase()}">${esc(lastName(r.dName))} ${pc0(r.pm.D)}</span><span class="r">${esc(lastName(r.rName))} ${pc0(r.pm.R)}</span><span class="m">Polymarket</span>`);
+    else if (r.poll) out.push(`<em>${esc(r.short)}</em> <span class="m">final polls</span><span class="${r.poll.m >= 0 ? r.dSide.toLowerCase() : 'r'}">${sideMargin(r.poll.m, r)}</span>`);
+  }
+  const h = counts('H');
+  if (h.called) out.push(`<em>House called</em> <span class="d">D ${h.D}</span><span class="r">R ${h.R}</span><span class="m">${435 - h.called} to go</span>`);
+  if (DATA.generic) out.push(`<em>Final generic ballot</em> <span class="${DATA.generic.m >= 0 ? 'd' : 'r'}">${sideMargin(DATA.generic.m)}</span><span class="m">${DATA.generic.n} pollsters</span>`);
+  return out;
+}
+function renderTicker(force) {
+  const items = tickItems();
+  const phase = `${!!S.ctl.pm.senate}|${!!S.ctl.pm.house}|${[...races.values()].some(r => r.ch !== 'H' && r.total > 0)}|${counts('S').called + counts('G').called}`;
+  if (phase !== S.tickPhase) { S.tickPhase = phase; force = true; }
+  $('.tk-label').textContent = Date.now() < WAVES[0].t ? 'Tonight' : 'Live';
+  const html = items.map(x => `<span>${x}</span>`).join('');
+  if (!html || (!force && tickHTML && html === tickHTML)) return;
+  const run = $('#tkRun');
+  if (tickHTML && !force && !REDUCED) { S.tickPending = html; return; }        // swap at the end of a loop to avoid a jump
+  tickHTML = html; run.innerHTML = html + html;
+  requestAnimationFrame(() => { const w = run.scrollWidth / 2; run.style.setProperty('--dur', Math.max(40, w / 95) + 's'); });
+}
+$('#tkRun').addEventListener('animationiteration', () => { if (S.tickPending) { const h = S.tickPending; S.tickPending = null; tickHTML = h; $('#tkRun').innerHTML = h + h; const w = $('#tkRun').scrollWidth / 2; $('#tkRun').style.setProperty('--dur', Math.max(40, w / 95) + 's'); } });
+
+/* --- sources + header --- */
+function renderSources() {
+  const out = [];
+  const st = (s, interval) => s.ok == null ? '' : !s.ok ? 'err' : Date.now() - s.at > interval * 3 ? 'stale' : 'ok';
+  const c = S.src.civic;
+  out.push(`<div class="src ${st(c, Date.now() < RESULTS_START ? 300e3 : 60e3)}"><i></i><b>Results</b> ${c.ok === false ? 'retrying' : c.at ? ago(c.at) + ' ago' : 'connecting'}</div>`);
+  const p = S.src.pm;
+  out.push(`<div class="src ${st(p, 30e3)}"><i></i><b>Polymarket</b> ${p.ok === false ? 'retrying' : p.at ? ago(p.at) + ' ago' : 'connecting'}</div>`);
+  const k = S.src.ks;
+  out.push(`<div class="src ${st(k, 150e3)}"><i></i><b>Kalshi</b> ${k.at ? ago(k.at) + ' ago' : k.ok === false ? 'starting' : 'connecting'}</div>`);
+  const html = out.join('');
+  const el = $('#srcs'); if (el.innerHTML !== html) el.innerHTML = html;
+}
+function tickClock() {
+  const now = Date.now();
+  const parts = etFmt.formatToParts(new Date(now));
+  const g = t => (parts.find(p => p.type === t) || {}).value || '';
+  $('#clock').innerHTML = `${g('hour')}:${g('minute')}:${g('second')}<small>${g('dayPeriod')} ET</small>`;
+  $('#clockDate').textContent = etDate.format(new Date(now));
+  const w = WAVES.find(x => x.t > now);
+  if (w) {
+    $('#nextLbl').textContent = now < WAVES[0].t ? 'First polls close' : 'Next poll closing';
+    $('#nextT').innerHTML = `${hourLabel(w.h).replace(/ (AM|PM)/, '<small>$1</small>')}`;
+    $('#nextCd').textContent = 'in ' + hms(w.t - now);
+    const keyRaces = waveRaces(w).map(k => races.get(k).short);
+    $('#nextSts').innerHTML = w.sts.map(s => `<b>${s.st}</b>${s.part === 'first' ? ` (${FIRST_NOTE[s.st] || 'most'})` : s.part === 'rest' ? ' (rest)' : ''}`).join(' · ') + (keyRaces.length ? ` — key: ${esc(keyRaces.join(', '))}` : '');
+  } else {
+    $('#nextLbl').textContent = 'Poll closings';
+    $('#nextT').textContent = 'All closed';
+    $('#nextCd').textContent = 'Last polls closed at 1:00 AM ET';
+    $('#nextSts').textContent = 'Counting continues — calls in close races may take days';
+  }
+  if (now >= WAVES[0].t) checkWaves();
+  // rotation
+  const pages = pagesFor(S.mode);
+  if (!S.pinned && SET.rotate && !document.body.classList.contains('compact')) {
+    if (now - S.pageStart >= 9000) {
+      S.pageStart = now;
+      if (S.page + 1 < pages) { S.page++; renderBoard(); }
+      else { S.mode = S.mode === 'sen' ? 'gov' : S.mode === 'gov' ? 'house' : 'sen'; S.page = 0; S.modeStart = now; renderMap(); renderBoard(); }
+    }
+    const total = pages * 9000, el = now - S.modeStart;
+    $('#rotBar').style.setProperty('--p', clamp(el / total * 100, 0, 100) + '%');
+    $('#rotLbl').textContent = 'Auto';
+  } else { $('#rotBar').style.setProperty('--p', '0%'); $('#rotLbl').textContent = S.pinned ? 'Pinned' : 'Manual'; }
+  if (now % 5000 < 1000) { renderSources(); renderBop(); }
+}
+
+/* ================= layout, input, settings ================= */
+function layout() {
+  const w = window.innerWidth, h = window.innerHeight;
+  const tv = w >= 900 && w / h >= 1.2;
+  document.body.classList.toggle('tv', tv);
+  document.body.classList.toggle('compact', !tv);
+  const st = $('#stage');
+  if (tv) { const s = Math.min(w / 1920, h / 1080); st.style.transform = `translate(${(w - 1920 * s) / 2}px,${(h - 1080 * s) / 2}px) scale(${s})`; }
+  else st.style.transform = '';
+  lastBoardSig = '';
+  schedule();
+}
+window.addEventListener('resize', layout);
+function setMode(m, pin) { S.mode = m; S.page = 0; S.pinned = !!pin; S.modeStart = S.pageStart = Date.now(); renderMap(); renderBoard(); }
+$$('.tabs button').forEach(b => b.addEventListener('click', () => setMode(b.dataset.mode, true)));
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('on'), 3200); }
+function fullscreen() { const d = document.documentElement; if (!document.fullscreenElement) (d.requestFullscreen ? d.requestFullscreen() : Promise.reject()).catch(() => toast('Press F11 for full screen')); else document.exitFullscreen().catch(() => {}); }
+$('#btnFull').addEventListener('click', fullscreen);
+const dlg = $('#settings');
+function openSettings() { $('#optRotate').checked = SET.rotate; $('#optSound').checked = SET.sound; $('#optHouseFeed').checked = SET.houseFeed; if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', ''); }
+$('#btnSet').addEventListener('click', openSettings);
+document.addEventListener('click', e => { const t = e.target.closest('[data-open="settings"]'); if (t) openSettings(); });
+$('#setClose').addEventListener('click', () => dlg.close());
+dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
+const saveSet = () => LS.set('settings', SET);
+$('#optRotate').addEventListener('change', e => { SET.rotate = e.target.checked; S.pinned = false; saveSet(); });
+$('#optSound').addEventListener('change', e => { SET.sound = e.target.checked; saveSet(); if (SET.sound) chime(); });
+$('#optHouseFeed').addEventListener('change', e => { SET.houseFeed = e.target.checked; saveSet(); });
+$('#resetFeed').addEventListener('click', () => { S.events = []; LS.set('events', []); renderFeed(); checkWaves(); toast('Feed cleared'); });
+document.addEventListener('keydown', e => {
+  if (dlg.open || e.target.closest('input,textarea') || e.metaKey || e.ctrlKey || e.altKey) return;
+  const k = e.key.toLowerCase();
+  if (k === 'f') fullscreen();
+  else if (k === 's') openSettings();
+  else if (k === '1') setMode('sen', true); else if (k === '2') setMode('gov', true); else if (k === '3') setMode('house', true);
+  else if (k === '0') { S.pinned = false; SET.rotate = true; saveSet(); S.pageStart = S.modeStart = Date.now(); toast('Rotation on'); }
+  else if (k === 'm') { SET.sound = !SET.sound; saveSet(); toast(SET.sound ? 'Chime on' : 'Chime off'); if (SET.sound) chime(); }
+});
+let idleT = 0;
+function wake() { document.body.classList.remove('idle'); clearTimeout(idleT); idleT = setTimeout(() => document.body.classList.add('idle'), 3500); }
+['mousemove', 'mousedown', 'keydown', 'touchstart'].forEach(ev => document.addEventListener(ev, wake, { passive: true }));
+async function keepAwake() { try { if ('wakeLock' in navigator && document.visibilityState === 'visible') await navigator.wakeLock.request('screen'); } catch { /* not granted */ } }
+document.addEventListener('visibilitychange', keepAwake);
+document.addEventListener('click', keepAwake, { once: true });
+
+/* ================= start ================= */
+const civicEvery = ch => Date.now() < RESULTS_START ? 300e3 : ch === 'S' ? 30e3 : ch === 'G' ? 45e3 : 60e3;
+const civicPoll = ch => poller('civic-' + ch, async () => { try { await pullCivic(ch); mark('civic', true); } catch (e) { mark('civic', false, e.message); throw e; } }, () => civicEvery(ch));
+const pmCtlPoll = poller('pm-control', async () => { try { await pmControl(); } catch (e) { mark('pm', false, e.message); throw e; } }, () => 15e3);
+const pmRacePoll = poller('pm-races', async () => { try { await pmRaces(); } catch (e) { mark('pm', false, e.message); throw e; } }, () => 60e3);
+const pmHistPoll = poller('pm-history', pmHistory, () => 300e3);
+const ksPoll = poller('kalshi', async () => { try { await ksFeed(); } catch (e) { mark('ks', false, e.message); throw e; } }, () => 45e3);
+
+flagBattlegrounds();
+buildMap();
+layout();
+renderFeed();
+if (Date.now() >= WAVES[0].t) checkWaves();
+tickClock(); setInterval(tickClock, 1000);
+renderTicker(true);
+civicPoll('S').start();
+setTimeout(() => civicPoll('G').start(), 1500);
+setTimeout(() => civicPoll('H').start(), 3000);
+pmCtlPoll.start();
+setTimeout(() => pmRacePoll.start(), 500);
+setTimeout(() => pmHistPoll.start(), 6000);
+setTimeout(() => ksPoll.start(), 2500);
+if (params.has('debug')) window.__desk = { races, S, DATA };
+wake(); keepAwake();
+setTimeout(() => toast('F = full screen · S = settings · 1/2/3 = pin a view'), 1200);
+})();
+</script>
+</body>
+</html>

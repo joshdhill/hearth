@@ -1,0 +1,34 @@
+name: Midterms desk Kalshi feed
+# Copies Kalshi's public election prices to the desk-data branch about once a minute so the
+# Midterms Desk page (docs/election/) can show them. Each run lasts up to ~5.7 hours, then
+# starts the next one, until the time in --until (6 AM ET Wednesday). Start it again from the
+# Actions tab with "Run workflow" if it ever stops early.
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths: [ 'tools/desk/**', '.github/workflows/desk-kalshi.yml' ]
+permissions:
+  contents: write
+  actions: write
+concurrency:
+  group: desk-kalshi
+  cancel-in-progress: true
+jobs:
+  feed:
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: tools/desk
+      - name: Copy Kalshi prices every minute
+        run: python3 tools/desk/kalshi_feed.py --minutes 340 --until 2026-11-04T11:00:00Z
+      - name: Start the next run
+        if: ${{ !cancelled() }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "$(date -u +%s)" -lt "$(date -u -d 2026-11-04T10:50:00Z +%s)" ]; then
+            gh workflow run desk-kalshi.yml --ref main -R "$GITHUB_REPOSITORY"
+          fi
