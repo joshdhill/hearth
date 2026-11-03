@@ -25,6 +25,7 @@ jobs:
           echo "tv=$(echo "$line" | awk '{print $3}')" >> $GITHUB_OUTPUT
           echo "web=$(echo "$line" | awk '{print $4}')" >> $GITHUB_OUTPUT
       - name: Download
+        if: steps.pick.outputs.url != ''
         run: |
           mkdir -p dl
           url="${{ steps.pick.outputs.url }}"
@@ -34,8 +35,10 @@ jobs:
           esac
           ffprobe -v error -show_entries stream=codec_name,width,height,r_frame_rate,pix_fmt:format=duration -of compact dl/src.mp4
       - name: Build the long loop
+        if: steps.pick.outputs.url != ''
         run: python3 tools/fire/build_long.py dl/src.mp4 "${{ steps.pick.outputs.name }}" "${{ steps.pick.outputs.tv }}" "${{ steps.pick.outputs.web }}" out
       - name: Publish the 4K file for the TV
+        if: steps.pick.outputs.url != ''
         uses: softprops/action-gh-release@v2
         with:
           tag_name: media-v2
@@ -46,6 +49,7 @@ jobs:
             out/*-joins.jpg
             out/*.json
       - name: Add the web version to the site
+        if: steps.pick.outputs.url != ''
         run: |
           n="${{ steps.pick.outputs.name }}"
           git config user.name "hearth-bot"; git config user.email "actions@users.noreply.github.com"

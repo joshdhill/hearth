@@ -2,7 +2,7 @@
 export const SCENES = [
   {
     id: 'fireplace', name: 'Fireplace', type: 'fire',
-    blurb: 'A brick hearth burning in 4K, with crackles that never repeat.',
+    blurb: 'A brick fireplace in 4K, a long loop with no visible restart.',
     defaults: { fire: 'brick', sound: 'medium', crackle: true, cat: 'off', lights: false, music: 'search:Jazz by the fireplace' }
   },
   {
@@ -28,13 +28,13 @@ export const SCENES = [
   {
     id: 'christmas', name: 'Christmas Hearth', type: 'fire', decor: 'christmas',
     blurb: 'The fire, with a garland of lights.',
-    defaults: { fire: 'teepee', sound: 'medium', crackle: true, cat: 'sometimes', lights: true, music: 'search:Christmas classics' }
+    defaults: { fire: 'roaring', sound: 'medium', crackle: true, cat: 'sometimes', lights: true, music: 'search:Christmas classics' }
   }
 ];
 
 // Options shown in the menu, by scene type. Values cycle with OK.
 export const OPTIONS = [
-  { key: 'fire', label: 'Fire', types: ['fire'], values: [['brick', 'Brick hearth'], ['teepee', 'Teepee fire']] },
+  { key: 'fire', label: 'Fire', types: ['fire'], values: [['brick', 'Brick fireplace'], ['logs', 'Roaring logs'], ['roaring', 'Hearth with grate'], ['stove', 'Wood stove']] },
   { key: 'sound', label: 'Fire sound', types: ['fire'], values: [['off', 'Off'], ['low', 'Low'], ['medium', 'Medium'], ['high', 'High']] },
   { key: 'birds', label: 'Birds', types: ['window'], branch: true, values: [[true, 'On'], [false, 'Off']] },
   { key: 'names', label: 'Bird names', types: ['window'], branch: true, values: [[true, 'On'], [false, 'Off']] },

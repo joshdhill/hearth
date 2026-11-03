@@ -66,24 +66,41 @@ MINSEG, MAXSEG = int(FPS * 4), int(FPS * 12)
 
 
 def plan(target_s, seed):
+    """Random walk through the clip; returns (start frame, runs). Each run is (first, jump_at, jump_to, cost).
+    The walk closes when it can jump back into the start of an earlier run, keeping the cycle long enough."""
     rng = random.Random(seed)
-    incoming = good[:, :M - MINSEG].sum(0)
-    s0 = int(np.argmax(incoming[:M - MAXSEG - K])) if M - MAXSEG - K > 0 else 0
-    segs, cur, total = [], s0 + K, 0
+    incoming = good.sum(0)
+    lim = M - MAXSEG - K
+    s0 = int(np.argmax(incoming[:lim])) if lim > 0 else 0
+    targets, segs, lens = [s0], [], []
+    cur = s0 + K
     used = np.zeros(N)
     target = target_s * FPS
-    for _ in range(4000):
+    for _ in range(3000):
         lo = cur + MINSEG
         if lo >= M - 1:
             lo = cur + 1
         hi = min(cur + MAXSEG, M - 1)
-        if total + (lo - cur) >= target:
-            # head home: a join from this run back into the very first frame
-            cand = [i for i in range(lo, M - 1) if Wc[i, s0] <= THR * 1.25 and abs(i - s0) > GAP]
-            if cand:
-                i = min(cand, key=lambda i: Wc[i, s0] + 0.0004 * (i - lo))
-                segs.append((cur, i, s0, float(Wc[i, s0])))
-                return s0, segs
+        # can we close the loop from this run?
+        after = np.cumsum(lens[::-1])[::-1] if lens else np.zeros(0)
+        best = None
+        for k, tj in enumerate(targets):
+            have = float(after[k]) if k < len(after) else 0.0
+            i_min = max(lo, cur + int(target - have) - K)
+            if i_min > M - 2:
+                continue
+            col = Wc[i_min:M - 1, tj]
+            for o in np.nonzero(col <= THR * 1.25)[0]:
+                i = i_min + int(o)
+                if abs(i - tj) <= GAP:
+                    continue
+                c = float(col[o]) + 0.0003 * (i - i_min)
+                if best is None or c < best[0]:
+                    best = (c, k, i, int(tj))
+                break
+        if best:
+            _, k, i, tj = best
+            return tj, segs[k:] + [(cur, i, tj, float(Wc[i, tj]))]
         opts = []
         for i in range(lo, max(lo + 1, hi)):
             for j in np.nonzero(good[i])[0]:
@@ -98,10 +115,23 @@ def plan(target_s, seed):
         pool = opts[:max(3, len(opts) // 6)]
         c, i, j = pool[rng.randrange(len(pool))]
         segs.append((cur, i, j, float(Wc[i, j])))
+        lens.append((i - cur) + K)
+        targets.append(j)
         used[j:j + MAXSEG] += 1
-        total += (i - cur) + K
         cur = j + K
     raise SystemExit('could not close the loop')
+
+
+if os.environ.get('PLAN_ONLY'):
+    for tgt in (60, 150, 300, 360):
+        st, sg = plan(tgt, 7)
+        assert sg[0][0] == st + K, 'loop must start right after its closing blend'
+        for (c1, i1, j1, _), (c2, *_r) in zip(sg, sg[1:]):
+            assert c2 == j1 + K
+        assert sg[-1][2] == st
+        print(tgt, 's ->', round(sum((i - c) + K for (c, i, j, _x) in sg) / FPS, 1), 's,', len(sg), 'joins, worst',
+              round(max(x for *_, x in sg) / step, 2), flush=True)
+    raise SystemExit(0)
 
 
 # ---- 3. rendering ------------------------------------------------------------------------------------

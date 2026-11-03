@@ -3,13 +3,19 @@ import { W, H, canvas, seeded, rgb, hex, lerp } from '../util.js';
 import { FireSound } from '../audio/fire.js';
 import { Cat } from '../overlays/cat.js';
 
-const REL = 'https://github.com/joshdhill/hearth/releases/download/media-v1/';
-// Browsers (iPhone Safari especially) need the video served as video/mp4, so the
-// 1080p loops live on the site itself; the TV's player takes the 4K files from the release.
+const REL = 'https://github.com/joshdhill/hearth/releases/download/media-v2/';
+// The TV plays the 4K, 10-bit files from the release. Browsers and iPhones stream a 1080p
+// copy from the site itself as HLS, in small pieces (release files aren't served as video).
 const SITE = new URL('../../media/', import.meta.url).href;
+const fire = (key, name) => ({
+  name, tv: REL + key + '-4k.mp4', hls: SITE + 'fire/' + key + '/index.m3u8', poster: SITE + 'fire/' + key + '/poster.jpg'
+});
+// Each is a 5-6 minute seamless loop re-cut from one free 4K clip (Pixabay).
 export const FIRES = {
-  brick: { name: 'Brick hearth', tv: REL + 'fire-brick-4k.mp4', web: SITE + 'fire-brick-1080.mp4', poster: SITE + 'fire-brick-poster.jpg' },
-  teepee: { name: 'Teepee fire', tv: REL + 'fire-teepee-4k.mp4', web: SITE + 'fire-teepee-1080.mp4', poster: SITE + 'fire-teepee-poster.jpg' }
+  brick: fire('brick', 'Brick fireplace'),
+  logs: fire('logs', 'Roaring logs'),
+  roaring: fire('roaring', 'Hearth with grate'),
+  stove: fire('stove', 'Wood stove')
 };
 const LEVEL = { off: 0, low: 0.25, medium: 0.5, high: 0.85 };
 // a real fireplace recording (CC0, "Fireplace sound loop" by PagDev) under the generated crackles

@@ -1,4 +1,3 @@
 # name  source  tv_seconds  web_seconds   (first line builds as job a, second as job b)
-brick https://pixabay.com/videos/fireplace-fire-campfire-bonfire-306771/ 300 120
-logs https://pixabay.com/videos/fire-fireplace-bonfire-burning-236567/ 300 120
-# built earlier: roaring (334256), stove (261768)
+roaring https://pixabay.com/videos/roaring-fireplace-fireplace-334256/ 300 120
+# brick (306771), logs (236567) and stove (261768) are built by earlier runs
