@@ -16,7 +16,6 @@ jobs:
       - name: Scan
         env:
           PIXABAY: >-
-            https://pixabay.com/videos/roaring-fireplace-fireplace-334256/
             https://pixabay.com/videos/fire-fireplace-bonfire-burning-236567/
             https://pixabay.com/videos/fire-fireplace-burning-crackling-234515/
             https://pixabay.com/videos/fire-fireplace-campfire-bonfire-234516/

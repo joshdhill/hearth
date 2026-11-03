@@ -1,5 +1,5 @@
 """Find the 4K file behind each Pixabay video page (run on the build machine)."""
-import json, re, sys
+import json, re, subprocess, sys
 from playwright.sync_api import sync_playwright
 
 import os, time
@@ -32,15 +32,16 @@ with sync_playwright() as p:
         mine = [x for x in large if re.search(rf'/{vid}[-_]', x)]
         saved, note = None, ''
         if mine:
-            # fetch inside the same browser session, so the CDN sees the page's cookies
+            # download with curl, carrying the browser session's cookies so the CDN lets it through
+            cookie = '; '.join(f"{c['name']}={c['value']}" for c in ctx.cookies() if 'pixabay' in c['domain'])
+            out = f'{dl}/pixabay-{vid}.mp4'
             for attempt in range(3):
-                r = ctx.request.get(mine[0], headers={'Referer': u}, timeout=600000)
-                body = r.body()
-                if r.ok and len(body) > 100000:
-                    saved = f'{dl}/pixabay-{vid}.mp4'
-                    open(saved, 'wb').write(body)
+                r = subprocess.run(['curl', '-sL', '--max-time', '900', '-A', UA, '-e', u, '-H', f'Cookie: {cookie}',
+                                    '-o', out, '-w', '%{http_code} %{size_download}', mine[0]], capture_output=True, text=True)
+                note = r.stdout
+                if r.stdout.startswith('200') and int(r.stdout.split()[1]) > 100000:
+                    saved = out
                     break
-                note = f'{r.status} {body[:60]!r}'
                 time.sleep(10 + attempt * 15)
         print(json.dumps({'page': u, 'title': pg.title()[:80], 'url': mine[:1], 'saved': saved, 'note': note}), flush=True)
         time.sleep(4)
