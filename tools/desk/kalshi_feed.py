@@ -225,6 +225,7 @@ def snapshot(found):
     doc = {
         "at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "src": "Kalshi public market data (api.elections.kalshi.com), copied by tools/desk/kalshi_feed.py",
+        "run": os.environ.get("GITHUB_RUN_ID", "local"),
         "ctl": {k[4:]: v for k, v in best.items() if k.startswith("ctl:")},
         "races": {k: v for k, v in best.items() if not k.startswith("ctl:")},
     }
