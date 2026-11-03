@@ -13,8 +13,11 @@ with sync_playwright() as p:
     for u in pages:
         seen.clear()
         try:
-            pg.goto(u, wait_until='domcontentloaded', timeout=60000)
-            pg.wait_for_timeout(6000)
+            for attempt in range(3):
+                pg.goto(u, wait_until='domcontentloaded', timeout=60000)
+                pg.wait_for_timeout(6000 + attempt * 8000)
+                if 'Just a moment' not in pg.title():
+                    break
             html = pg.content()
         except Exception as e:
             print(json.dumps({'page': u, 'error': str(e)[:200]}), flush=True)
