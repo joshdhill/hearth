@@ -1,0 +1,40 @@
+== pexels-5984963  https://videos.pexels.com/video-files/5984963/5984963-uhd_3840_2160_30fps.mp4
+stream|codec_name=h264|width=3840|height=2160|pix_fmt=yuv420p|color_transfer=bt709|color_primaries=bt709|r_frame_rate=30/1|bit_rate=17922848
+format|duration=59.400000|size=133098174
+{"name": "pexels-5984963", "frames": 1782, "fps": 30.0, "seconds": 59.4, "static": 0.488, "drift": 0.0064, "median": 0.2476, "step": 0.1004, "loop": {"a": 408, "b": 1669, "seconds": 42.0, "cost": 0.17, "vs_step": 1.69, "vs_median": 0.687}, "splices_great": 2750720, "splices_ok": 0}
+== y-334256  https://cdn.pixabay.com/video/2016/01/24/1971-152947486_large.mp4
+stream|codec_name=h264|width=1920|height=1080|pix_fmt=yuv420p|color_transfer=bt709|color_primaries=bt709|r_frame_rate=24000/1001|bit_rate=4456436
+format|duration=10.051667|size=5926262
+{"name": "y-334256", "frames": 241, "fps": 23.976, "seconds": 10.1, "static": 0.736, "drift": 0.0027, "median": 0.1014, "step": 0.0855, "loop": {"a": 26, "b": 211, "seconds": 7.7, "cost": 0.0881, "vs_step": 1.03, "vs_median": 0.869}, "splices_great": 24806, "splices_ok": 0}
+== 36567  https://cdn.pixabay.com/video/2016/01/24/1971-152947486_large.mp4
+stream|codec_name=h264|width=1920|height=1080|pix_fmt=yuv420p|color_transfer=bt709|color_primaries=bt709|r_frame_rate=24000/1001|bit_rate=4456436
+format|duration=10.051667|size=5926262
+{"name": "36567", "frames": 241, "fps": 23.976, "seconds": 10.1, "static": 0.736, "drift": 0.0027, "median": 0.1014, "step": 0.0855, "loop": {"a": 26, "b": 211, "seconds": 7.7, "cost": 0.0881, "vs_step": 1.03, "vs_median": 0.869}, "splices_great": 24806, "splices_ok": 0}
+== 06771  https://cdn.pixabay.com/video/2016/01/24/1971-152947486_large.mp4
+stream|codec_name=h264|width=1920|height=1080|pix_fmt=yuv420p|color_transfer=bt709|color_primaries=bt709|r_frame_rate=24000/1001|bit_rate=4456436
+format|duration=10.051667|size=5926262
+{"name": "06771", "frames": 241, "fps": 23.976, "seconds": 10.1, "static": 0.736, "drift": 0.0027, "median": 0.1014, "step": 0.0855, "loop": {"a": 26, "b": 211, "seconds": 7.7, "cost": 0.0881, "vs_step": 1.03, "vs_median": 0.869}, "splices_great": 24806, "splices_ok": 0}
+== 34515  https://cdn.pixabay.com/video/2016/01/24/1971-152947486_large.mp4
+stream|codec_name=h264|width=1920|height=1080|pix_fmt=yuv420p|color_transfer=bt709|color_primaries=bt709|r_frame_rate=24000/1001|bit_rate=4456436
+format|duration=10.051667|size=5926262
+{"name": "34515", "frames": 241, "fps": 23.976, "seconds": 10.1, "static": 0.736, "drift": 0.0027, "median": 0.1014, "step": 0.0855, "loop": {"a": 26, "b": 211, "seconds": 7.7, "cost": 0.0881, "vs_step": 1.03, "vs_median": 0.869}, "splices_great": 24806, "splices_ok": 0}
+== 62228  https://cdn.pixabay.com/video/2016/01/24/1971-152947486_large.mp4
+stream|codec_name=h264|width=1920|height=1080|pix_fmt=yuv420p|color_transfer=bt709|color_primaries=bt709|r_frame_rate=24000/1001|bit_rate=4456436
+format|duration=10.051667|size=5926262
+{"name": "62228", "frames": 241, "fps": 23.976, "seconds": 10.1, "static": 0.736, "drift": 0.0027, "median": 0.1014, "step": 0.0855, "loop": {"a": 26, "b": 211, "seconds": 7.7, "cost": 0.0881, "vs_step": 1.03, "vs_median": 0.869}, "splices_great": 24806, "splices_ok": 0}
+== 39514  https://cdn.pixabay.com/video/2016/01/24/1971-152947486_large.mp4
+stream|codec_name=h264|width=1920|height=1080|pix_fmt=yuv420p|color_transfer=bt709|color_primaries=bt709|r_frame_rate=24000/1001|bit_rate=4456436
+format|duration=10.051667|size=5926262
+{"name": "39514", "frames": 241, "fps": 23.976, "seconds": 10.1, "static": 0.736, "drift": 0.0027, "median": 0.1014, "step": 0.0855, "loop": {"a": 26, "b": 211, "seconds": 7.7, "cost": 0.0881, "vs_step": 1.03, "vs_median": 0.869}, "splices_great": 24806, "splices_ok": 0}
+== 34516  https://cdn.pixabay.com/video/2016/01/24/1971-152947486_large.mp4
+stream|codec_name=h264|width=1920|height=1080|pix_fmt=yuv420p|color_transfer=bt709|color_primaries=bt709|r_frame_rate=24000/1001|bit_rate=4456436
+format|duration=10.051667|size=5926262
+{"name": "34516", "frames": 241, "fps": 23.976, "seconds": 10.1, "static": 0.736, "drift": 0.0027, "median": 0.1014, "step": 0.0855, "loop": {"a": 26, "b": 211, "seconds": 7.7, "cost": 0.0881, "vs_step": 1.03, "vs_median": 0.869}, "splices_great": 24806, "splices_ok": 0}
+== 75774  https://cdn.pixabay.com/video/2016/01/24/1971-152947486_large.mp4
+stream|codec_name=h264|width=1920|height=1080|pix_fmt=yuv420p|color_transfer=bt709|color_primaries=bt709|r_frame_rate=24000/1001|bit_rate=4456436
+format|duration=10.051667|size=5926262
+{"name": "75774", "frames": 241, "fps": 23.976, "seconds": 10.1, "static": 0.736, "drift": 0.0027, "median": 0.1014, "step": 0.0855, "loop": {"a": 26, "b": 211, "seconds": 7.7, "cost": 0.0881, "vs_step": 1.03, "vs_median": 0.869}, "splices_great": 24806, "splices_ok": 0}
+== 62032  https://cdn.pixabay.com/video/2016/01/24/1971-152947486_large.mp4
+stream|codec_name=h264|width=1920|height=1080|pix_fmt=yuv420p|color_transfer=bt709|color_primaries=bt709|r_frame_rate=24000/1001|bit_rate=4456436
+format|duration=10.051667|size=5926262
+{"name": "62032", "frames": 241, "fps": 23.976, "seconds": 10.1, "static": 0.736, "drift": 0.0027, "median": 0.1014, "step": 0.0855, "loop": {"a": 26, "b": 211, "seconds": 7.7, "cost": 0.0881, "vs_step": 1.03, "vs_median": 0.869}, "splices_great": 24806, "splices_ok": 0}
