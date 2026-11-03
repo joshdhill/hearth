@@ -489,6 +489,7 @@ const PM = 'https://gamma-api.polymarket.com';
 const CLOB = 'https://clob.polymarket.com';
 const PM_SLUG = { senate: 'which-party-will-win-the-senate-in-2026', house: 'which-party-will-win-the-house-in-2026', bop: 'balance-of-power-2026-midterms' };
 const KS_FEED = 'https://raw.githubusercontent.com/joshdhill/hearth/desk-data/kalshi.json';   // written by .github/workflows/desk-kalshi.yml
+const KS_API = 'https://api.github.com/repos/joshdhill/hearth/contents/kalshi.json?ref=desk-data';   // same file, never cached; 60 requests/hour per network
 const SEN_HOLD = { D: 32, I: 2, R: 31 };                   // not up in 2026; the 2 independents caucus with Democrats
 const GOV_HOLD = { D: 6, R: 8 };
 const NAMES = {AL:'Alabama',AK:'Alaska',AZ:'Arizona',AR:'Arkansas',CA:'California',CO:'Colorado',CT:'Connecticut',DE:'Delaware',DC:'District of Columbia',FL:'Florida',GA:'Georgia',HI:'Hawaii',ID:'Idaho',IL:'Illinois',IN:'Indiana',IA:'Iowa',KS:'Kansas',KY:'Kentucky',LA:'Louisiana',ME:'Maine',MD:'Maryland',MA:'Massachusetts',MI:'Michigan',MN:'Minnesota',MS:'Mississippi',MO:'Missouri',MT:'Montana',NE:'Nebraska',NV:'Nevada',NH:'New Hampshire',NJ:'New Jersey',NM:'New Mexico',NY:'New York',NC:'North Carolina',ND:'North Dakota',OH:'Ohio',OK:'Oklahoma',OR:'Oregon',PA:'Pennsylvania',RI:'Rhode Island',SC:'South Carolina',SD:'South Dakota',TN:'Tennessee',TX:'Texas',UT:'Utah',VT:'Vermont',VA:'Virginia',WA:'Washington',WV:'West Virginia',WI:'Wisconsin',WY:'Wyoming'};
@@ -893,8 +894,20 @@ function ksSides(x, r) {
   const D = num(x.D), R = num(x.R);
   return D == null || R == null ? null : { D, R, O: num(x.O) || 0 };
 }
+let ksApiPause = 0;
+async function ksFetch() {
+  if (Date.now() > ksApiPause) {
+    const ac = new AbortController(), t = setTimeout(() => ac.abort(), 15000);
+    try {
+      const res = await fetch(KS_API, { headers: { Accept: 'application/vnd.github.raw+json' }, cache: 'no-store', signal: ac.signal });
+      if (res.ok) return await res.json();
+      ksApiPause = Date.now() + (res.status === 403 || res.status === 429 ? 15 : 5) * 60e3;   // rate-limited: use the raw file for a while
+    } catch { ksApiPause = Date.now() + 5 * 60e3; } finally { clearTimeout(t); }
+  }
+  return getJSON(`${KS_FEED}?t=${Date.now()}`, 20000);
+}
 async function ksFeed() {
-  const j = await getJSON(`${KS_FEED}?t=${Math.floor(Date.now() / 20000)}`, 20000);
+  const j = await ksFetch();
   const at = Date.parse(j && j.at);
   if (!at) throw new Error('Kalshi feed not started yet');
   for (const k of ['senate', 'house']) { const s = ksSides(j.ctl && j.ctl[k], null); if (s) S.ctl.ks[k] = { D: s.D, R: s.R, at }; }
@@ -1444,7 +1457,7 @@ const civicPoll = ch => poller('civic-' + ch, async () => { try { await pullCivi
 const pmCtlPoll = poller('pm-control', async () => { try { await pmControl(); } catch (e) { mark('pm', false, e.message); throw e; } }, () => 15e3);
 const pmRacePoll = poller('pm-races', async () => { try { await pmRaces(); } catch (e) { mark('pm', false, e.message); throw e; } }, () => 60e3);
 const pmHistPoll = poller('pm-history', pmHistory, () => 300e3);
-const ksPoll = poller('kalshi', async () => { try { await ksFeed(); } catch (e) { mark('ks', false, e.message); throw e; } }, () => 45e3);
+const ksPoll = poller('kalshi', async () => { try { await ksFeed(); } catch (e) { mark('ks', false, e.message); throw e; } }, () => 75e3);
 
 flagBattlegrounds();
 buildMap();
