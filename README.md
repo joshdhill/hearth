@@ -4,7 +4,7 @@ Ambient scenes for the Google TV Streamer, with Spotify playing in the backgroun
 
 | Scene | What it is |
 | --- | --- |
-| Fireplace | A brick hearth in 4K at 60 fps, seamless loop, crackles that never repeat |
+| Fireplace | Four real fireplaces in 4K (brick fireplace, roaring logs, hearth with grate, wood stove), each a 5-minute seamless loop; crackles that never repeat |
 | Bird Window | Birds heard in the yard today (from the bird board feed) fly in and perch on the branch |
 | Weather Window | Live Germantown sky: time of day, clouds, rain, snow, fog, with Sugarloaf on the horizon |
 | Thanksgiving | Golden-hour window, pumpkins and candles on the sill, leaves falling |
@@ -24,7 +24,8 @@ Every scene can be changed from the menu (music, the cat, weather, time of day, 
 - `docs/` is the scene engine, served by GitHub Pages at https://joshdhill.github.io/hearth/. The TV app loads it, so scene changes ship with a push, no reinstall.
 - `android/` is the Google TV app: a native 4K video player under a transparent web view, plus a small bridge for Spotify and sounds. GitHub Actions builds it into the `app` release as `hearth.apk`.
 - Music plays in the TV's own Spotify app; Hearth tells it what to play through the Spotify Web API (sign-in with PKCE, no secret).
-- Fire footage: Pexels clips (free license), cut into seamless loops by `tools/build_media.sh` and published in the `media-v1` release.
+- Fire footage: free 4K Pixabay clips, about a minute each. `tools/fire/build_long.py` re-cuts each one into a 5-minute loop: it measures how alike every pair of moments is, joins 4-12 second pieces only where the fire matches, blends each join over half a second in linear light, and closes the loop back into its own start. The TV gets 4K 10-bit HEVC (`media-v2` release); browsers and iPhones get 1080p HLS from `docs/media/fire/`.
+- `tools/fire/candidates.sh` scans candidate clips (steadiness, how well they loop) when choosing new footage.
 
 ## Installing on the TV (once)
 
