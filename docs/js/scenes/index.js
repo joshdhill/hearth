@@ -1,9 +1,9 @@
 // The scene presets. Each one can be changed from the menu; changes are remembered per scene.
 export const SCENES = [
   {
-    id: 'fireside', name: 'Fireside', type: 'hearth',
-    blurb: 'A fireplace with a mantel, a real fire, and a cat who makes herself at home.',
-    defaults: { style: 'brick', decor: 'auto', lights: false, sound: 'medium', crackle: true, cat: 'often', catColor: 'black', music: 'search:Jazz by the fireplace' }
+    id: 'fireside', name: 'Fireside', type: 'hearth', photo: 'brick',
+    blurb: 'A brick fireplace filling the screen, a real fire, and a cat on the hearth.',
+    defaults: { sound: 'medium', crackle: true, cat: 'often', catColor: 'black', music: 'search:Jazz by the fireplace' }
   },
   {
     id: 'fireplace', name: 'Fireplace', type: 'fire',
@@ -40,10 +40,8 @@ export const SCENES = [
 // Options shown in the menu, by scene type. Values cycle with OK.
 export const OPTIONS = [
   { key: 'fire', label: 'Fire', types: ['fire'], values: [['brick', 'Brick fireplace'], ['logs', 'Roaring logs'], ['roaring', 'Hearth with grate'], ['stove', 'Wood stove']] },
-  { key: 'trick', label: 'Cat, do a trick', types: ['hearth'], action: true, hint: 'Pick one', values: [['mantel', 'Jump on the mantel'], ['stretch', 'Big stretch'], ['walk', 'Walk by'], ['sit', 'Sit by the fire'], ['nap', 'Nap on the rug'], ['zoom', 'Zoomies'], ['bye', 'Off you go']] },
+  { key: 'trick', label: 'Cat, do a trick', types: ['hearth'], action: true, hint: 'Pick one', values: [['stretch', 'Big stretch'], ['walk', 'Walk by'], ['sit', 'Sit by the fire'], ['nap', 'Nap on the rug'], ['zoom', 'Zoomies'], ['bye', 'Off you go']] },
   { key: 'catColor', label: 'Cat colour', types: ['hearth'], values: [['black', 'Black'], ['orange', 'Orange tabby'], ['gray', 'Gray'], ['white', 'White'], ['tuxedo', 'Tuxedo']] },
-  { key: 'style', label: 'Fireplace', types: ['hearth'], values: [['brick', 'Red brick'], ['stone', 'Fieldstone'], ['white', 'White with tile']] },
-  { key: 'decor', label: 'Mantel', types: ['hearth'], values: [['auto', 'By season'], ['everyday', 'Everyday'], ['autumn', 'Autumn'], ['christmas', 'Christmas']] },
   { key: 'sound', label: 'Fire sound', types: ['fire', 'hearth'], values: [['off', 'Off'], ['low', 'Low'], ['medium', 'Medium'], ['high', 'High']] },
   { key: 'birds', label: 'Birds', types: ['window'], branch: true, values: [[true, 'On'], [false, 'Off']] },
   { key: 'names', label: 'Bird names', types: ['window'], branch: true, values: [[true, 'On'], [false, 'Off']] },
@@ -52,6 +50,6 @@ export const OPTIONS = [
   { key: 'time', label: 'Time of day', types: ['window'], values: [['live', 'Live'], ['day', 'Day'], ['golden', 'Golden hour'], ['dusk', 'Dusk'], ['night', 'Night']] },
   { key: 'season', label: 'Season', types: ['window'], values: [['auto', 'Live'], ['spring', 'Spring'], ['summer', 'Summer'], ['autumn', 'Autumn'], ['winter', 'Winter']] },
   { key: 'leaves', label: 'Falling leaves', types: ['window'], values: [[false, 'Off'], [true, 'On']] },
-  { key: 'lights', label: 'String lights', types: ['window', 'fire', 'hearth'], values: [[false, 'Off'], [true, 'On']] },
+  { key: 'lights', label: 'String lights', types: ['window', 'fire'], values: [[false, 'Off'], [true, 'On']] },
   { key: 'cat', label: 'Cat', types: ['window', 'fire', 'hearth'], values: [['off', 'Off'], ['sometimes', 'Now and then'], ['often', 'Often']] }
 ];

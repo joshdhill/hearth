@@ -48,6 +48,7 @@ export class HouseCat {
   do(trick) {
     if (this.air) { this.pending = trick; return; }      // finish the jump first
     const S = this.S, st = [];
+    if (S.noShelf && trick === 'mantel') trick = 'stretch';      // this picture has no room above the mantel
     const side = this.away ? pick([-1, 1]) : (this.x < (S.x0 + S.x1) / 2 ? -1 : 1);   // the side it is on / comes in from
     const off = d => (d < 0 ? S.x0 - 330 : S.x1 + 330);
     if (this.away) {
@@ -123,7 +124,7 @@ export class HouseCat {
     if (this.away) {
       if (!mode || mode === 'off') return;
       this.wait -= dt;
-      if (this.wait <= 0) this.do(pick(['walk', 'mantel', 'mantel', 'stretch', 'sit', 'nap', 'zoom']));
+      if (this.wait <= 0) this.do(pick(this.S.noShelf ? ['walk', 'stretch', 'sit', 'nap', 'zoom'] : ['walk', 'mantel', 'mantel', 'stretch', 'sit', 'nap', 'zoom']));
       return;
     }
     this.clock += dt;
