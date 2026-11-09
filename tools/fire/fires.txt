@@ -1,5 +1,4 @@
 # name  source  tv_seconds  web_seconds   (one job per line)
-brick https://pixabay.com/videos/fireplace-fire-campfire-bonfire-306771/ 300 120
-logs https://pixabay.com/videos/fire-fireplace-bonfire-burning-236567/ 300 120
+ember https://pixabay.com/videos/fire-flames-chimney-fireplace-141922/ 300 120
 roaring https://pixabay.com/videos/roaring-fireplace-fireplace-334256/ 300 120
 stove https://pixabay.com/videos/fireplace-wood-burner-log-fire-261768/ 300 120
