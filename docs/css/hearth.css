@@ -16,7 +16,7 @@
 html, body { margin: 0; height: 100%; overflow: hidden; background: #000; color: var(--birch); font-family: var(--sans); cursor: none; }
 body.see-through { background: transparent; }
 
-#video { position: fixed; inset: 0; width: 100vw; height: 100vh; object-fit: cover; background: #000 center / cover no-repeat; }
+#video { position: fixed; left: 0; top: 0; width: 100vw; height: 100vh; object-fit: cover; background: #000 center / cover no-repeat; }
 body:not(.see-through) #video { display: none; }
 #scene { position: fixed; inset: 0; width: 100vw; height: 100vh; display: block; }
 #layer { position: fixed; inset: 0; }

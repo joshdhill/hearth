@@ -208,6 +208,14 @@ class MainActivity : Activity() {
 
     inner class Bridge {
         @JavascriptInterface fun playVideo(url: String) { ui.post { this@MainActivity.playVideo(url) } }
+        // where the video sits, as fractions of the screen (the whole frame is stretched into the box)
+        @JavascriptInterface fun setVideoBox(l: Float, t: Float, w: Float, h: Float) { ui.post {
+            val full = l == 0f && t == 0f && w == 1f && h == 1f
+            val rw = playerView.rootView.width; val rh = playerView.rootView.height
+            playerView.resizeMode = if (full) AspectRatioFrameLayout.RESIZE_MODE_ZOOM else AspectRatioFrameLayout.RESIZE_MODE_FILL
+            playerView.layoutParams = if (full || rw == 0) FrameLayout.LayoutParams(-1, -1) else
+                FrameLayout.LayoutParams((w * rw).toInt(), (h * rh).toInt()).apply { leftMargin = (l * rw).toInt(); topMargin = (t * rh).toInt() }
+        } }
         @JavascriptInterface fun stopVideo() { ui.post { this@MainActivity.stopVideo() } }
         @JavascriptInterface fun setVideoVolume(v: Float) { ui.post { video?.volume = v } }
         @JavascriptInterface fun playSound(url: String, v: Float) { ui.post { this@MainActivity.playSound(url, v) } }

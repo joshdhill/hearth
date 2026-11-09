@@ -5,6 +5,7 @@ import { SCENES, OPTIONS } from './scenes/index.js';
 import { WindowScene } from './scenes/window.js';
 import { FireplaceScene, FIRES } from './scenes/fireplace.js';
 import { BoardScene } from './scenes/board.js';
+import { HearthScene } from './scenes/hearth.js';
 import { spotify, login, pickDevice, PRESETS } from './spotify.js';
 import { resumeAudio } from './audio/fire.js';
 
@@ -32,6 +33,21 @@ class App {
     this.canvas.width = cw; this.canvas.height = ch;
     const k = Math.max(cw / W, ch / H);
     this.view = { k, ox: (cw - W * k) / 2, oy: (ch - H * k) / 2 };
+    this.placeVideo();
+  }
+
+  // Where the video sits: the whole screen, or a box given in scene coordinates (a firebox, say).
+  placeVideo() {
+    const b = this.videoBox, v = this.videoEl, st = v.style;
+    if (!b) {
+      st.left = st.top = '0'; st.width = '100vw'; st.height = '100vh'; st.objectFit = 'cover';
+      if (native && native.setVideoBox) native.setVideoBox(0, 0, 1, 1);
+      return;
+    }
+    const { k, ox, oy } = this.view, cw = this.canvas.width, ch = this.canvas.height;
+    const f = [(ox + b.x * k) / cw, (oy + b.y * k) / ch, b.w * k / cw, b.h * k / ch];      // fractions of the screen
+    st.left = f[0] * 100 + 'vw'; st.top = f[1] * 100 + 'vh'; st.width = f[2] * 100 + 'vw'; st.height = f[3] * 100 + 'vh'; st.objectFit = 'fill';
+    if (native && native.setVideoBox) native.setVideoBox(f[0], f[1], f[2], f[3]);
   }
 
   // ---- scenes ------------------------------------------------------------
@@ -51,7 +67,7 @@ class App {
     const old = this.scene;
     this.scene = null;
     if (old) old.exit();
-    const S = p.type === 'fire' ? FireplaceScene : p.type === 'board' ? BoardScene : WindowScene;
+    const S = p.type === 'fire' ? FireplaceScene : p.type === 'hearth' ? HearthScene : p.type === 'board' ? BoardScene : WindowScene;
     const s = new S(this, p);
     store.set('scene', p.id);
     document.body.classList.toggle('see-through', !!s.transparent);
@@ -81,7 +97,9 @@ class App {
   }
 
   // ---- video layer (native player on the TV, <video> in a browser) ---------
-  video(f) {
+  video(f, box = null) {
+    this.videoBox = f ? box : null;
+    this.placeVideo();
     if (native && native.playVideo) {
       if (f) native.playVideo(f.tv); else native.stopVideo();
       return;
@@ -298,6 +316,7 @@ const menu = {
       if (!o.types.includes(s.type)) continue;
       if (o.branch && !s.branch) continue;
       if (o.key === 'birds' && !s.branch) continue;
+      if (o.action) { list.push({ key: o.key, label: o.label, value: o.hint || 'Choose', o }); continue; }
       const v = o.values.find(x => x[0] === s.opts[o.key]) || o.values[0];
       list.push({ key: o.key, label: o.label, value: v[1], o });
     }
@@ -356,7 +375,9 @@ const menu = {
       if (cv.dataset.done && Date.now() - +cv.dataset.done < 600000) continue;
       await sleep(30);
       try {
-        if (s.type === 'fire') {
+        if (s.type === 'hearth') {
+          (app.scene && app.cur.id === s.id ? app.scene : new HearthScene(app, app.preset(s.id))).thumb(x, 320, 180);
+        } else if (s.type === 'fire') {
           const p = app.preset(s.id), f = FIRES[p.opts.fire] || FIRES.brick;
           const img = await loadImage(f.poster).catch(() => null);
           if (img) x.drawImage(img, 0, 0, 320, 180); else { x.fillStyle = '#2a1408'; x.fillRect(0, 0, 320, 180); }
@@ -400,6 +421,9 @@ const menu = {
     }
     if (o.key === '_songcard') { store.set('songcard', !store.get('songcard', true)); return this.render(); }
     if (o.key === '_reset') { app.resetScene(); app.toast(`${app.cur.name} reset`); return this.render(); }
+    if (o.o.action) {       // something to do right now (a cat trick), picked from a list
+      return this.openPicker(o.label, o.o.values.map(v => ({ label: v[1], run: () => { if (app.scene && app.scene.act) app.scene.act(o.key, v[0]); this.hide(); } })));
+    }
     const vals = o.o.values;
     const i = vals.findIndex(v => v[0] === app.cur.opts[o.key]);
     app.setOpt(o.key, vals[(i + 1) % vals.length][0]);
@@ -537,7 +561,7 @@ const app = new App();
 window.hearthApp = app;
 weather.start();
 weather.on(() => app.showWeatherCard());
-const startId = params.get('scene') || store.get('scene', 'birdwindow');
+const startId = params.get('scene') || store.get('scene', 'fireside');
 // test helpers: ?wx=rain&time=dusk&cat=often apply to this visit only
 if (params.get('wx') || params.get('time') || params.get('cat')) {
   const def = SCENES.find(s => s.id === startId);

@@ -4,6 +4,7 @@ Ambient scenes for the Google TV Streamer, with Spotify playing in the backgroun
 
 | Scene | What it is |
 | --- | --- |
+| Fireside | A painted room with a mantel (red brick, fieldstone or white with tile), real fire footage inside the firebox, seasonal mantel decorations, and a cat that walks by, jumps on the mantel, stretches, sits by the fire and naps. "Cat, do a trick" in the menu makes her do one now |
 | Fireplace | Four real fireplaces in 4K (brick fireplace, roaring logs, hearth with grate, wood stove), each a 5-minute seamless loop; crackles that never repeat |
 | Bird Window | Birds heard in the yard today (from the bird board feed) fly in and perch on the branch |
 | Weather Window | Live Germantown sky: time of day, clouds, rain, snow, fog, with Sugarloaf on the horizon |
