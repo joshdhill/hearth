@@ -1,0 +1,3 @@
+# one job per line: upscale <picture> | probe | run <script> [args]
+upscale art/fireside/source-fireplace.jpg
+probe

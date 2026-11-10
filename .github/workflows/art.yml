@@ -1,0 +1,48 @@
+name: Art tools (upscale, generator probe)
+on:
+  push:
+    paths: [ 'tools/art/job.txt' ]
+permissions:
+  contents: write
+jobs:
+  art:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        n: [ 1, 2, 3, 4 ]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Pick the job
+        id: pick
+        run: |
+          line=$(grep -v '^#' tools/art/job.txt | grep . | sed -n "${{ matrix.n }}p")
+          echo "cmd=$line" >> $GITHUB_OUTPUT
+      - name: Run
+        if: steps.pick.outputs.cmd != ''
+        run: |
+          set -x
+          pip install -q requests gradio_client pillow numpy
+          case "${{ steps.pick.outputs.cmd }}" in
+            upscale*|torch*) pip install -q torch --index-url https://download.pytorch.org/whl/cpu && pip install -q spandrel ;;
+          esac
+          mkdir -p out
+          set -- ${{ steps.pick.outputs.cmd }}
+          kind=$1; shift
+          case "$kind" in
+            upscale) python3 tools/art/upscale.py "$@" out ;;
+            probe)   python3 tools/art/probe_gen.py out ;;
+            run)     python3 "$@" out ;;
+          esac
+      - name: Save results to the media-work branch
+        if: always() && steps.pick.outputs.cmd != ''
+        run: |
+          git config user.name "hearth-bot"; git config user.email "actions@users.noreply.github.com"
+          dest="art-out/$(echo '${{ steps.pick.outputs.cmd }}' | awk '{print $1}')-${{ matrix.n }}"
+          for try in 1 2 3 4 5 6; do
+            rm -rf /tmp/mw; git fetch -q origin media-work && git worktree add -q -f /tmp/mw origin/media-work
+            rm -rf "/tmp/mw/$dest"; mkdir -p "/tmp/mw/$dest" && cp -r out/. "/tmp/mw/$dest/"
+            (cd /tmp/mw && git add -A art-out && git commit -qm "Art job: ${{ steps.pick.outputs.cmd }}" && git push -q origin HEAD:media-work) && break
+            git worktree remove -f /tmp/mw; sleep $((try * 7))
+          done
