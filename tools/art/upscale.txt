@@ -1,2 +1,2 @@
 # source  name   (each is enlarged 4x)
-tools/art/src/fireplace.jpg fireplace-x4
+tools/art/master/fireside.png fireside-x4
