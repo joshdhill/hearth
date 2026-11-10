@@ -1,0 +1,3 @@
+SPACE linoyts/LTX-2-3-First-Last-Frame /generate_video attempt 1
+  failed: TypeError('No value provided for required argument: input_audio')
+NO OUTPUT
