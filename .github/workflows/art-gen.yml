@@ -1,0 +1,35 @@
+name: Art generation (free Spaces)
+on:
+  workflow_dispatch:
+  push:
+    paths: [ 'tools/art/tasks.json' ]
+permissions:
+  contents: write
+jobs:
+  gen:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        i: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 ]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Is there a task for this slot?
+        id: has
+        run: echo "yes=$(python3 -c "import json;print(int(len(json.load(open('tools/art/tasks.json')))>${{ matrix.i }}))")" >> $GITHUB_OUTPUT
+      - if: steps.has.outputs.yes == '1'
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg >/dev/null
+          pip install -q gradio_client
+          python3 tools/art/gen.py tools/art/tasks.json ${{ matrix.i }} gen
+      - name: Save to the media-work branch
+        if: always() && steps.has.outputs.yes == '1'
+        run: |
+          git config user.name "hearth-bot"; git config user.email "actions@users.noreply.github.com"
+          for try in 1 2 3 4 5 6 7 8; do
+            rm -rf /tmp/mw; git fetch -q origin media-work && git worktree add -q -f /tmp/mw origin/media-work
+            mkdir -p /tmp/mw/gen && cp -r gen/* /tmp/mw/gen/
+            (cd /tmp/mw && git add -A gen && git commit -qm "Generated art: slot ${{ matrix.i }}" && git push -q origin HEAD:media-work) && break
+            git worktree remove -f /tmp/mw; sleep $((RANDOM % 20 + try * 5))
+          done
