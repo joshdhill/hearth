@@ -1,0 +1,5 @@
+SPACE zerogpu-aoti/wan2-2-fp8da-aoti-faster /generate_video attempt 1
+  took 35 s; result: ('/tmp/gradio/4b9e93ad7359af419ad3aa42449830f3c779bda6dffe854859580a0b8592f17a/tmpt9uxdkp0.mp4', 7)
+  saved gen/walk-i2v/out.mp4 219537
+  video: 832,480,16/1,57
+OK
