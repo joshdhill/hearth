@@ -18,16 +18,16 @@ jobs:
           ls -la RealESRGAN_x4plus.pth
       - name: Upscale each picture listed in tools/art/upscale.txt
         run: |
-          mkdir -p art
+          mkdir -p /tmp/up
           grep -v '^#' tools/art/upscale.txt | grep . | while read -r src name; do
-            python3 tools/art/upscale.py "$src" "art/$name.png"
+            python3 tools/art/upscale.py "$src" "/tmp/up/$name.png"
           done
       - name: Save to the media-work branch
         run: |
           git config user.name "hearth-bot"; git config user.email "actions@users.noreply.github.com"
           for try in 1 2 3 4 5; do
             rm -rf /tmp/mw; git fetch -q origin media-work && git worktree add -q -f /tmp/mw origin/media-work
-            mkdir -p /tmp/mw/art && cp art/* /tmp/mw/art/
-            (cd /tmp/mw && git add -A art && git commit -qm "Upscaled art" && git push -q origin HEAD:media-work) && break
+            mkdir -p /tmp/mw/up && cp /tmp/up/* /tmp/mw/up/
+            (cd /tmp/mw && git add -A up && git commit -qm "Upscaled art" && git push -q origin HEAD:media-work) && break
             git worktree remove -f /tmp/mw; sleep $((try * 9))
           done
