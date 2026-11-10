@@ -27,7 +27,7 @@ export const COATS = {
   white:  { body: '#ebe4d8', far: '#c3bbac', eye: '#5c93b8' },
   tuxedo: { body: '#191411', far: '#0e0b09', eye: '#f0c24a', white: '#efe9de' }
 };
-const WAIT = { off: 0, sometimes: [150, 360], often: [35, 90] };
+const WAIT = { off: 0, sometimes: [150, 360], often: [35, 90], loop: [1.5, 4] };
 
 export class HouseCat {
   // spots: { floor, floorScale, shelf, shelfScale, shelfX: [x0, x1], jumpL, jumpR, fireL, fireR, x0, x1 }
@@ -116,6 +116,16 @@ export class HouseCat {
     this.setPose('stand', 0.4);
   }
 
+  // the next trick when the cat picks for itself: every trick once, in a shuffled order, then again
+  next() {
+    if (!this.bag || !this.bag.length) {
+      const all = this.S.noShelf ? ['walk', 'stretch', 'sit', 'nap', 'zoom'] : ['walk', 'mantel', 'stretch', 'sit', 'nap', 'zoom'];
+      this.bag = all.map(v => [Math.random(), v]).sort((a, b) => a[0] - b[0]).map(v => v[1]);
+      if (this.bag[this.bag.length - 1] === this.lastTrick && this.bag.length > 1) this.bag.reverse();
+    }
+    return (this.lastTrick = this.bag.pop());
+  }
+
   setPose(name, dur = 0.5) { this.from = this.pose; this.to = POSES[name]; this.pt = 0; this.pd = dur; this.poseName = name; }
 
   // ---- per frame --------------------------------------------------------------
@@ -124,7 +134,8 @@ export class HouseCat {
     if (this.away) {
       if (!mode || mode === 'off') return;
       this.wait -= dt;
-      if (this.wait <= 0) this.do(pick(this.S.noShelf ? ['walk', 'stretch', 'sit', 'nap', 'zoom'] : ['walk', 'mantel', 'mantel', 'stretch', 'sit', 'nap', 'zoom']));
+      if (mode === 'loop' && this.wait > 4) this.wait = 2;
+      if (this.wait <= 0) this.do(this.next());
       return;
     }
     this.clock += dt;

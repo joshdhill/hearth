@@ -40,7 +40,7 @@ export const SCENES = [
 // Options shown in the menu, by scene type. Values cycle with OK.
 export const OPTIONS = [
   { key: 'fire', label: 'Fire', types: ['fire'], values: [['brick', 'Brick fireplace'], ['logs', 'Roaring logs'], ['roaring', 'Hearth with grate'], ['stove', 'Wood stove']] },
-  { key: 'trick', label: 'Cat, do a trick', types: ['hearth'], action: true, hint: 'Pick one', values: [['stretch', 'Big stretch'], ['walk', 'Walk by'], ['sit', 'Sit by the fire'], ['nap', 'Nap on the rug'], ['zoom', 'Zoomies'], ['bye', 'Off you go']] },
+  { key: 'trick', label: 'Cat, do a trick', types: ['hearth'], action: true, hint: 'Pick one', values: [['random', 'Random: loop through them all'], ['stretch', 'Big stretch'], ['walk', 'Walk by'], ['sit', 'Sit by the fire'], ['nap', 'Nap on the rug'], ['zoom', 'Zoomies'], ['bye', 'Off you go']] },
   { key: 'catColor', label: 'Cat colour', types: ['hearth'], values: [['black', 'Black'], ['orange', 'Orange tabby'], ['gray', 'Gray'], ['white', 'White'], ['tuxedo', 'Tuxedo']] },
   { key: 'sound', label: 'Fire sound', types: ['fire', 'hearth'], values: [['off', 'Off'], ['low', 'Low'], ['medium', 'Medium'], ['high', 'High']] },
   { key: 'birds', label: 'Birds', types: ['window'], branch: true, values: [[true, 'On'], [false, 'Off']] },
@@ -51,5 +51,5 @@ export const OPTIONS = [
   { key: 'season', label: 'Season', types: ['window'], values: [['auto', 'Live'], ['spring', 'Spring'], ['summer', 'Summer'], ['autumn', 'Autumn'], ['winter', 'Winter']] },
   { key: 'leaves', label: 'Falling leaves', types: ['window'], values: [[false, 'Off'], [true, 'On']] },
   { key: 'lights', label: 'String lights', types: ['window', 'fire'], values: [[false, 'Off'], [true, 'On']] },
-  { key: 'cat', label: 'Cat', types: ['window', 'fire', 'hearth'], values: [['off', 'Off'], ['sometimes', 'Now and then'], ['often', 'Often']] }
+  { key: 'cat', label: 'Cat', types: ['window', 'fire', 'hearth'], values: [['off', 'Off'], ['sometimes', 'Now and then'], ['often', 'Often'], ['loop', 'Non-stop tricks']] }
 ];

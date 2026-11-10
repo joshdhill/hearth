@@ -31,7 +31,11 @@ class App {
     const cap = Math.min(1, (W * 1.25) / cw);                // keep big desktop previews light
     cw = Math.round(cw * cap); ch = Math.round(ch * cap);
     this.canvas.width = cw; this.canvas.height = ch;
-    const k = Math.max(cw / W, ch / H);
+    // Fill the screen. A scene that is painted wider than 16:9 keeps its full height on wide
+    // phones and shows its extra width instead of losing the top and bottom.
+    let k = Math.max(cw / W, ch / H);
+    const wide = this.wide || W;
+    if (cw / ch > W / H && wide > W) k = Math.max(ch / H, cw / wide);
     this.view = { k, ox: (cw - W * k) / 2, oy: (ch - H * k) / 2 };
     this.placeVideo();
   }
@@ -71,6 +75,7 @@ class App {
     const s = new S(this, p);
     store.set('scene', p.id);
     document.body.classList.toggle('see-through', !!s.transparent);
+    this.wide = s.wide || W; this.fit();
     await s.enter();
     this.scene = s;
     this.showWeatherCard();
