@@ -14,9 +14,7 @@ os.makedirs(OUT, exist_ok=True)
 img = cv2.imread(src)
 mask = (cv2.imread(maskp, 0) > 127).astype(np.uint8)
 H, W = mask.shape
-PROMPT = ("Photograph of a rustic red brick fireplace wall with a thick reclaimed wood mantel beam. Weathered red bricks in running bond "
-          "with gray mortar fill the whole wall. On the mantel stand pillar candles, glass jar candles and a ceramic pot with a leafy trailing "
-          "pothos plant. Plain brick wall with nothing else on it. Warm, moody interior light, shallow depth, highly detailed.")
+PROMPT = open(os.path.join(os.path.dirname(os.path.abspath(src)), 'prompt.txt')).read().strip()
 TW = 716
 tiles = [(0, TW), (W - TW, W)]
 client = Client('black-forest-labs/FLUX.1-Fill-dev', verbose=False)
