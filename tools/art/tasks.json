@@ -1,24 +1,5 @@
 [
  {
-  "name": "sit-idle",
-  "space": "multimodalart/wan-2-2-first-last-frame",
-  "api": "/generate_video",
-  "tries": 1,
-  "args": {
-   "start_image_pil": {
-    "file": "tools/art/canvas/sit.png"
-   },
-   "end_image_pil": {
-    "file": "tools/art/canvas/sit.png"
-   },
-   "prompt": "The black cat sits in place. It slowly turns its head to look toward the viewer, blinks, flicks one ear, and the tip of its tail twitches; then it turns its head back to face right exactly as at the start. Static camera, plain cream paper background, detailed illustration style, the cat stays the same size.",
-   "duration_seconds": 3.5,
-   "steps": 8,
-   "seed": 7,
-   "randomize_seed": false
-  }
- },
- {
   "name": "sit-groom",
   "space": "multimodalart/wan-2-2-first-last-frame",
   "api": "/generate_video",
@@ -38,7 +19,7 @@
   }
  },
  {
-  "name": "sit2stand",
+  "name": "sit-groom-b",
   "space": "multimodalart/wan-2-2-first-last-frame",
   "api": "/generate_video",
   "tries": 1,
@@ -47,123 +28,12 @@
     "file": "tools/art/canvas/sit.png"
    },
    "end_image_pil": {
-    "file": "tools/art/canvas/stand.png"
-   },
-   "prompt": "The sitting black cat rises onto all four legs and takes a step forward to the right. Static camera, plain cream paper background, detailed illustration style, the cat stays the same size.",
-   "duration_seconds": 2.5,
-   "steps": 8,
-   "seed": 7,
-   "randomize_seed": false
-  }
- },
- {
-  "name": "stand2sit",
-  "space": "multimodalart/wan-2-2-first-last-frame",
-  "api": "/generate_video",
-  "tries": 1,
-  "args": {
-   "start_image_pil": {
-    "file": "tools/art/canvas/stand.png"
-   },
-   "end_image_pil": {
     "file": "tools/art/canvas/sit.png"
    },
-   "prompt": "The walking black cat stops and sits down on its haunches, curling its tail around its paws. Static camera, plain cream paper background, detailed illustration style, the cat stays the same size.",
-   "duration_seconds": 2.5,
-   "steps": 8,
-   "seed": 7,
-   "randomize_seed": false
-  }
- },
- {
-  "name": "walk",
-  "space": "multimodalart/wan-2-2-first-last-frame",
-  "api": "/generate_video",
-  "tries": 1,
-  "args": {
-   "start_image_pil": {
-    "file": "tools/art/canvas/stand.png"
-   },
-   "end_image_pil": {
-    "file": "tools/art/canvas/stand.png"
-   },
-   "prompt": "Side-view tracking shot. The black cat walks to the right at a steady relaxed pace, its legs stepping naturally and its tail swaying. The camera follows so the cat stays in exactly the same place in the frame. Static camera, plain cream paper background, detailed illustration style, the cat stays the same size.",
-   "duration_seconds": 3.0,
-   "steps": 8,
-   "seed": 7,
-   "randomize_seed": false
-  }
- },
- {
-  "name": "walk-i2v",
-  "space": "zerogpu-aoti/wan2-2-fp8da-aoti-faster",
-  "api": "/generate_video",
-  "tries": 1,
-  "args": {
-   "input_image": {
-    "file": "tools/art/canvas/stand.png"
-   },
-   "prompt": "Side-view tracking shot. The black cat walks to the right at a steady relaxed pace, its legs stepping naturally and its tail swaying. The camera follows so the cat stays in exactly the same place in the frame. Static camera, plain cream paper background, detailed illustration style, the cat stays the same size.",
-   "steps": 6,
-   "duration_seconds": 3.5,
-   "seed": 7,
-   "randomize_seed": false
-  }
- },
- {
-  "name": "stretch",
-  "space": "multimodalart/wan-2-2-first-last-frame",
-  "api": "/generate_video",
-  "tries": 1,
-  "args": {
-   "start_image_pil": {
-    "file": "tools/art/canvas/stand.png"
-   },
-   "end_image_pil": {
-    "file": "tools/art/canvas/stand.png"
-   },
-   "prompt": "The black cat stops, lowers its chest to the floor and stretches both front legs far forward with its rear end raised high in a long play-bow stretch, then rises back to standing exactly as at the start. Static camera, plain cream paper background, detailed illustration style, the cat stays the same size.",
+   "prompt": "The sitting black cat raises one front paw, licks it several times and rubs its face with it, then lowers the paw and sits exactly as at the start. Static camera, plain cream paper background, detailed illustration style, the cat stays the same size.",
    "duration_seconds": 3.5,
    "steps": 8,
-   "seed": 7,
-   "randomize_seed": false
-  }
- },
- {
-  "name": "sit2lie",
-  "space": "multimodalart/wan-2-2-first-last-frame",
-  "api": "/generate_video",
-  "tries": 1,
-  "args": {
-   "start_image_pil": {
-    "file": "tools/art/canvas/sit.png"
-   },
-   "end_image_pil": {
-    "file": "tools/art/canvas/lie.png"
-   },
-   "prompt": "The sitting black cat lowers itself and lies down on its belly with its front paws stretched out in front. Static camera, plain cream paper background, detailed illustration style, the cat stays the same size.",
-   "duration_seconds": 3.0,
-   "steps": 8,
-   "seed": 7,
-   "randomize_seed": false
-  }
- },
- {
-  "name": "lie-doze",
-  "space": "multimodalart/wan-2-2-first-last-frame",
-  "api": "/generate_video",
-  "tries": 1,
-  "args": {
-   "start_image_pil": {
-    "file": "tools/art/canvas/lie.png"
-   },
-   "end_image_pil": {
-    "file": "tools/art/canvas/lie.png"
-   },
-   "prompt": "The black cat lies resting. Its eyes slowly close as it dozes, its sides rise and fall with slow breathing, an ear twitches, then its eyes open again exactly as at the start. Static camera, plain cream paper background, detailed illustration style, the cat stays the same size.",
-   "duration_seconds": 3.5,
-   "steps": 8,
-   "seed": 7,
+   "seed": 21,
    "randomize_seed": false
   }
  },
@@ -187,79 +57,69 @@
   }
  },
  {
-  "name": "stretch-ltx",
-  "space": "linoyts/LTX-2-3-First-Last-Frame",
+  "name": "trot",
+  "space": "zerogpu-aoti/wan2-2-fp8da-aoti-faster",
   "api": "/generate_video",
   "tries": 1,
   "args": {
-   "first_image": {
+   "input_image": {
     "file": "tools/art/canvas/stand.png"
    },
-   "last_image": {
-    "file": "tools/art/canvas/stand.png"
-   },
-   "prompt": "The black cat stops, lowers its chest to the floor and stretches both front legs far forward with its rear end raised high in a long play-bow stretch, then rises back to standing exactly as at the start. Static camera, plain cream paper background, detailed illustration style, the cat stays the same size.",
-   "duration": 4.0,
-   "enhance_prompt": false,
-   "seed": 7,
-   "randomize_seed": false,
-   "height": 704,
-   "width": 1280
-  }
- },
- {
-  "name": "sit-idle-ltx",
-  "space": "linoyts/LTX-2-3-First-Last-Frame",
-  "api": "/generate_video",
-  "tries": 1,
-  "args": {
-   "first_image": {
-    "file": "tools/art/canvas/sit.png"
-   },
-   "last_image": {
-    "file": "tools/art/canvas/sit.png"
-   },
-   "prompt": "The black cat sits in place. It slowly turns its head to look toward the viewer, blinks, flicks one ear, and the tip of its tail twitches; then it turns its head back to face right exactly as at the start. Static camera, plain cream paper background, detailed illustration style, the cat stays the same size.",
-   "duration": 4.0,
-   "enhance_prompt": false,
-   "seed": 7,
-   "randomize_seed": false,
-   "height": 704,
-   "width": 1280
-  }
- },
- {
-  "name": "sit-idle-b",
-  "space": "multimodalart/wan-2-2-first-last-frame",
-  "api": "/generate_video",
-  "tries": 1,
-  "args": {
-   "start_image_pil": {
-    "file": "tools/art/canvas/sit.png"
-   },
-   "end_image_pil": {
-    "file": "tools/art/canvas/sit.png"
-   },
-   "prompt": "The black cat sits in place. It slowly turns its head to look toward the viewer, blinks, flicks one ear, and the tip of its tail twitches; then it turns its head back to face right exactly as at the start. Static camera, plain cream paper background, detailed illustration style, the cat stays the same size.",
+   "prompt": "Side-view tracking shot. The black cat trots briskly to the right with a quick springy gait, legs moving fast, tail held up. The camera follows so the cat stays in exactly the same place in the frame. Static camera, plain cream paper background, detailed illustration style, the cat stays the same size.",
+   "steps": 6,
    "duration_seconds": 3.5,
-   "steps": 8,
-   "seed": 21,
+   "seed": 7,
    "randomize_seed": false
   }
  },
  {
-  "name": "walk-b",
+  "name": "run",
+  "space": "zerogpu-aoti/wan2-2-fp8da-aoti-faster",
+  "api": "/generate_video",
+  "tries": 1,
+  "args": {
+   "input_image": {
+    "file": "tools/art/canvas/stand.png"
+   },
+   "prompt": "Side-view tracking shot. The black cat runs fast to the right in a bounding gallop, body stretching and bunching with each stride. The camera follows so the cat stays in exactly the same place in the frame. Static camera, plain cream paper background, detailed illustration style, the cat stays the same size.",
+   "steps": 6,
+   "duration_seconds": 3.5,
+   "seed": 7,
+   "randomize_seed": false
+  }
+ },
+ {
+  "name": "jump-up",
   "space": "multimodalart/wan-2-2-first-last-frame",
   "api": "/generate_video",
   "tries": 1,
   "args": {
    "start_image_pil": {
-    "file": "tools/art/canvas/stand.png"
+    "file": "tools/art/canvas/jump-floor.png"
    },
    "end_image_pil": {
-    "file": "tools/art/canvas/stand.png"
+    "file": "tools/art/canvas/jump-shelf.png"
    },
-   "prompt": "Side-view tracking shot. The black cat walks to the right at a steady relaxed pace, its legs stepping naturally and its tail swaying. The camera follows so the cat stays in exactly the same place in the frame. Static camera, plain cream paper background, detailed illustration style, the cat stays the same size.",
+   "prompt": "The small black cat sitting on the floor looks up at the high shelf, crouches low, then leaps straight up through the air, lands on top of the shelf and sits down there. Static camera, plain cream paper background, detailed illustration style.",
+   "duration_seconds": 3.0,
+   "steps": 8,
+   "seed": 7,
+   "randomize_seed": false
+  }
+ },
+ {
+  "name": "jump-up-b",
+  "space": "multimodalart/wan-2-2-first-last-frame",
+  "api": "/generate_video",
+  "tries": 1,
+  "args": {
+   "start_image_pil": {
+    "file": "tools/art/canvas/jump-floor.png"
+   },
+   "end_image_pil": {
+    "file": "tools/art/canvas/jump-shelf.png"
+   },
+   "prompt": "The small black cat sitting on the floor looks up at the high shelf, crouches low, then leaps straight up through the air, lands on top of the shelf and sits down there. Static camera, plain cream paper background, detailed illustration style.",
    "duration_seconds": 3.0,
    "steps": 8,
    "seed": 21,
@@ -267,7 +127,121 @@
   }
  },
  {
-  "name": "stand2sit-b",
+  "name": "jump-up-c",
+  "space": "multimodalart/wan-2-2-first-last-frame",
+  "api": "/generate_video",
+  "tries": 1,
+  "args": {
+   "start_image_pil": {
+    "file": "tools/art/canvas/jump-floor.png"
+   },
+   "end_image_pil": {
+    "file": "tools/art/canvas/jump-shelf.png"
+   },
+   "prompt": "The small black cat sitting on the floor looks up at the high shelf, crouches low, then leaps straight up through the air, lands on top of the shelf and sits down there. Static camera, plain cream paper background, detailed illustration style.",
+   "duration_seconds": 3.0,
+   "steps": 8,
+   "seed": 33,
+   "randomize_seed": false
+  }
+ },
+ {
+  "name": "jump-down",
+  "space": "multimodalart/wan-2-2-first-last-frame",
+  "api": "/generate_video",
+  "tries": 1,
+  "args": {
+   "start_image_pil": {
+    "file": "tools/art/canvas/jump-shelf.png"
+   },
+   "end_image_pil": {
+    "file": "tools/art/canvas/jump-floor.png"
+   },
+   "prompt": "The small black cat sitting on the high shelf leans forward over the edge, jumps down to the floor below, lands softly on its feet and sits down. Static camera, plain cream paper background, detailed illustration style.",
+   "duration_seconds": 3.0,
+   "steps": 8,
+   "seed": 7,
+   "randomize_seed": false
+  }
+ },
+ {
+  "name": "jump-down-b",
+  "space": "multimodalart/wan-2-2-first-last-frame",
+  "api": "/generate_video",
+  "tries": 1,
+  "args": {
+   "start_image_pil": {
+    "file": "tools/art/canvas/jump-shelf.png"
+   },
+   "end_image_pil": {
+    "file": "tools/art/canvas/jump-floor.png"
+   },
+   "prompt": "The small black cat sitting on the high shelf leans forward over the edge, jumps down to the floor below, lands softly on its feet and sits down. Static camera, plain cream paper background, detailed illustration style.",
+   "duration_seconds": 3.0,
+   "steps": 8,
+   "seed": 21,
+   "randomize_seed": false
+  }
+ },
+ {
+  "name": "sit-yawn",
+  "space": "multimodalart/wan-2-2-first-last-frame",
+  "api": "/generate_video",
+  "tries": 1,
+  "args": {
+   "start_image_pil": {
+    "file": "tools/art/canvas/sit.png"
+   },
+   "end_image_pil": {
+    "file": "tools/art/canvas/sit.png"
+   },
+   "prompt": "The sitting black cat yawns widely, showing its pink tongue and teeth, then closes its mouth and sits exactly as at the start. Static camera, plain cream paper background, detailed illustration style, the cat stays the same size.",
+   "duration_seconds": 3.0,
+   "steps": 8,
+   "seed": 7,
+   "randomize_seed": false
+  }
+ },
+ {
+  "name": "lie-roll",
+  "space": "multimodalart/wan-2-2-first-last-frame",
+  "api": "/generate_video",
+  "tries": 1,
+  "args": {
+   "start_image_pil": {
+    "file": "tools/art/canvas/lie.png"
+   },
+   "end_image_pil": {
+    "file": "tools/art/canvas/lie.png"
+   },
+   "prompt": "The lying black cat rolls over onto its back and wriggles playfully with its paws in the air, then rolls back and lies exactly as at the start. Static camera, plain cream paper background, detailed illustration style, the cat stays the same size.",
+   "duration_seconds": 3.5,
+   "steps": 8,
+   "seed": 7,
+   "randomize_seed": false
+  }
+ },
+ {
+  "name": "sit-paw",
+  "space": "multimodalart/wan-2-2-first-last-frame",
+  "api": "/generate_video",
+  "tries": 1,
+  "args": {
+   "start_image_pil": {
+    "file": "tools/art/canvas/sit.png"
+   },
+   "end_image_pil": {
+    "file": "tools/art/canvas/sit.png"
+   },
+   "prompt": "The sitting black cat looks up and playfully bats at the air with one front paw a few times, then puts its paw down and sits exactly as at the start. Static camera, plain cream paper background, detailed illustration style, the cat stays the same size.",
+   "duration_seconds": 3.5,
+   "steps": 8,
+   "seed": 7,
+   "randomize_seed": false
+  }
+ },
+ {
+  "name": "stand-arch",
   "space": "multimodalart/wan-2-2-first-last-frame",
   "api": "/generate_video",
   "tries": 1,
@@ -276,34 +250,48 @@
     "file": "tools/art/canvas/stand.png"
    },
    "end_image_pil": {
-    "file": "tools/art/canvas/sit.png"
+    "file": "tools/art/canvas/stand.png"
    },
-   "prompt": "The walking black cat stops and sits down on its haunches, curling its tail around its paws. Static camera, plain cream paper background, detailed illustration style, the cat stays the same size.",
-   "duration_seconds": 2.5,
+   "prompt": "The black cat arches its back up high with its fur bristling and its tail puffed up, then relaxes back to standing exactly as at the start. Static camera, plain cream paper background, detailed illustration style, the cat stays the same size.",
+   "duration_seconds": 3.0,
    "steps": 8,
+   "seed": 7,
+   "randomize_seed": false
+  }
+ },
+ {
+  "name": "walk-c",
+  "space": "zerogpu-aoti/wan2-2-fp8da-aoti-faster",
+  "api": "/generate_video",
+  "tries": 1,
+  "args": {
+   "input_image": {
+    "file": "tools/art/canvas/stand.png"
+   },
+   "prompt": "Side-view tracking shot. The black cat walks to the right at a steady relaxed pace, its legs stepping naturally and its tail swaying. The camera follows so the cat stays in exactly the same place in the frame. Static camera, plain cream paper background, detailed illustration style, the cat stays the same size.",
+   "steps": 6,
+   "duration_seconds": 3.5,
    "seed": 21,
    "randomize_seed": false
   }
  },
  {
-  "name": "walk-ltx",
-  "space": "linoyts/LTX-2-3-First-Last-Frame",
+  "name": "sit-tail",
+  "space": "multimodalart/wan-2-2-first-last-frame",
   "api": "/generate_video",
   "tries": 1,
   "args": {
-   "first_image": {
-    "file": "tools/art/canvas/stand.png"
+   "start_image_pil": {
+    "file": "tools/art/canvas/sit.png"
    },
-   "last_image": {
-    "file": "tools/art/canvas/stand.png"
+   "end_image_pil": {
+    "file": "tools/art/canvas/sit.png"
    },
-   "prompt": "Side-view tracking shot. The black cat walks to the right at a steady relaxed pace, its legs stepping naturally and its tail swaying. The camera follows so the cat stays in exactly the same place in the frame. Static camera, plain cream paper background, detailed illustration style, the cat stays the same size.",
-   "duration": 4.0,
-   "enhance_prompt": false,
-   "seed": 7,
-   "randomize_seed": false,
-   "height": 704,
-   "width": 1280
+   "prompt": "The black cat sits in place. Its tail swishes slowly from side to side, its ears flick and it blinks slowly, then it sits exactly as at the start. Static camera, plain cream paper background, detailed illustration style, the cat stays the same size.",
+   "duration_seconds": 3.5,
+   "steps": 8,
+   "seed": 5,
+   "randomize_seed": false
   }
  }
 ]
