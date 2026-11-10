@@ -1,0 +1,5 @@
+SPACE multimodalart/wan-2-2-first-last-frame /generate_video attempt 1
+  took 53 s; result: ('/tmp/gradio/cd7b252bd077d8eab78f232953968a8a5d21f363db1f52dc051d550496889311/tmpi70ip_s5.mp4', 7)
+  saved gen/lie-doze/out.mp4 147646
+  video: 848,480,16/1,57
+OK
