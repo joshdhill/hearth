@@ -1,0 +1,79 @@
+GET poll-models
+  -> poll-models.txt 200 application/json 8
+GET poll-gen-models
+  -> poll-gen-models.txt 200 application/json 91611
+GET poll-flux
+  -> poll-flux.jpg 200 image/jpeg 69051
+GET poll-gen-flux
+  -> poll-gen-flux.txt 401 application/json 264
+GET poll-kontext
+  -> poll-kontext.txt 403 application/json; charset=utf-8 274
+GET poll-gen-kontext
+  -> poll-gen-kontext.txt 401 application/json 264
+GET poll-nanobanana
+  -> poll-nanobanana.txt 403 application/json; charset=utf-8 277
+AI Horde: submit
+  models: [('WAI-NSFW-illustrious-SDXL', 13, 1246879744.0), ('Juggernaut XL', 11, 1667776512.0), ('stable_diffusion', 11, 0.0), ('AlbedoBase XL (SDXL)', 9, 1243086848.0), ('Nova Anime XL', 8, 219070464.0), ("ICBINP - I Can't Believe It's Not Photography", 8, 0.0), ('Deliberate', 8, 27525120.0), ('AlbedoBase XL 3.1', 7, 385941504.0), ('WAI-ANI-NSFW-PONYXL', 6, 0.0), ('CyberRealistic Pony', 6, 0.0), ('Grapefruit Hentai', 5, 0.0), ('Counterfeit', 5, 21233664.0), ('AIO Pixel Art', 5, 0.0), ('Rev Animated', 5, 21233664.0), ('Deliberate 3.0', 5, 0.0), ('Abyss OrangeMix', 5, 0.0), ('Realistic Vision', 5, 17039360.0), ('AbsoluteReality', 5, 0.0), ('Realistic Vision Inpainting', 5, 0.0), ('Mistoon Anime', 5, 62914560.0), ('ICBINP XL', 5, 20971520.0), ('MeinaMix', 5, 21233664.0), ('waifu_diffusion', 5, 10223616.0), ('Comic-Diffusion', 5, 0.0), ('Hentai Diffusion', 5, 0.0), ('Edge Of Realism', 5, 0.0), ('BB95 Furry Mix v14', 5, 36700160.0), ('majicMIX realistic', 5, 0.0), ('Analog Madness', 5, 0.0), ('Babes', 5, 0.0)]
+  submit: 202 {"id":"20e71d68-3664-4429-bded-f2e7bb8a65fb","kudos":11.0}
+
+  check: {'done': False, 'wait_time': 587, 'queue_position': 351, 'processing': 0, 'faulted': False}
+  check: {'done': False, 'wait_time': 570, 'queue_position': 345, 'processing': 0, 'faulted': False}
+  check: {'done': False, 'wait_time': 572, 'queue_position': 348, 'processing': 0, 'faulted': False}
+  check: {'done': False, 'wait_time': 566, 'queue_position': 342, 'processing': 0, 'faulted': False}
+  check: {'done': False, 'wait_time': 550, 'queue_position': 324, 'processing': 0, 'faulted': False}
+  check: {'done': False, 'wait_time': 548, 'queue_position': 325, 'processing': 0, 'faulted': False}
+  check: {'done': False, 'wait_time': 525, 'queue_position': 311, 'processing': 0, 'faulted': False}
+  check: {'done': False, 'wait_time': 518, 'queue_position': 305, 'processing': 0, 'faulted': False}
+  check: {'done': False, 'wait_time': 510, 'queue_position': 299, 'processing': 0, 'faulted': False}
+  check: {'done': False, 'wait_time': 496, 'queue_position': 290, 'processing': 0, 'faulted': False}
+  check: {'done': False, 'wait_time': 504, 'queue_position': 277, 'processing': 0, 'faulted': False}
+  check: {'done': False, 'wait_time': 496, 'queue_position': 271, 'processing': 0, 'faulted': False}
+  check: {'done': False, 'wait_time': 478, 'queue_position': 260, 'processing': 0, 'faulted': False}
+  check: {'done': False, 'wait_time': 456, 'queue_position': 237, 'processing': 0, 'faulted': False}
+  check: {'done': False, 'wait_time': 453, 'queue_position': 235, 'processing': 0, 'faulted': False}
+  check: {'done': False, 'wait_time': 428, 'queue_position': 227, 'processing': 0, 'faulted': False}
+  check: {'done': False, 'wait_time': 415, 'queue_position': 220, 'processing': 0, 'faulted': False}
+  check: {'done': False, 'wait_time': 406, 'queue_position': 214, 'processing': 0, 'faulted': False}
+  check: {'done': False, 'wait_time': 400, 'queue_position': 207, 'processing': 0, 'faulted': False}
+  check: {'done': False, 'wait_time': 392, 'queue_position': 203, 'processing': 0, 'faulted': False}
+  check: {'done': False, 'wait_time': 380, 'queue_position': 196, 'processing': 0, 'faulted': False}
+  check: {'done': False, 'wait_time': 368, 'queue_position': 192, 'processing': 0, 'faulted': False}
+  check: {'done': False, 'wait_time': 362, 'queue_position': 187, 'processing': 0, 'faulted': False}
+  check: {'done': False, 'wait_time': 356, 'queue_position': 182, 'processing': 0, 'faulted': False}
+  check: {'done': False, 'wait_time': 344, 'queue_position': 175, 'processing': 0, 'faulted': False}
+  check: {'done': False, 'wait_time': 329, 'queue_position': 167, 'processing': 0, 'faulted': False}
+  check: {'done': False, 'wait_time': 316, 'queue_position': 161, 'processing': 0, 'faulted': False}
+  check: {'done': False, 'wait_time': 301, 'queue_position': 152, 'processing': 0, 'faulted': False}
+  check: {'done': False, 'wait_time': 288, 'queue_position': 142, 'processing': 0, 'faulted': False}
+  took 307 s
+HF spaces for 'kontext' : [('black-forest-labs/FLUX.1-Kontext-Dev', 1661, None, None), ('kontext-community/kontext-relight', 292, None, None), ('kontext-community/FLUX.1-Kontext-portrait', 170, None, None), ('kontext-community/FLUX.1-Kontext-multi-image', 163, None, None), ('ChenDY/NAG_FLUX.1-Kontext-Dev', 57, None, None), ('akhaliq/FLUX.1-Kontext-dev', 26, None, None), ('Yuanshi/FLUX.1-Kontext-Turbo', 25, None, None), ('ginigen/Flux-Kontext-FaceLORA', 23, None, None), ('zerogpu-aoti/FLUX.1-Kontext-Dev', 23, None, None), ('prithivMLmods/FLUX.1-Kontext-Photo-Mate-v2', 20, None, None), ('AlekseyCalvin/fast-Kontext-Flux-LoRAs-bySilverAgePoets', 19, None, None), ('Nymbo/FLUX.1-Kontext-Dev', 15, None, None)]
+HF spaces for 'qwen image edit' : [('prithivMLmods/Qwen-Image-Edit-2511-LoRAs-Fast', 2789, None, None), ('linoyts/Qwen-Image-Edit-Angles', 2279, None, None), ('prithivMLmods/Qwen-Image-Edit-2509-LoRAs-Fast', 944, None, None), ('Qwen/Qwen-Image-Edit', 874, None, None), ('kulkas2pintu/QWEN_EDIT_IMAGE', 795, None, None), ('aet256/Qwen-Image-Edit-Rapid-AIO-Loras-Experimental', 551, None, None), ('Qwen/Qwen-Image-Edit-2511', 509, None, None), ('multimodalart/Qwen-Image-Edit-Fast', 494, None, None), ('Onise/Qwen-Image-Edit-2509-LoRAs-Fast2', 441, None, None), ('linoyts/Qwen-Image-Edit-2511-AnyPose', 412, None, None), ('Qwen/Qwen-Image-Edit-2509', 344, None, None), ('linoyts/Qwen-Image-Edit-2511-Fast', 271, None, None)]
+HF spaces for 'image edit' : [('selfit-camera/Omni-Image-Editor', 2909, None, None), ('prithivMLmods/Qwen-Image-Edit-2511-LoRAs-Fast', 2789, None, None), ('linoyts/Qwen-Image-Edit-Angles', 2279, None, None), ('prithivMLmods/FireRed-Image-Edit-1.0-Fast', 1649, None, None), ('prithivMLmods/Qwen-Image-Edit-2509-LoRAs-Fast', 944, None, None), ('Qwen/Qwen-Image-Edit', 874, None, None), ('kulkas2pintu/QWEN_EDIT_IMAGE', 795, None, None), ('Selfit/ImageEditPro', 656, None, None), ('aet256/Qwen-Image-Edit-Rapid-AIO-Loras-Experimental', 551, None, None), ('Qwen/Qwen-Image-Edit-2511', 509, None, None), ('multimodalart/Qwen-Image-Edit-Fast', 494, None, None), ('Onise/Qwen-Image-Edit-2509-LoRAs-Fast2', 441, None, None)]
+HF spaces for 'image to video' : [('guardiancc/image-to-video-cog', 166, None, None), ('Mnichal/uncensored-image-to-video-alchemist', 95, None, None), ('thea2026/image-to-video', 85, None, None), ('preSalesAIAutomation/imagetovideo', 73, None, None), ('mrcuddle/SDXT-Image-To-Video', 56, None, None), ('ysharma/text-to-ner-to-image-to-video', 49, None, None), ('peterpeter8585/image-to-video-cog', 45, None, None), ('kazuk/image-to-video-film', 42, None, None), ('Upsampler/wan-2-2-14b-image-to-video', 37, None, None), ('mrcuddle/I2VGenXL-Text-Image-To-Video', 27, None, None), ('waloneai/SDXT-Image-To-Video', 25, None, None), ('Mishyface/image-to-video-film-3-kazuk-hugorowan-mishyface', 22, None, None)]
+HF spaces for 'wan2.2' : [('Wan-AI/Wan2.2-S2V', 438, None, None), ('Saravutw/WAN2.2_I2V_LIGHTNING_4-8step_custom', 420, None, None), ('alexnasa/Wan2.2-Animate-ZEROGPU', 368, None, None), ('makiblek/Wan_2.2_I2V_14B_Custom_Lora_Wow', 84, None, None), ('prashant-AI-ML/Wan-2.2-pro-Superb', 77, None, None), ('amisima/Wan_2.2_I2V_Studio', 75, None, None), ('vivienfanghua/wan2.2_enhanced_amd', 47, None, None), ('prithivMLmods/Wan2.2-Fast', 47, None, None), ('tmtanu/wan2.2_14b_i2v_480p_lightning_nsfw_diffusers', 45, None, None), ('zsaxcdssdf/wan2.2_wip', 27, None, None), ('traderharikrishna/Wan_2.2_I2V_14B_Custom_Lora', 26, None, None), ('ginigen/Wan-2.2-Enhanced', 24, None, None)]
+HF spaces for 'first last frame' : [('multimodalart/wan-2-2-first-last-frame', 676, None, None), ('linoyts/LTX-2-3-First-Last-Frame', 161, None, None), ('GiorgioV/test-wan-2-2-first-last-frame', 68, None, None), ('linoyts/ltx-2-first-last-frame', 37, None, None), ('cakegreen/Wan-2-2-first-last-frame', 34, None, None), ('lionfxxx/wan-2-2-first-last-frame', 18, None, None), ('mcp-tools/wan-2-2-first-last-frame', 7, None, None), ('rahul7star/wan-2-2-first-last-frame', 3, None, None), ('rahul7star/wan-2-2-first-last-frame-diffuser', 1, None, None), ('bep40/wan-2-2-first-last-frame', 1, None, None), ('HAL1993/wan-2-2-first-last-frame', 1, None, None), ('Carlosxxxxxx/wan-2-2-first-last-frame', 1, None, None)]
+HF spaces for 'flux' : [('black-forest-labs/FLUX.1-dev', 9581, None, None), ('black-forest-labs/FLUX.1-schnell', 5161, None, None), ('yanze/PuLID-FLUX', 2122, None, None), ('jasperai/Flux.1-dev-Controlnet-Upscaler', 1708, None, None), ('black-forest-labs/FLUX.1-Kontext-Dev', 1661, None, None), ('multimodalart/flux-lora-the-explorer', 1570, None, None), ('NihalGazi/FLUX-Unlimited', 1414, None, None), ('gokaygokay/FLUX-Prompt-Generator', 1402, None, None), ('DamarJati/FLUX.1-RealismLora', 1340, None, None), ('prithivMLmods/FLUX-LoRA-DLC', 1276, None, None), ('black-forest-labs/FLUX.2-dev', 1193, None, None), ('ByteDance/InfiniteYou-FLUX', 1099, None, None)]
+HF spaces for 'outpaint' : [('fffiloni/diffusers-image-outpaint', 2565, None, None), ('multimodalart/flux-fill-outpaint', 802, None, None), ('VIDraft/ReSize-Image-Outpainting', 243, None, None), ('multimodalart/flux-outpainting', 210, None, None), ('Rothfeld/stable-diffusion-mat-outpainting-primer', 151, None, None), ('yijunwang2/krea2-outpaint', 120, None, None), ('zerogpu-aoti/Qwen-Image-Edit-Outpaint', 90, None, None), ('clinteroni/outpainting-with-differential-diffusion-demo', 73, None, None), ('multimodalart/outpaint-video-zoom', 63, None, None), ('jallenjia/flux-fill-outpaint', 55, None, None), ('amisima/Qwen-2.1-Turbo-Qwen-Face-Swap-MOSS-Image-Edit-Outpaint-Qwen-Detail-Enhancer', 36, None, None), ('linoyts/LTX-2-3-outpaint', 35, None, None)]
+HF spaces for 'lama' : [('Sanster/Lama-Cleaner-lama', 983, None, None), ('Sanster/iopaint-lama', 262, None, None), ('akhaliq/lama', 126, None, None), ('fffiloni/lama-video-watermark-remover', 34, None, None), ('vamcrizer/lama-video-watermark-remover', 31, None, None), ('Gxia/Lama-Cleaner-lama', 20, None, None), ('Carve/LaMa-Demo-ONNX', 15, None, None), ('sagar007/lama_storm_8b', 8, None, None), ('dsxailab/Lama-Cleaner-lama-12', 6, None, None), ('ahmer9889/Lama-Cleaner-lama', 5, None, None), ('CVPR/lama-example', 4, None, None), ('voroninvisuals/lama', 4, None, None)]
+HF spaces for 'upscale' : [('jasperai/Flux.1-dev-Controlnet-Upscaler', 1708, None, None), ('gokaygokay/Tile-Upscaler', 1012, None, None), ('nightfury/Image_Face_Upscale_Restoration-GFPGAN', 683, None, None), ('Phips/Upscaler', 426, None, None), ('fantaxy/flx-upscale', 378, None, None), ('TheStinger/Ilaria_Upscaler', 261, None, None), ('huggingface-projects/stable-diffusion-latent-upscaler', 188, None, None), ('avans06/Image_Face_Upscale_Restoration-GFPGAN-RestoreFormer-CodeFormer-GPEN', 179, None, None), ('Algoworks/Image_Face_Upscale_Restoration-GFPGAN_pub', 173, None, None), ('jbilcke-hf/clarity-upscaler_killed-by-replicate', 157, None, None), ('clem/Image_Face_Upscale_Restoration-GFPGAN', 131, None, None), ('Aiconvert/Scratched_Photo_Fixer_upscaler_AI_Restoration', 130, None, None)]
+HF spaces for 'background removal' : [('not-lain/background-removal', 2985, None, None), ('innova-ai/video-background-removal', 662, None, None), ('ECCV2022/dis-background-removal', 478, None, None), ('doevent/dis-background-removal', 129, None, None), ('bgsys/background-removal-arena', 82, None, None), ('Xenova/webgpu-video-background-removal', 46, None, None), ('Tassawar/back_ground_removal', 18, None, None), ('hf-applications/background-removal', 17, None, None), ('dream2589632147/Dream-video-background-removal', 15, None, None), ('NegiTurkey/Multi_Birefnetfor_Background_Removal', 12, None, None), ('victor/background-removal', 9, None, None), ('Upsampler/birefnet-background-removal', 8, None, None)]
+SPACE black-forest-labs/FLUX.1-Kontext-Dev
+  endpoints: {'/infer': ['input_image', 'prompt', 'seed', 'randomize_seed', 'guidance_scale', 'steps'], '/lambda': ['image']}
+  calling /infer with ['input_image', 'prompt', 'seed', 'randomize_seed', 'guidance_scale', 'steps']
+  result: ('/tmp/gradio/03aa5450e66a424c3e39bb30d58900c94f4576370a20bd50e15a8d5a3694e39a/image.webp', 3)
+  saved hf-kontext-0.webp 39722
+SPACE black-forest-labs/FLUX.1-schnell
+  endpoints: {'/infer': ['prompt', 'seed', 'randomize_seed', 'width', 'height', 'num_inference_steps']}
+  calling /infer with ['prompt', 'seed', 'randomize_seed', 'width', 'height', 'num_inference_steps']
+  result: ('/tmp/gradio/070232bc82e2761637986847e78060e1c53d03a5bb3afc4ced044d6f686f125a/image.webp', 3)
+  saved hf-schnell-0.webp 252608
+SPACE Qwen/Qwen-Image-Edit
+  endpoints: {'/infer': ['image', 'prompt', 'seed', 'randomize_seed', 'true_guidance_scale', 'num_inference_steps', 'rewrite_prompt']}
+  calling /infer with ['image', 'prompt', 'seed', 'randomize_seed', 'true_guidance_scale', 'num_inference_steps', 'rewrite_prompt']
+  failed: AppError('The requested GPU duration (240s) is larger than the maximum allowed')
+SPACE zerogpu-aoti/wan2-2-fp8da-aoti-faster
+  endpoints: {'/generate_video': ['input_image', 'prompt', 'steps', 'negative_prompt', 'duration_seconds', 'guidance_scale', 'guidance_scale_2', 'seed', 'randomize_seed']}
+  calling /generate_video with ['input_image', 'prompt', 'steps', 'duration_seconds', 'seed', 'randomize_seed']
+  result: ('/tmp/gradio/10d523c818791b24e859b24f4b35e5588e2496ec264804f5abf162b43c497014/tmpz06mggxr.mp4', 3)
+  saved hf-wan-0.mp4 470553
+done
