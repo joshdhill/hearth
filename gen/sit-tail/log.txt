@@ -1,0 +1,5 @@
+SPACE multimodalart/wan-2-2-first-last-frame /generate_video attempt 1
+  took 54 s; result: ('/tmp/gradio/95ceb9b63f47a0b86724c591115e8d4d0d512d8b4fada9b694b91108e19a865a/tmp9bd_3l5l.mp4', 5)
+  saved gen/sit-tail/out.mp4 203221
+  video: 848,480,16/1,57
+OK
