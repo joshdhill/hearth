@@ -1,0 +1,3 @@
+SPACE multimodalart/wan-2-2-first-last-frame /generate_video attempt 1
+  failed: AppError('You have exceeded your ZeroGPU quota (180s requested vs. 177s left). Try again in 19:50:43. Authenticate with a Hugging Face token for more quota - https://huggingface.co/settings/tokens')
+NO OUTPUT
