@@ -1,0 +1,242 @@
+multimodalart/wan-2-2-first-last-frame /generate_video
+    start_image_pil | Start Frame | dict(path: str | None (Path to a local file), url: str | None (Publicly available url or base64 encoded image), size: int | None (Size of image in bytes), orig_name: str | None (Original filename), mime_type: str | None (mime type of image), is_stream: bool (Can always be set to False), meta: dict(str, Any)) | default: None
+    end_image_pil | End Frame | dict(path: str | None (Path to a local file), url: str | None (Publicly available url or base64 encoded image), size: int | None (Size of image in bytes), orig_name: str | None (Original filename), mime_type: str | None (mime type of image), is_stream: bool (Can always be set to False), meta: dict(str, Any)) | default: None
+    prompt | Prompt | str | default: None
+    negative_prompt | Negative Prompt | str | default: 色调艳丽，过曝，静态，细节模糊不清，字幕，风格，作品，画作，画面，静止，整体发灰，最差质量，低质量，JPEG压缩残留，丑陋的，残缺的，多余的手指，画得不好的手部，画得不好的脸部，畸形的，毁容的，形态畸形的肢体，手指融合，静止不动的画面，杂乱的背景，三条腿，背景人很多，倒着走,过曝，
+    duration_seconds | Video Duration (seconds) | float | default: 2.1
+    steps | Inference Steps | float | default: 8
+    guidance_scale | Guidance Scale - high noise | float | default: 1.0
+    guidance_scale_2 | Guidance Scale - low noise | float | default: 1.0
+    seed | Seed | float | default: 42
+    randomize_seed | Randomize seed | bool | default: True
+    returns: [('Generated Video', 'filepath'), ('Seed', 'float')]
+multimodalart/wan-2-2-first-last-frame /switch_to_upload_tab
+    returns: []
+multimodalart/wan-2-2-first-last-frame /lambda
+    img | Start Frame | dict(path: str | None (Path to a local file), url: str | None (Publicly available url or base64 encoded image), size: int | None (Size of image in bytes), orig_name: str | None (Original filename), mime_type: str | None (mime type of image), is_stream: bool (Can always be set to False), meta: dict(str, Any)) | default: None
+    returns: [('End Frame', 'dict(path: str | None (Path to a local file), url: str | None (Publicly available url or base64 encoded image), size: int | None (Size of image in bytes), orig_name: str | None (Original filename), mime_type: str | None (mime type of image), is_stream: bool (Can always be set to False), meta: dict(str, Any))')]
+multimodalart/wan-2-2-first-last-frame /generate_video_1
+    start_image_pil | Start Frame | dict(path: str | None (Path to a local file), url: str | None (Publicly available url or base64 encoded image), size: int | None (Size of image in bytes), orig_name: str | None (Original filename), mime_type: str | None (mime type of image), is_stream: bool (Can always be set to False), meta: dict(str, Any)) | default: None
+    end_image_pil | End Frame | dict(path: str | None (Path to a local file), url: str | None (Publicly available url or base64 encoded image), size: int | None (Size of image in bytes), orig_name: str | None (Original filename), mime_type: str | None (mime type of image), is_stream: bool (Can always be set to False), meta: dict(str, Any)) | default: None
+    prompt | Prompt | str | default: None
+    negative_prompt | Negative Prompt | str | default: 色调艳丽，过曝，静态，细节模糊不清，字幕，风格，作品，画作，画面，静止，整体发灰，最差质量，低质量，JPEG压缩残留，丑陋的，残缺的，多余的手指，画得不好的手部，画得不好的脸部，畸形的，毁容的，形态畸形的肢体，手指融合，静止不动的画面，杂乱的背景，三条腿，背景人很多，倒着走,过曝，
+    duration_seconds | Video Duration (seconds) | float | default: 2.1
+    steps | Inference Steps | float | default: 8
+    guidance_scale | Guidance Scale - high noise | float | default: 1.0
+    guidance_scale_2 | Guidance Scale - low noise | float | default: 1.0
+    seed | Seed | float | default: 42
+    randomize_seed | Randomize seed | bool | default: True
+    returns: [('Generated Video', 'filepath'), ('Seed', 'float')]
+linoyts/LTX-2-3-First-Last-Frame /on_image_upload
+    first_image | First Frame (Optional) | dict(path: str | None (Path to a local file), url: str | None (Publicly available url or base64 encoded image), size: int | None (Size of image in bytes), orig_name: str | None (Original filename), mime_type: str | None (mime type of image), is_stream: bool (Can always be set to False), meta: dict(str, Any)) | default: None
+    last_image | Last Frame (Optional) | dict(path: str | None (Path to a local file), url: str | None (Publicly available url or base64 encoded image), size: int | None (Size of image in bytes), orig_name: str | None (Original filename), mime_type: str | None (mime type of image), is_stream: bool (Can always be set to False), meta: dict(str, Any)) | default: None
+    high_res | High Resolution | bool | default: True
+    returns: [('Width', 'int'), ('Height', 'int')]
+linoyts/LTX-2-3-First-Last-Frame /on_image_upload_1
+    first_image | First Frame (Optional) | dict(path: str | None (Path to a local file), url: str | None (Publicly available url or base64 encoded image), size: int | None (Size of image in bytes), orig_name: str | None (Original filename), mime_type: str | None (mime type of image), is_stream: bool (Can always be set to False), meta: dict(str, Any)) | default: None
+    last_image | Last Frame (Optional) | dict(path: str | None (Path to a local file), url: str | None (Publicly available url or base64 encoded image), size: int | None (Size of image in bytes), orig_name: str | None (Original filename), mime_type: str | None (mime type of image), is_stream: bool (Can always be set to False), meta: dict(str, Any)) | default: None
+    high_res | High Resolution | bool | default: True
+    returns: [('Width', 'int'), ('Height', 'int')]
+linoyts/LTX-2-3-First-Last-Frame /on_highres_toggle
+    first_image | First Frame (Optional) | dict(path: str | None (Path to a local file), url: str | None (Publicly available url or base64 encoded image), size: int | None (Size of image in bytes), orig_name: str | None (Original filename), mime_type: str | None (mime type of image), is_stream: bool (Can always be set to False), meta: dict(str, Any)) | default: None
+    last_image | Last Frame (Optional) | dict(path: str | None (Path to a local file), url: str | None (Publicly available url or base64 encoded image), size: int | None (Size of image in bytes), orig_name: str | None (Original filename), mime_type: str | None (mime type of image), is_stream: bool (Can always be set to False), meta: dict(str, Any)) | default: None
+    high_res | High Resolution | bool | default: True
+    returns: [('Width', 'int'), ('Height', 'int')]
+linoyts/LTX-2-3-First-Last-Frame /generate_video
+    first_image | First Frame (Optional) | dict(path: str | None (Path to a local file), url: str | None (Publicly available url or base64 encoded image), size: int | None (Size of image in bytes), orig_name: str | None (Original filename), mime_type: str | None (mime type of image), is_stream: bool (Can always be set to False), meta: dict(str, Any)) | default: None
+    last_image | Last Frame (Optional) | dict(path: str | None (Path to a local file), url: str | None (Publicly available url or base64 encoded image), size: int | None (Size of image in bytes), orig_name: str | None (Original filename), mime_type: str | None (mime type of image), is_stream: bool (Can always be set to False), meta: dict(str, Any)) | default: None
+    input_audio | Audio Input (Optional) | filepath | default: None
+    prompt | Prompt | str | default: Make this image come alive with cinematic motion, smooth animation
+    duration | Duration (seconds) | float | default: 3.0
+    enhance_prompt | Enhance Prompt | bool | default: False
+    seed | Seed | float | default: 10
+    randomize_seed | Randomize Seed | bool | default: True
+    height | Height | int | default: 1024
+    width | Width | int | default: 1536
+    returns: [('Generated Video', 'filepath'), ('Seed', 'float')]
+zerogpu-aoti/wan2-2-fp8da-aoti-faster /generate_video
+    input_image | Input Image | dict(path: str | None (Path to a local file), url: str | None (Publicly available url or base64 encoded image), size: int | None (Size of image in bytes), orig_name: str | None (Original filename), mime_type: str | None (mime type of image), is_stream: bool (Can always be set to False), meta: dict(str, Any)) | default: None
+    prompt | Prompt | str | default: make this image come alive, cinematic motion, smooth animation
+    steps | Inference Steps | float | default: 6
+    negative_prompt | Negative Prompt | str | default: 色调艳丽, 过曝, 静态, 细节模糊不清, 字幕, 风格, 作品, 画作, 画面, 静止, 整体发灰, 最差质量, 低质量, JPEG压缩残留, 丑陋的, 残缺的, 多余的手指, 画得不好的手部, 画得不好的脸部, 畸形的, 毁容的, 形态畸形的肢体, 手指融合, 静止不动的画面, 杂乱的背景, 三条腿, 背景人很多,
+    duration_seconds | Duration (seconds) | float | default: 3.5
+    guidance_scale | Guidance Scale - high noise stage | float | default: 1
+    guidance_scale_2 | Guidance Scale 2 - low noise stage | float | default: 1
+    seed | Seed | float | default: 42
+    randomize_seed | Randomize seed | bool | default: True
+    returns: [('Generated Video', 'filepath'), ('Seed', 'float')]
+black-forest-labs/FLUX.1-Fill-dev /infer
+    edit_images | Upload and draw mask for inpainting | dict(background: filepath | None, layers: list[filepath], composite: filepath | None, id: str | None) | default: None
+    prompt | Prompt | str | default: None
+    seed | Seed | float | default: 0
+    randomize_seed | Randomize seed | bool | default: True
+    width | Width | float | default: 1024
+    height | Height | float | default: 1024
+    guidance_scale | Guidance Scale | float | default: 50
+    num_inference_steps | Number of inference steps | float | default: 28
+    returns: [('Result', 'filepath'), ('Seed', 'float')]
+multimodalart/flux-fill-outpaint /use_output_as_input
+    output_image | Generated Image | dict(path: str | None (Path to a local file), url: str | None (Publicly available url or base64 encoded image), size: int | None (Size of image in bytes), orig_name: str | None (Original filename), mime_type: str | None (mime type of image), is_stream: bool (Can always be set to False), meta: dict(str, Any)) | default: None
+    returns: [('Input Image', 'dict(path: str | None (Path to a local file), url: str | None (Publicly available url or base64 encoded image), size: int | None (Size of image in bytes), orig_name: str | None (Original filename), mime_type: str | None (mime type of image), is_stream: bool (Can always be set to False), meta: dict(str, Any))')]
+multimodalart/flux-fill-outpaint /preload_presets
+    target_ratio | Image Ratio | Literal['9:16', '16:9', '1:1', 'Custom'] | default: 9:16
+    ui_width | Target Width | float | default: 720
+    ui_height | Target Height | float | default: 1280
+    returns: [('Target Width', 'float'), ('Target Height', 'float')]
+multimodalart/flux-fill-outpaint /select_the_right_preset
+    user_width | Target Width | float | default: 720
+    user_height | Target Height | float | default: 1280
+    returns: [('Image Ratio', "Literal['9:16', '16:9', '1:1', 'Custom']")]
+multimodalart/flux-fill-outpaint /select_the_right_preset_1
+    user_width | Target Width | float | default: 720
+    user_height | Target Height | float | default: 1280
+    returns: [('Image Ratio', "Literal['9:16', '16:9', '1:1', 'Custom']")]
+multimodalart/flux-fill-outpaint /toggle_custom_resize_slider
+    resize_option | Resize input image | Literal['Full', '75%', '50%', '33%', '25%', 'Custom'] | default: 75%
+    returns: [('Custom resize (%)', 'float')]
+multimodalart/flux-fill-outpaint /clear_result
+    returns: [('Generated Image', 'dict(path: str | None (Path to a local file), url: str | None (Publicly available url or base64 encoded image), size: int | None (Size of image in bytes), orig_name: str | None (Original filename), mime_type: str | None (mime type of image), is_stream: bool (Can always be set to False), meta: dict(str, Any))')]
+multimodalart/flux-fill-outpaint /inpaint
+    image | Input Image | dict(path: str | None (Path to a local file), url: str | None (Publicly available url or base64 encoded image), size: int | None (Size of image in bytes), orig_name: str | None (Original filename), mime_type: str | None (mime type of image), is_stream: bool (Can always be set to False), meta: dict(str, Any)) | default: None
+    width | Target Width | float | default: 720
+    height | Target Height | float | default: 1280
+    overlap_percentage | Mask overlap (%) | float | default: 10
+    num_inference_steps | Steps | float | default: 28
+    resize_option | Resize input image | Literal['Full', '75%', '50%', '33%', '25%', 'Custom'] | default: 75%
+    custom_resize_percentage | Custom resize (%) | float | default: 50
+    prompt_input | Prompt (Optional) | str | default: None
+    alignment | Alignment | Literal['Middle', 'Left', 'Right', 'Top', 'Bottom'] | default: Middle
+    overlap_left | Overlap Left | bool | default: True
+    overlap_right | Overlap Right | bool | default: True
+    overlap_top | Overlap Top | bool | default: True
+    overlap_bottom | Overlap Bottom | bool | default: True
+    returns: [('Generated Image', 'dict(path: str | None (Path to a local file), url: str | None (Publicly available url or base64 encoded image), size: int | None (Size of image in bytes), orig_name: str | None (Original filename), mime_type: str | None (mime type of image), is_stream: bool (Can always be set to False), meta: dict(str, Any))'), ('Mask preview', 'dict(path: str | None (Path to a local file), url: str | None (Publicly available url or base64 encoded image), size: int | None (Size of image in bytes), orig_name: str | None (Original filename), mime_type: str | None (mime type of image), is_stream: bool (Can always be set to False), meta: dict(str, Any))')]
+multimodalart/flux-fill-outpaint /lambda
+    x | Generated Image | dict(path: str | None (Path to a local file), url: str | None (Publicly available url or base64 encoded image), size: int | None (Size of image in bytes), orig_name: str | None (Original filename), mime_type: str | None (mime type of image), is_stream: bool (Can always be set to False), meta: dict(str, Any)) | default: None
+    history | History | list[dict(image: dict(path: str | None (Path to a local file), url: str | None (Publicly available url or base64 encoded image), size: int | None (Size of image in bytes), orig_name: str | None (Original filename), mime_type: str | None (mime type of image), is_stream: bool (Can always be set to False), meta: dict(str, Any)), caption: str | None) | dict(video: filepath, caption: str | None)] | default: []
+    returns: [('History', 'list[dict(image: dict(path: str | None (Path to a local file), url: str | None (Publicly available url or base64 encoded image), size: int | None (Size of image in bytes), orig_name: str | None (Original filename), mime_type: str | None (mime type of image), is_stream: bool (Can always be set to False), meta: dict(str, Any)), caption: str | None) | dict(video: filepath, caption: str | None)]')]
+multimodalart/flux-fill-outpaint /lambda_1
+    returns: []
+multimodalart/flux-fill-outpaint /clear_result_1
+    returns: [('Generated Image', 'dict(path: str | None (Path to a local file), url: str | None (Publicly available url or base64 encoded image), size: int | None (Size of image in bytes), orig_name: str | None (Original filename), mime_type: str | None (mime type of image), is_stream: bool (Can always be set to False), meta: dict(str, Any))')]
+multimodalart/flux-fill-outpaint /inpaint_1
+    image | Input Image | dict(path: str | None (Path to a local file), url: str | None (Publicly available url or base64 encoded image), size: int | None (Size of image in bytes), orig_name: str | None (Original filename), mime_type: str | None (mime type of image), is_stream: bool (Can always be set to False), meta: dict(str, Any)) | default: None
+    width | Target Width | float | default: 720
+    height | Target Height | float | default: 1280
+    overlap_percentage | Mask overlap (%) | float | default: 10
+    num_inference_steps | Steps | float | default: 28
+    resize_option | Resize input image | Literal['Full', '75%', '50%', '33%', '25%', 'Custom'] | default: 75%
+    custom_resize_percentage | Custom resize (%) | float | default: 50
+    prompt_input | Prompt (Optional) | str | default: None
+    alignment | Alignment | Literal['Middle', 'Left', 'Right', 'Top', 'Bottom'] | default: Middle
+    overlap_left | Overlap Left | bool | default: True
+    overlap_right | Overlap Right | bool | default: True
+    overlap_top | Overlap Top | bool | default: True
+    overlap_bottom | Overlap Bottom | bool | default: True
+    returns: [('Generated Image', 'dict(path: str | None (Path to a local file), url: str | None (Publicly available url or base64 encoded image), size: int | None (Size of image in bytes), orig_name: str | None (Original filename), mime_type: str | None (mime type of image), is_stream: bool (Can always be set to False), meta: dict(str, Any))'), ('Mask preview', 'dict(path: str | None (Path to a local file), url: str | None (Publicly available url or base64 encoded image), size: int | None (Size of image in bytes), orig_name: str | None (Original filename), mime_type: str | None (mime type of image), is_stream: bool (Can always be set to False), meta: dict(str, Any))')]
+multimodalart/flux-fill-outpaint /lambda_2
+    x | Generated Image | dict(path: str | None (Path to a local file), url: str | None (Publicly available url or base64 encoded image), size: int | None (Size of image in bytes), orig_name: str | None (Original filename), mime_type: str | None (mime type of image), is_stream: bool (Can always be set to False), meta: dict(str, Any)) | default: None
+    history | History | list[dict(image: dict(path: str | None (Path to a local file), url: str | None (Publicly available url or base64 encoded image), size: int | None (Size of image in bytes), orig_name: str | None (Original filename), mime_type: str | None (mime type of image), is_stream: bool (Can always be set to False), meta: dict(str, Any)), caption: str | None) | dict(video: filepath, caption: str | None)] | default: []
+    returns: [('History', 'list[dict(image: dict(path: str | None (Path to a local file), url: str | None (Publicly available url or base64 encoded image), size: int | None (Size of image in bytes), orig_name: str | None (Original filename), mime_type: str | None (mime type of image), is_stream: bool (Can always be set to False), meta: dict(str, Any)), caption: str | None) | dict(video: filepath, caption: str | None)]')]
+multimodalart/flux-fill-outpaint /lambda_3
+    returns: []
+multimodalart/flux-fill-outpaint /preview_image_and_mask
+    image | Input Image | dict(path: str | None (Path to a local file), url: str | None (Publicly available url or base64 encoded image), size: int | None (Size of image in bytes), orig_name: str | None (Original filename), mime_type: str | None (mime type of image), is_stream: bool (Can always be set to False), meta: dict(str, Any)) | default: None
+    width | Target Width | float | default: 720
+    height | Target Height | float | default: 1280
+    overlap_percentage | Mask overlap (%) | float | default: 10
+    resize_option | Resize input image | Literal['Full', '75%', '50%', '33%', '25%', 'Custom'] | default: 75%
+    custom_resize_percentage | Custom resize (%) | float | default: 50
+    alignment | Alignment | Literal['Middle', 'Left', 'Right', 'Top', 'Bottom'] | default: Middle
+    overlap_left | Overlap Left | bool | default: True
+    overlap_right | Overlap Right | bool | default: True
+    overlap_top | Overlap Top | bool | default: True
+    overlap_bottom | Overlap Bottom | bool | default: True
+    returns: [('Mask preview', 'dict(path: str | None (Path to a local file), url: str | None (Publicly available url or base64 encoded image), size: int | None (Size of image in bytes), orig_name: str | None (Original filename), mime_type: str | None (mime type of image), is_stream: bool (Can always be set to False), meta: dict(str, Any))')]
+fffiloni/diffusers-image-outpaint /infer
+    image | Input Image | filepath | default: None
+    width | Target Width | float | default: 720
+    height | Target Height | float | default: 1280
+    overlap_percentage | Mask overlap (%) | float | default: 10
+    num_inference_steps | Steps | float | default: 8
+    resize_option | Resize input image | Literal['Full', '50%', '33%', '25%', 'Custom'] | default: Full
+    custom_resize_percentage | Custom resize (%) | float | default: 50
+    prompt_input | Prompt (Optional) | str | default: None
+    alignment | Alignment | Literal['Middle', 'Left', 'Right', 'Top', 'Bottom'] | default: Middle
+    overlap_left | Overlap Left | bool | default: True
+    overlap_right | Overlap Right | bool | default: True
+    overlap_top | Overlap Top | bool | default: True
+    overlap_bottom | Overlap Bottom | bool | default: True
+    returns: [('Generated Image', 'tuple[filepath | None, filepath | None] | None')]
+Qwen/Qwen-Image-Edit-2511 /infer
+    images | Input Images | list[dict(image: dict(path: str | None (Path to a local file), url: str | None (Publicly available url or base64 encoded image), size: int | None (Size of image in bytes), orig_name: str | None (Original filename), mime_type: str | None (mime type of image), is_stream: bool (Can always be set to False), meta: dict(str, Any)), caption: str | None) | dict(video: filepath, caption: str | None)] | default: []
+    prompt | Prompt | str | default: None
+    seed | Seed | float | default: 0
+    randomize_seed | Randomize seed | bool | default: True
+    true_guidance_scale | True guidance scale | float | default: 4.0
+    num_inference_steps | Number of inference steps | float | default: 40
+    height | Height | float | default: 256
+    width | Width | float | default: 256
+    rewrite_prompt | Rewrite prompt | bool | default: True
+    returns: [('Result', 'list[dict(image: dict(path: str | None (Path to a local file), url: str | None (Publicly available url or base64 encoded image), size: int | None (Size of image in bytes), orig_name: str | None (Original filename), mime_type: str | None (mime type of image), is_stream: bool (Can always be set to False), meta: dict(str, Any)), caption: str | None) | dict(video: filepath, caption: str | None)]'), ('Seed', 'float')]
+linoyts/Qwen-Image-Edit-2511-Fast /infer
+    images | Input Images | list[dict(image: dict(path: str | None (Path to a local file), url: str | None (Publicly available url or base64 encoded image), size: int | None (Size of image in bytes), orig_name: str | None (Original filename), mime_type: str | None (mime type of image), is_stream: bool (Can always be set to False), meta: dict(str, Any)), caption: str | None) | dict(video: filepath, caption: str | None)] | default: []
+    prompt | Prompt | str | default: None
+    seed | Seed | float | default: 0
+    randomize_seed | Randomize seed | bool | default: True
+    true_guidance_scale | True guidance scale | float | default: 1.0
+    num_inference_steps | Number of inference steps | float | default: 4
+    height | Height | float | default: 256
+    width | Width | float | default: 256
+    rewrite_prompt | Rewrite prompt | bool | default: True
+    returns: [('Result', 'list[dict(image: dict(path: str | None (Path to a local file), url: str | None (Publicly available url or base64 encoded image), size: int | None (Size of image in bytes), orig_name: str | None (Original filename), mime_type: str | None (mime type of image), is_stream: bool (Can always be set to False), meta: dict(str, Any)), caption: str | None) | dict(video: filepath, caption: str | None)]'), ('Seed', 'float')]
+linoyts/Qwen-Image-Edit-2511-Fast /use_output_as_input
+    output_images | Result | list[dict(image: dict(path: str | None (Path to a local file), url: str | None (Publicly available url or base64 encoded image), size: int | None (Size of image in bytes), orig_name: str | None (Original filename), mime_type: str | None (mime type of image), is_stream: bool (Can always be set to False), meta: dict(str, Any)), caption: str | None) | dict(video: filepath, caption: str | None)] | default: []
+    returns: [('Input Images', 'list[dict(image: dict(path: str | None (Path to a local file), url: str | None (Publicly available url or base64 encoded image), size: int | None (Size of image in bytes), orig_name: str | None (Original filename), mime_type: str | None (mime type of image), is_stream: bool (Can always be set to False), meta: dict(str, Any)), caption: str | None) | dict(video: filepath, caption: str | None)]')]
+black-forest-labs/FLUX.2-dev /update_dimensions_from_image
+    image_list | Input Image(s) | list[dict(image: dict(path: str | None (Path to a local file), url: str | None (Publicly available url or base64 encoded image), size: int | None (Size of image in bytes), orig_name: str | None (Original filename), mime_type: str | None (mime type of image), is_stream: bool (Can always be set to False), meta: dict(str, Any)), caption: str | None) | dict(video: filepath, caption: str | None)] | default: []
+    returns: [('Width', 'float'), ('Height', 'float')]
+black-forest-labs/FLUX.2-dev /infer
+    prompt | Prompt | str | default: None
+    input_images | Input Image(s) | list[dict(image: dict(path: str | None (Path to a local file), url: str | None (Publicly available url or base64 encoded image), size: int | None (Size of image in bytes), orig_name: str | None (Original filename), mime_type: str | None (mime type of image), is_stream: bool (Can always be set to False), meta: dict(str, Any)), caption: str | None) | dict(video: filepath, caption: str | None)] | default: []
+    seed | Seed | float | default: 0
+    randomize_seed | Randomize seed | bool | default: True
+    width | Width | float | default: 1024
+    height | Height | float | default: 1024
+    num_inference_steps | Number of inference steps | float | default: 30
+    guidance_scale | Guidance scale | float | default: 4
+    prompt_upsampling | Prompt Upsampling | bool | default: True
+    returns: [('Result', 'dict(path: str | None (Path to a local file), url: str | None (Publicly available url or base64 encoded image), size: int | None (Size of image in bytes), orig_name: str | None (Original filename), mime_type: str | None (mime type of image), is_stream: bool (Can always be set to False), meta: dict(str, Any))'), ('Seed', 'float')]
+Phips/Upscaler /clear_outputs
+    returns: [('Compare Original vs. Upscaled', 'Tuple[filepath | None, filepath | None] | None'), ('Download Full-Quality Upscaled Image (Lossless PNG)', 'filepath')]
+Phips/Upscaler /upscale_image
+    image | Input Image | filepath | default: None
+    model_selection | Model (alphabetically sorted) | Literal['1xDeH264_realplksr', '1xDeJPG_HAT', '1xDeJPG_OmniSR', '1xDeJPG_realplksr_otf', '1xDeJPG_SRFormer_light', '1xDeNoise_realplksr_otf', '1xExposureCorrection_compact', '1xOverExposureCorrection_compact', '1xUnderExposureCorrection_compact', '2xAoMR_mosr', '2xEvangelion_compact', '2xEvangelion_dat2', '2xEvangelion_omnisr', '2xHFA2k_compact_multijpg', '2xHFA2k_LUDVAE_compact', '2xHFA2k_LUDVAE_SPAN', '2xHFA2kAVCCompact', '2xHFA2kAVCOmniSR', '2xHFA2kAVCSRFormer_light', '2xHFA2kCompact', '2xHFA2kOmniSR', '2xHFA2kReal-CUGAN', '2xHFA2kShallowESRGAN', '2xHFA2kSPAN', '2xHFA2kSwinIR-S', '2xLexicaRRDBNet', '2xLexicaRRDBNet_Sharp', '2xNomosUni_compact_multijpg', '2xNomosUni_compact_multijpg_ldl', '2xNomosUni_compact_otf_medium', '2xNomosUni_esrgan_multijpg', '2xNomosUni_span_multijpg', '2xNomosUni_span_multijpg_ldl', '2xParimgCompact', '4x4xTextures_GTAV_rgt-s', '4xArtFaces_realplksr_dysample', '4xBHI_dat2_multiblur', '4xBHI_dat2_multiblurjpg', '4xBHI_dat2_otf', '4xBHI_dat2_real', '4xBHI_realplksr_dysample_multi', '4xBHI_realplksr_dysample_multiblur', '4xBHI_realplksr_dysample_otf', '4xBHI_realplksr_dysample_otf_nn', '4xBHI_realplksr_dysample_real', '4xFaceUpDAT', '4xFaceUpLDAT', '4xFaceUpSharpDAT', '4xFaceUpSharpLDAT', '4xFFHQDAT', '4xFFHQLDAT', '4xHFA2k', '4xHFA2k_ludvae_realplksr_dysample', '4xHFA2kLUDVAEGRL_small', '4xHFA2kLUDVAESRFormer_light', '4xHFA2kLUDVAESwinIR_light', '4xLexicaDAT2_otf', '4xLSDIRCompact2', '4xLSDIRCompact', '4xLSDIRCompactC3', '4xLSDIRCompactC', '4xLSDIRCompactCR3', '4xLSDIRCompactN3', '4xLSDIRCompactR3', '4xLSDIRCompactR', '4xLSDIRDAT', '4xNature_realplksr_dysample', '4xNomos2_hq_atd', '4xNomos2_hq_dat2', '4xNomos2_hq_drct-l', '4xNomos2_hq_mosr', '4xNomos2_otf_esrgan', '4xNomos2_realplksr_dysample', '4xNomos8k_atd_jpg', '4xNomos8kDAT', '4xNomos8kHAT-L_bokeh_jpg', '4xNomos8kHAT-L_otf', '4xNomos8kSC', '4xNomos8kSCHAT-L', '4xNomos8kSCHAT-S', '4xNomos8kSCSRFormer', '4xNomosUni_rgt_multijpg', '4xNomosUni_rgt_s_multijpg', '4xNomosUni_span_multijpg', '4xNomosUniDAT2_box', '4xNomosUniDAT2_multijpg_ldl', '4xNomosUniDAT2_multijpg_ldl_sharp', '4xNomosUniDAT_bokeh_jpg', '4xNomosUniDAT_otf', '4xNomosWebPhoto_atd', '4xNomosWebPhoto_esrgan', '4xNomosWebPhoto_RealPLKSR', '4xReal_SSDIR_DAT_GAN', '4xRealWebPhoto_v3_atd', '4xRealWebPhoto_v4_dat2', '4xRealWebPhoto_v4_drct-l', '4xSSDIRDAT', '4xTextureDAT2_otf', '4xTextures_GTAV_rgt-s', '4xTextures_GTAV_rgt-s_dither'] | default: 4xBHI_dat2_real
+    returns: [('Compare Original vs. Upscaled', 'Tuple[filepath | None, filepath | None] | None'), ('Download Full-Quality Upscaled Image (Lossless PNG)', 'filepath')]
+prithivMLmods/Wan2.2-Fast /generate_video
+    image_b64 | 1st | str | default: None
+    prompt | 2nd | str | default: None
+    steps | 3rd | int | default: None
+    negative_prompt | 4th | str | default: None
+    duration_seconds | 5th | float | default: None
+    guidance_scale | 6th | float | default: None
+    guidance_scale_2 | 7th | float | default: None
+    seed | 8th | int | default: None
+    randomize_seed | 9th | bool | default: None
+    returns: [('1st', 'dict(str, Any)')]
+prithivMLmods/Wan2.2-Fast /load_example
+    idx | 1st | float | default: None
+    returns: [('1st', 'dict(str, Any)')]
+zerogpu-aoti/Qwen-Image-Edit-Outpaint FAILED ValueError('The current space is in the invalid state: PAUSED. Please contact the owner to fix this.')
+black-forest-labs/FLUX.1-Kontext-Dev /infer
+    input_image | Upload the image for editing | dict(path: str | None (Path to a local file), url: str | None (Publicly available url or base64 encoded image), size: int | None (Size of image in bytes), orig_name: str | None (Original filename), mime_type: str | None (mime type of image), is_stream: bool (Can always be set to False), meta: dict(str, Any)) | default: None
+    prompt | Prompt | str | default: None
+    seed | Seed | float | default: 0
+    randomize_seed | Randomize seed | bool | default: True
+    guidance_scale | Guidance Scale | float | default: 2.5
+    steps | Steps | float | default: 28
+    returns: [('Result', 'dict(path: str | None (Path to a local file), url: str | None (Publicly available url or base64 encoded image), size: int | None (Size of image in bytes), orig_name: str | None (Original filename), mime_type: str | None (mime type of image), is_stream: bool (Can always be set to False), meta: dict(str, Any))'), ('Seed', 'float')]
+black-forest-labs/FLUX.1-Kontext-Dev /lambda
+    image | Result | dict(path: str | None (Path to a local file), url: str | None (Publicly available url or base64 encoded image), size: int | None (Size of image in bytes), orig_name: str | None (Original filename), mime_type: str | None (mime type of image), is_stream: bool (Can always be set to False), meta: dict(str, Any)) | default: None
+    returns: [('Upload the image for editing', 'dict(path: str | None (Path to a local file), url: str | None (Publicly available url or base64 encoded image), size: int | None (Size of image in bytes), orig_name: str | None (Original filename), mime_type: str | None (mime type of image), is_stream: bool (Can always be set to False), meta: dict(str, Any))')]
+Sanster/iopaint-lama FAILED ValueError('Could not get Gradio config from: https://sanster-iopaint-lama.hf.space')
