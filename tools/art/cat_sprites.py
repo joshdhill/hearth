@@ -8,12 +8,14 @@ usage: cat_sprites.py <clips.json> <clipdir> <outdir>
 clips.json: {name: {"src": "file.mp4" | "still:pose", "reverse": bool, "gait": bool, "jump": bool, "trim": [a, b]}}
   gait  - a walk/trot/run "on the spot": keeps the run-up, finds a seamless loop of whole strides,
           and measures how fast the planted paws slide back (the speed the cat must travel)
-  jump  - filmed on the tall jump stage; records where the cat lands and how far along it is in each frame"""
+  jump  - filmed on the tall jump stage; records where the cat lands and how far along it is in each frame.
+          The cat is small in these and travels a long way, so each frame is cut out around the cat
+          itself (the manifest notes where each cut was made) and kept at full size in every set"""
 import json, os, subprocess, sys
 import numpy as np, cv2
 from PIL import Image
 sys.path.insert(0, os.path.dirname(__file__))
-from catmatte import matte
+from catmatte import matte, FUR
 
 cfg = json.load(open(sys.argv[1]))
 CLIPS, OUT = sys.argv[2], sys.argv[3]
@@ -21,7 +23,7 @@ os.makedirs(OUT, exist_ok=True)
 HERE = os.path.dirname(os.path.abspath(__file__))
 stage = json.load(open(os.path.join(HERE, 'canvas', 'stage.json')))
 jstage = json.load(open(os.path.join(HERE, 'canvas', 'jump-stage.json')))
-SETS = {'hd': 1.0, 'sd': 0.5}             # sprite sizes: big screens, phones
+SETS = {'hd': 1.0, 'md': 0.75, 'sd': 0.5}  # sprite sizes: big screens, a TV or a phone, small windows
 MAXPAGE = 4096
 FPS = 16
 
@@ -112,15 +114,27 @@ def trim_still_ends(mats, lead=2):
     return (a, b) if b - a >= 6 else (0, n)
 
 
-def pack(name, mats, st, extra):
+def pack(name, mats, st, extra, tight=False, anchor=None):
     n = len(mats)
     alphas = [m[0] for m in mats]
     union = np.max(np.array([a > 0.04 for a in alphas]), 0)
     ys, xs = np.nonzero(union)
     x0, x1 = max(0, xs.min() - 6), min(st.fw, xs.max() + 7)
     y0, y1 = max(0, ys.min() - 6), min(st.fh, max(int(st.ground) + 8, ys.max() + 4))
+    ax, ay = anchor or (st.hipx, st.ground)
+    org = None
+    if tight:
+        bb = []
+        for a in alphas:
+            by, bx = np.nonzero(a > 0.04)
+            bb.append((bx.min() - 6, by.min() - 6, bx.max() + 7, by.max() + 7))
+        tw = min(st.fw, max(b[2] - b[0] for b in bb)); th = min(st.fh, max(b[3] - b[1] for b in bb))
+        org = [(int(np.clip((b[0] + b[2] - tw) // 2, 0, st.fw - tw)), int(np.clip((b[1] + b[3] - th) // 2, 0, st.fh - th))) for b in bb]
+        x0, y0, x1, y1 = 0, 0, tw, th
     out = {}
     for sname, sc in SETS.items():
+        if tight:
+            sc = 1.0
         cw, ch = int(np.ceil((x1 - x0) * sc)), int(np.ceil((y1 - y0) * sc))
         cols = max(1, min(MAXPAGE // cw, int(np.ceil(np.sqrt(n * ch / cw))) or 1, n))
         per_page = cols * max(1, MAXPAGE // ch)
@@ -130,7 +144,11 @@ def pack(name, mats, st, extra):
             rows = int(np.ceil(len(chunk) / cols))
             sheet = np.zeros((rows * ch, cols * cw, 4), np.uint8)
             for k, (a, fg, _bg) in enumerate(chunk):
-                rgba = np.dstack([fg[y0:y1, x0:x1, ::-1], a[y0:y1, x0:x1, None]])
+                fx, fy = org[p0 + k] if tight else (x0, y0)
+                # the faintest edge pixels are black fur, whatever the paper did to them (and nothing pale can bleed in when the sheet is compressed)
+                e = np.clip(a / 0.3, 0, 1)[..., None]
+                fg = FUR * 1.6 * (1 - e) + fg * e
+                rgba = np.dstack([fg[fy:fy + y1 - y0, fx:fx + x1 - x0, ::-1], a[fy:fy + y1 - y0, fx:fx + x1 - x0, None]])
                 if rgba.shape[:2] != (ch, cw):
                     prem = rgba.copy(); prem[..., :3] *= prem[..., 3:]
                     prem = cv2.resize(prem, (cw, ch), interpolation=cv2.INTER_AREA)
@@ -147,8 +165,10 @@ def pack(name, mats, st, extra):
                 e[key] = round(e[key] * sc, 3)
         if 'land' in e:
             e['land'] = [round(v * sc, 2) for v in e['land']]
+        if tight:
+            e['org'] = [[round(a * sc, 2), round(b * sc, 2)] for a, b in org]
         out[sname] = {'frames': n, 'cell': [cw, ch], 'cols': cols, 'per_page': per_page, 'pages': pages,
-                      'anchor': [round((st.hipx - x0) * sc, 2), round((st.ground - y0) * sc, 2)], 'sit_h': round(st.sit_h * sc, 2), **e}
+                      'anchor': [round((ax - x0) * sc, 2), round((ay - y0) * sc, 2)], 'sit_h': round(st.sit_h * sc, 2), **e}
         print('  ', sname, n, 'frames', cw, 'x', ch, len(pages), 'page(s)', round(sum(os.path.getsize(os.path.join(OUT, p)) for p in pages) / 1e6, 2), 'MB')
     return out
 
@@ -193,7 +213,10 @@ for name, c in cfg.items():
         land = [float(cx[-1] - cx[0]), float(ys.max() - ys0.max())]
         extra = {'land': land, 'path': [round(float(v), 3) for v in p]}
         print('   lands at', [round(v, 1) for v in land], 'sprite px from where it started')
-    packed = pack(name, mats, st, extra)
+    anchor = None
+    if c.get('jump') and extra['land'][1] > 0:                  # a jump down: the cat starts up on the shelf
+        anchor = (st.hipx - extra['land'][0], st.ground - extra['land'][1])
+    packed = pack(name, mats, st, extra, tight=bool(c.get('jump')), anchor=anchor)
     for sname in SETS:
         manifest['sets'][sname][name] = packed[sname]
 json.dump(manifest, open(os.path.join(OUT, 'cat.json'), 'w'))

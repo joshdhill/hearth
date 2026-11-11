@@ -18,6 +18,8 @@ body.see-through { background: transparent; }
 
 #video { position: fixed; left: 0; top: 0; width: 100vw; height: 100vh; object-fit: cover; background: #000 center / cover no-repeat; }
 body:not(.see-through) #video { display: none; }
+#backdrop { position: fixed; inset: 0; overflow: hidden; pointer-events: none; }
+#backdrop img { position: absolute; display: block; max-width: none; user-select: none; }
 #scene { position: fixed; inset: 0; width: 100vw; height: 100vh; display: block; }
 #layer { position: fixed; inset: 0; }
 .board-frame { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #ece6d8; }

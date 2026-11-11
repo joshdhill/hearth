@@ -4,7 +4,7 @@ Ambient scenes for the Google TV Streamer, with Spotify playing in the backgroun
 
 | Scene | What it is |
 | --- | --- |
-| Fireside | A photoreal brick fireplace filling the screen (a generated picture), real fire footage set into the firebox, firelight flickering over the brick, and a cat that walks by, stretches, sits by the fire and naps. "Cat, do a trick" in the menu makes her do one now |
+| Fireside | A photoreal brick fireplace filling the whole screen (a generated picture, recomposed with a lower mantel, a wider firebox and a hearth across the full width), real fire footage in the firebox, firelight flickering over the brick, candles on the mantel, and the family's black cat: their own illustration, animated. She walks by, sits by the fire, has a wash, rolls over, naps, gets the zoomies and jumps up on the mantel. **Cat, do a trick** in the menu picks one; **Random: loop through them all** keeps her going through every trick, non-stop |
 | Fireplace | Four real fireplaces in 4K (brick fireplace, roaring logs, hearth with grate, wood stove), each a 5-minute seamless loop; crackles that never repeat |
 | Bird Window | Birds heard in the yard today (from the bird board feed) fly in and perch on the branch |
 | Weather Window | Live Germantown sky: time of day, clouds, rain, snow, fog, with Sugarloaf on the horizon |
@@ -26,6 +26,8 @@ Every scene can be changed from the menu (music, the cat, weather, time of day, 
 - `android/` is the Google TV app: a native 4K video player under a transparent web view, plus a small bridge for Spotify and sounds. GitHub Actions builds it into the `app` release as `hearth.apk`.
 - Music plays in the TV's own Spotify app; Hearth tells it what to play through the Spotify Web API (sign-in with PKCE, no secret).
 - Fire footage: free 4K Pixabay clips, about a minute each. `tools/fire/build_long.py` re-cuts each one into a 5-minute loop: it measures how alike every pair of moments is, joins 4-12 second pieces only where the fire matches, blends each join over half a second in linear light, and closes the loop back into its own start. The TV gets 4K 10-bit HEVC (`media-v2` release); browsers and iPhones get 1080p HLS from `docs/media/fire/`.
+- Fireside's picture and cat are made in `tools/art/`, with free tools only. The fireplace picture is rearranged by exact pixel work (`compose_scene.py` takes out brick courses to lower the mantel, widens the firebox and runs the hearth across; `clear_hearth.py` re-lays clean bricks in perspective), the gaps are painted in by FLUX Fill and the result is enlarged 4x with Real-ESRGAN, both on GitHub Actions (`art-scene.yml`, `art-upscale.yml`). `room.py` grades it into two layers, the room in the evening and the same room lit by the fire, which the page fades between as the fire flickers.
+- The cat starts from one illustration. Free Hugging Face Spaces, called from GitHub Actions without an account (`gen.py`, `art-gen.yml`), re-pose it (FLUX Kontext) and animate it between a few shared poses (Wan 2.2). `cat_sprites.py` cuts every clip out of its paper background into sprite sheets in three sizes (`docs/media/cat/`), finds each gait's seamless stride and how fast the paws travel, and `docs/js/overlays/spritecat.js` chains the clips into tricks. A new trick is a new clip: add it to `tasks.json` and `clips.json`.
 - `tools/fire/candidates.sh` scans candidate clips (steadiness, how well they loop) when choosing new footage.
 
 ## Installing on the TV (once)

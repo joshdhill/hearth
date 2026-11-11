@@ -1,9 +1,11 @@
 // The scene presets. Each one can be changed from the menu; changes are remembered per scene.
+import { TRICKS } from '../overlays/spritecat.js';
+
 export const SCENES = [
   {
-    id: 'fireside', name: 'Fireside', type: 'hearth', photo: 'brick',
-    blurb: 'A brick fireplace filling the screen, a real fire, and a cat on the hearth.',
-    defaults: { sound: 'medium', crackle: true, cat: 'often', catColor: 'black', music: 'search:Jazz by the fireplace' }
+    id: 'fireside', name: 'Fireside', type: 'hearth',
+    blurb: 'A brick fireplace filling the screen, a real fire, candles on the mantel, and the cat doing her tricks.',
+    defaults: { sound: 'medium', crackle: true, cat: 'often', candles: true, room: 'evening', music: 'search:Jazz by the fireplace' }
   },
   {
     id: 'fireplace', name: 'Fireplace', type: 'fire',
@@ -40,8 +42,9 @@ export const SCENES = [
 // Options shown in the menu, by scene type. Values cycle with OK.
 export const OPTIONS = [
   { key: 'fire', label: 'Fire', types: ['fire'], values: [['brick', 'Brick fireplace'], ['logs', 'Roaring logs'], ['roaring', 'Hearth with grate'], ['stove', 'Wood stove']] },
-  { key: 'trick', label: 'Cat, do a trick', types: ['hearth'], action: true, hint: 'Pick one', values: [['random', 'Random: loop through them all'], ['stretch', 'Big stretch'], ['walk', 'Walk by'], ['sit', 'Sit by the fire'], ['nap', 'Nap on the rug'], ['zoom', 'Zoomies'], ['bye', 'Off you go']] },
-  { key: 'catColor', label: 'Cat colour', types: ['hearth'], values: [['black', 'Black'], ['orange', 'Orange tabby'], ['gray', 'Gray'], ['white', 'White'], ['tuxedo', 'Tuxedo']] },
+  { key: 'trick', label: 'Cat, do a trick', types: ['hearth'], action: true, hint: 'Pick one', values: TRICKS },
+  { key: 'room', label: 'Room', types: ['hearth'], values: [['evening', 'Evening'], ['dark', 'Lights out'], ['lamp', 'Lamp on']] },
+  { key: 'candles', label: 'Candles', types: ['hearth'], values: [[true, 'Lit'], [false, 'Out']] },
   { key: 'sound', label: 'Fire sound', types: ['fire', 'hearth'], values: [['off', 'Off'], ['low', 'Low'], ['medium', 'Medium'], ['high', 'High']] },
   { key: 'birds', label: 'Birds', types: ['window'], branch: true, values: [[true, 'On'], [false, 'Off']] },
   { key: 'names', label: 'Bird names', types: ['window'], branch: true, values: [[true, 'On'], [false, 'Off']] },

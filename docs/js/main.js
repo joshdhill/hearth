@@ -5,7 +5,7 @@ import { SCENES, OPTIONS } from './scenes/index.js';
 import { WindowScene } from './scenes/window.js';
 import { FireplaceScene, FIRES } from './scenes/fireplace.js';
 import { BoardScene } from './scenes/board.js';
-import { PhotoScene } from './scenes/photo.js';
+import { FiresideScene } from './scenes/fireside.js';
 import { spotify, login, pickDevice, PRESETS } from './spotify.js';
 import { resumeAudio } from './audio/fire.js';
 
@@ -38,6 +38,7 @@ class App {
     if (cw / ch > W / H && wide > W) k = Math.max(ch / H, cw / wide);
     this.view = { k, ox: (cw - W * k) / 2, oy: (ch - H * k) / 2 };
     this.placeVideo();
+    if (this.scene && this.scene.layout) this.scene.layout();
   }
 
   // Where the video sits: the whole screen, or a box given in scene coordinates (a firebox, say).
@@ -71,7 +72,7 @@ class App {
     const old = this.scene;
     this.scene = null;
     if (old) old.exit();
-    const S = p.type === 'fire' ? FireplaceScene : p.type === 'hearth' ? PhotoScene : p.type === 'board' ? BoardScene : WindowScene;
+    const S = p.type === 'fire' ? FireplaceScene : p.type === 'hearth' ? FiresideScene : p.type === 'board' ? BoardScene : WindowScene;
     const s = new S(this, p);
     store.set('scene', p.id);
     document.body.classList.toggle('see-through', !!s.transparent);
@@ -381,7 +382,7 @@ const menu = {
       await sleep(30);
       try {
         if (s.type === 'hearth') {
-          await new PhotoScene(app, app.preset(s.id)).thumb(x, 320, 180);
+          await new FiresideScene(app, app.preset(s.id)).thumb(x, 320, 180);
         } else if (s.type === 'fire') {
           const p = app.preset(s.id), f = FIRES[p.opts.fire] || FIRES.brick;
           const img = await loadImage(f.poster).catch(() => null);

@@ -39,6 +39,20 @@ def matte(bgr, bg=None, solid_thr=0.5):
     aa = np.clip(alpha, 0.08, 1)[..., None]
     fg = np.clip((bgr - (1 - aa) * bg) / aa, 0, 1)
     fg = np.where(alpha[..., None] > 0.97, bgr, fg)
+    # A frame caught mid-leap is a smear of motion: grey where black fur and paper blurred together.
+    # Filled solid that reads as a pale ghost, so the more of the cat is smeared, the more it is kept as
+    # see-through dark fur instead.
+    smear = float(((a < 0.9) & solid).sum()) / max(1, int(solid.sum()))
+    w = float(np.clip((smear - 0.10) / 0.10, 0, 1))
+    if w > 0:
+        soft = (np.clip(a * 1.25, 0, 1) * near).astype(np.float32)
+        sa = np.clip(soft, 0.08, 1)[..., None]
+        sfg = np.clip((bgr - (1 - sa) * bg) / sa, 0, 1)
+        dark = FUR * 1.6
+        k = np.clip((soft - 0.6) / 0.35, 0, 1)[..., None]           # only what is nearly solid keeps its own colour
+        sfg = dark * (1 - k) + sfg * k
+        alpha = alpha * (1 - w) + soft * w
+        fg = fg * (1 - w) + sfg * w
     return alpha, fg.astype(np.float32), bg
 
 

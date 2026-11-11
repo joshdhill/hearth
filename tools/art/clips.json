@@ -1,24 +1,68 @@
 {
- "walk": {"src": "walk-i2v.mp4", "gait": true},
- "trot": {"src": "trot.mp4", "gait": true},
- "run": {"src": "run.mp4", "gait": true},
- "sit2stand": {"src": "sit2stand.mp4"},
- "stand2sit": {"src": "sit2stand.mp4", "reverse": true},
- "stretch": {"src": "stretch.mp4"},
- "sit-look": {"src": "sit-idle.mp4"},
- "sit-tail": {"src": "sit-tail.mp4"},
- "sit-groom": {"src": "sit-groom-b.mp4"},
- "sit-groom2": {"src": "sit-groom.mp4"},
- "sit-yawn": {"src": "sit-yawn.mp4"},
- "sit-paw": {"src": "sit-paw.mp4"},
- "sit2lie": {"src": "sit2lie.mp4"},
- "lie2sit": {"src": "lie2sit.mp4"},
- "lie-doze": {"src": "lie-doze.mp4", "autotrim": false},
- "lie-roll": {"src": "lie-roll.mp4"},
- "jump-up": {"src": "jump-up-c.mp4", "jump": true},
- "jump-up2": {"src": "jump-up-b.mp4", "jump": true},
- "jump-down": {"src": "jump-down.mp4", "jump": true},
- "sit": {"src": "still:sit"},
- "lie": {"src": "still:lie"},
- "stand": {"src": "still:stand"}
+ "walk": {
+  "src": "walk-i2v.mp4",
+  "gait": true
+ },
+ "trot": {
+  "src": "trot.mp4",
+  "gait": true
+ },
+ "run": {
+  "src": "run.mp4",
+  "gait": true
+ },
+ "sit2stand": {
+  "src": "sit2stand.mp4"
+ },
+ "stretch": {
+  "src": "stretch.mp4"
+ },
+ "sit-look": {
+  "src": "sit-idle.mp4"
+ },
+ "sit-tail": {
+  "src": "sit-tail.mp4"
+ },
+ "sit-groom": {
+  "src": "sit-groom-b.mp4"
+ },
+ "sit-groom2": {
+  "src": "sit-groom.mp4"
+ },
+ "sit-yawn": {
+  "src": "sit-yawn.mp4"
+ },
+ "sit-paw": {
+  "src": "sit-paw.mp4"
+ },
+ "sit2lie": {
+  "src": "sit2lie.mp4"
+ },
+ "lie2sit": {
+  "src": "lie2sit.mp4"
+ },
+ "lie-doze": {
+  "src": "lie-doze.mp4",
+  "autotrim": false
+ },
+ "lie-roll": {
+  "src": "lie-roll.mp4"
+ },
+ "jump-up": {
+  "src": "jump-up-c.mp4",
+  "jump": true
+ },
+ "jump-down": {
+  "src": "jump-down.mp4",
+  "jump": true
+ },
+ "sit": {
+  "src": "still:sit"
+ },
+ "lie": {
+  "src": "still:lie"
+ },
+ "stand": {
+  "src": "still:stand"
+ }
 }
