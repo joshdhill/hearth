@@ -114,6 +114,15 @@ def trim_still_ends(mats, lead=2):
     return (a, b) if b - a >= 6 else (0, n)
 
 
+def room_look(fg):
+    """Make the cat belong in the firelit room rather than look pasted in: soften the fine, crisp
+    fur lines a little, take most of the cool blue out of the sheen, and warm what is left."""
+    f = cv2.bilateralFilter(np.clip(fg * 255, 0, 255).astype(np.uint8), 9, 40, 6).astype(np.float32) / 255
+    g = f.mean(2, keepdims=True)
+    f = f * 0.45 + g * 0.55
+    return np.clip(f * np.array([0.62, 0.80, 1.0], np.float32), 0, 1)        # BGR
+
+
 def pack(name, mats, st, extra, tight=False, anchor=None):
     n = len(mats)
     alphas = [m[0] for m in mats]
@@ -144,6 +153,7 @@ def pack(name, mats, st, extra, tight=False, anchor=None):
             rows = int(np.ceil(len(chunk) / cols))
             sheet = np.zeros((rows * ch, cols * cw, 4), np.uint8)
             for k, (a, fg, _bg) in enumerate(chunk):
+                fg = room_look(fg)
                 fx, fy = org[p0 + k] if tight else (x0, y0)
                 # the faintest edge pixels are black fur, whatever the paper did to them (and nothing pale can bleed in when the sheet is compressed)
                 e = np.clip(a / 0.3, 0, 1)[..., None]

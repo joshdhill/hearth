@@ -11,6 +11,11 @@ const AHEAD = 2;                      // clips kept loaded ahead of the one play
 const KEEP = 7;                       // sheets held in memory at most (three of them are the single still poses)
 const BACKWARDS = { stand2sit: 'sit2stand' };            // clips that are another clip's frames played in reverse
 const STILLS = ['sit', 'lie', 'stand'];
+// Lying down, the cat's tail curls towards the viewer, so the lowest point of the picture is the tail tip, not
+// the paws. On a shallow hearth that leaves the paws floating at the back: lying clips sit this much lower
+// (in sitting-heights), so the paws rest on the hearth and the tail hangs over its front edge.
+const LIE_DROP = 0.115;
+const DROP = { lie: [1, 1], 'lie-doze': [1, 1], 'lie-roll': [1, 1], sit2lie: [0, 1], lie2sit: [1, 0] };
 
 // what the pose is at each end of a clip
 const ENDS = {
@@ -299,6 +304,8 @@ export class SpriteCat {
       ax += p * m.land[0]; ay += p * m.land[1];
       x = lerp(c.lift.x0, c.lift.x1, p); y = lerp(c.lift.y0, c.lift.y1, p); h = lerp(c.lift.h0, c.lift.h1, p);
     }
+    const dr = DROP[c.clip];
+    if (dr) y += LIE_DROP * h * lerp(dr[0], dr[1], m.frames > 1 ? f / (m.frames - 1) : 0);
     const s = h / m.sit_h;
     ctx.save();
     ctx.translate(x, y); ctx.scale(dir * s, s);
@@ -348,15 +355,13 @@ export class SpriteCat {
     const lift = this.cur.lift, air = lift && lift.p > 0.04 && lift.p < 0.96;
     let x = this.x, y = this.y, h = this.h;
     if (lift) { x = lerp(lift.x0, lift.x1, lift.p); y = lerp(lift.y0, lift.y1, lift.p); h = lerp(lift.h0, lift.h1, lift.p); }
-    // the cat, with a faint warm edge so black fur still reads against a dark room
-    ctx.save();
-    ctx.shadowColor = `rgba(255,150,70,${0.22 + 0.26 * glow})`; ctx.shadowBlur = Math.max(6, h * 0.06);
     this.frames(ctx);
-    ctx.restore();
     this.firelight(ctx, x, y, h, glow);
     // a soft shadow where it stands (not in mid-air), slipped in underneath
     if (!air) {
-      const pose = this.poseNow(), w = h * (pose === 'sit' ? 0.42 : 0.7), cx = x + this.dir * h * (pose === 'sit' ? 0.2 : 0.42);
+      const pose = this.poseNow(), lie = pose === 'lie';
+      const w = h * (pose === 'sit' ? 0.42 : lie ? 0.85 : 0.7), cx = x + this.dir * h * (pose === 'sit' ? 0.2 : lie ? 0.55 : 0.42);
+      if (lie) y += LIE_DROP * h * 0.6;
       const g = ctx.createRadialGradient(cx, y, 1, cx, y, w);
       g.addColorStop(0, 'rgba(0,0,0,0.5)'); g.addColorStop(1, 'rgba(0,0,0,0)');
       ctx.save(); ctx.globalCompositeOperation = 'destination-over';
