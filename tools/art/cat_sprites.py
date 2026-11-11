@@ -114,13 +114,34 @@ def trim_still_ends(mats, lead=2):
     return (a, b) if b - a >= 6 else (0, n)
 
 
-def room_look(fg):
-    """Make the cat belong in the firelit room rather than look pasted in: soften the fine, crisp
-    fur lines a little, take most of the cool blue out of the sheen, and warm what is left."""
-    f = cv2.bilateralFilter(np.clip(fg * 255, 0, 255).astype(np.uint8), 9, 40, 6).astype(np.float32) / 255
-    g = f.mean(2, keepdims=True)
-    f = f * 0.45 + g * 0.55
-    return np.clip(f * np.array([0.62, 0.80, 1.0], np.float32), 0, 1)        # BGR
+FUR = np.array([0.090, 0.100, 0.122], np.float32)        # BGR: a warm near-black, the same in every frame
+LINE = np.array([0.030, 0.030, 0.036], np.float32)
+RIM = np.array([0.20, 0.30, 0.42], np.float32)
+EYE = np.array([0.25, 0.78, 0.72], np.float32)
+
+
+def room_look(fg, a):
+    """A flat 2D cat: one fur colour, a dark outline, a soft warm rim along the top edge, and the eyes.
+    Everything but the eyes comes from the outline alone, so nothing shimmers from frame to frame
+    (the generated clips light the fur differently in every frame)."""
+    body = (a > 0.5).astype(np.uint8)
+    d = cv2.distanceTransform(body, cv2.DIST_L2, 3)
+    line = np.clip(1.0 - (d - 1.2) / 1.6, 0, 1)[..., None]
+    sh = np.zeros_like(body); sh[4:] = body[:-4]                     # the body moved down: what is left is the top edge
+    rim = cv2.GaussianBlur((body & (1 - sh)).astype(np.float32), (0, 0), 1.6) * (d > 1.5)
+    rim = np.clip(rim * 1.4, 0, 1)[..., None] * 0.55
+    out = FUR * (1 - rim) + RIM * rim
+    out = out * (1 - line) + LINE * line
+    b, g, r = fg[..., 0], fg[..., 1], fg[..., 2]
+    eye = ((g > 0.32) & (g > b + 0.08) & (r > 0.18) & (g >= r - 0.02) & (d > 2)).astype(np.uint8)
+    eye = cv2.morphologyEx(eye, cv2.MORPH_OPEN, np.ones((2, 2), np.uint8))
+    n, lab, st, _ = cv2.connectedComponentsWithStats(eye)
+    keep = np.zeros(eye.shape, np.float32)
+    for k in range(1, n):
+        if 3 <= st[k, 4] <= 400:
+            keep[lab == k] = 1
+    e = cv2.GaussianBlur(keep, (0, 0), 0.6)[..., None]
+    return np.clip(out * (1 - e) + EYE * e, 0, 1)
 
 
 def pack(name, mats, st, extra, tight=False, anchor=None):
@@ -153,7 +174,7 @@ def pack(name, mats, st, extra, tight=False, anchor=None):
             rows = int(np.ceil(len(chunk) / cols))
             sheet = np.zeros((rows * ch, cols * cw, 4), np.uint8)
             for k, (a, fg, _bg) in enumerate(chunk):
-                fg = room_look(fg)
+                fg = room_look(fg, a)
                 fx, fy = org[p0 + k] if tight else (x0, y0)
                 # the faintest edge pixels are black fur, whatever the paper did to them (and nothing pale can bleed in when the sheet is compressed)
                 e = np.clip(a / 0.3, 0, 1)[..., None]
