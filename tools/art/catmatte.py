@@ -6,7 +6,7 @@ FUR = np.array([0.07, 0.06, 0.07], np.float32)        # BGR of the darkest fur
 CREAM = np.array([223, 236, 244], np.float32) / 255     # BGR of the paper in the original illustration
 
 
-def matte(bgr, bg=None, solid_thr=0.5):
+def matte(bgr, bg=None, solid_thr=0.5, ring=False):
     """bgr float image in 0..1 -> (alpha, clean foreground colour, background colour).
     The cat is dark on a light, even background, so alpha is how far a pixel has moved from the
     background towards dark fur; the inside of the cat (eyes, nose, sheen) is then filled solid."""
@@ -53,6 +53,15 @@ def matte(bgr, bg=None, solid_thr=0.5):
         sfg = dark * (1 - k) + sfg * k
         alpha = alpha * (1 - w) + soft * w
         fg = fg * (1 - w) + sfg * w
+    if ring:
+        # Just inside the outline the fur is mixed with paper (the more so in a smeared frame), which shows as a pale
+        # rim once the cat is in a dark room. Take the paper out of those pixels; where it was half paper, make it plain fur.
+        depth = ndi.distance_transform_edt(body)
+        band = body & (depth <= 3 + 12 * w) & (a < 0.9)
+        cov = np.clip(a, 0.2, 1)[..., None]
+        own = np.clip((bgr - (1 - cov) * bg) / cov, 0, 1)
+        k = np.clip((a - 0.5) / 0.4, 0, 1)[..., None]
+        fg = np.where(band[..., None], FUR * 1.6 * (1 - k) + own * k, fg)
     return alpha, fg.astype(np.float32), bg
 
 

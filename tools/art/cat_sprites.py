@@ -182,7 +182,7 @@ for name, c in cfg.items():
         frames = frames[c['trim'][0]:c['trim'][1]]
     if c.get('reverse'):
         frames = frames[::-1]
-    mats = [matte(f) for f in frames]
+    mats = [matte(f, ring=bool(c.get('jump'))) for f in frames]      # leaps: no pale rim (see catmatte)
     extra = {}
     if c.get('gait'):
         al = [m[0] for m in mats]
