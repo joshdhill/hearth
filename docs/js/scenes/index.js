@@ -1,5 +1,5 @@
 // The scene presets. Each one can be changed from the menu; changes are remembered per scene.
-import { TRICKS } from '../overlays/spritecat.js';
+import { TRICKS } from '../overlays/tooncat.js';
 
 export const SCENES = [
   {

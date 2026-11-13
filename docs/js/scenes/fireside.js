@@ -4,7 +4,7 @@
 import { W, H, fbm1, clamp, loadImage } from '../util.js';
 import { flame } from '../paint.js';
 import { FireSound } from '../audio/fire.js';
-import { SpriteCat } from '../overlays/spritecat.js';
+import { ToonCat } from '../overlays/tooncat.js';
 import { AMBIENCE } from './fireplace.js';
 
 const REL = 'https://github.com/joshdhill/hearth/releases/download/media-v2/';
@@ -30,10 +30,8 @@ export class FiresideScene {
     this.sound = new FireSound();
     this.transparent = true;
     this.wide = G.wide;
-    this.cat = new SpriteCat({
-      floor: G.hearth.y, floorH: 260, shelf: G.mantel.y + 1, shelfH: 195,
-      shelfX: [G.mantel.clear[0] + 40, G.mantel.clear[1] - 40], x0: -G.margin, x1: W + G.margin, fire: [G.cavity[0], G.cavity[2]]
-    }, { mode: () => this.o.cat });
+    // paws in the middle of the hearth's top face (its back edge is at y 944)
+    this.cat = new ToonCat({ floor: 958.6, x0: -G.margin, x1: W + G.margin, fire: [G.cavity[0], G.cavity[2]] }, { mode: () => this.o.cat });
   }
   get o() { return this.p.opts; }
 
@@ -53,6 +51,9 @@ export class FiresideScene {
     const a = loaded(this.room), b = loaded(this.lit);
     this.room.src = DIR + `room-${tag}.webp`; this.lit.src = DIR + `lit-${tag}.webp`;
     this.layout(); this.update();
+    // the fire-tool stand stands on the hearth: drawn again over the cat, so it walks behind it
+    this.front = { b: { x: 1523.7, y: 500.3, w: 305.9, h: 519.2 }, r: new Image(), l: new Image() };
+    this.front.r.src = DIR + `front-room-${tag}.webp`; this.front.l.src = DIR + `front-lit-${tag}.webp`;
     await Promise.race([Promise.all([a, b]), new Promise(r => setTimeout(r, 6000))]);
     const ch = app.canvas.height;                                // sprite size to suit the screen: a TV's 1080 rows get the middle one
     this.cat.useSet(ch >= 1300 ? 'hd' : ch >= 760 ? 'md' : 'sd');
@@ -96,7 +97,13 @@ export class FiresideScene {
     // the fire's light: a slow breathing with quick small flutters
     const fl = clamp(0.5 + 0.9 * (fbm1(t * 1.7) - 0.5) + 0.12 * (fbm1(t * 7.3 + 40) - 0.5), 0, 1);
     if (this.lit) this.lit.style.opacity = (0.56 + 0.44 * fl).toFixed(3);
-    this.cat.draw(ctx, t, dt, fl);                               // first: its firelight and shadow are worked out against a clear canvas
+    this.cat.draw(ctx, t, dt, fl);
+    const fr = this.front;
+    if (fr && fr.r.complete && fr.l.complete && fr.r.naturalWidth) {
+      const { x, y, w, h } = fr.b;
+      ctx.drawImage(fr.r, x, y, w, h);
+      ctx.save(); ctx.globalAlpha = 0.56 + 0.44 * fl; ctx.drawImage(fr.l, x, y, w, h); ctx.restore();
+    }
     if (this.o.candles !== false) G.candles.forEach(([x, y], i) => flame(ctx, x, y + 1, 7.5, t, i * 2.3 + 0.7));
   }
 
