@@ -1,297 +1,138 @@
 [
  {
-  "name": "sit-groom",
-  "space": "multimodalart/wan-2-2-first-last-frame",
-  "api": "/generate_video",
-  "tries": 1,
-  "args": {
-   "start_image_pil": {
-    "file": "tools/art/canvas/sit.png"
-   },
-   "end_image_pil": {
-    "file": "tools/art/canvas/sit.png"
-   },
-   "prompt": "The sitting black cat raises one front paw, licks it several times and rubs its face with it, then lowers the paw and sits exactly as at the start. Static camera, plain cream paper background, detailed illustration style, the cat stays the same size.",
-   "duration_seconds": 3.5,
-   "steps": 8,
-   "seed": 7,
-   "randomize_seed": false
-  }
- },
- {
-  "name": "sit-groom-b",
-  "space": "multimodalart/wan-2-2-first-last-frame",
-  "api": "/generate_video",
-  "tries": 1,
-  "args": {
-   "start_image_pil": {
-    "file": "tools/art/canvas/sit.png"
-   },
-   "end_image_pil": {
-    "file": "tools/art/canvas/sit.png"
-   },
-   "prompt": "The sitting black cat raises one front paw, licks it several times and rubs its face with it, then lowers the paw and sits exactly as at the start. Static camera, plain cream paper background, detailed illustration style, the cat stays the same size.",
-   "duration_seconds": 3.5,
-   "steps": 8,
-   "seed": 21,
-   "randomize_seed": false
-  }
- },
- {
-  "name": "lie2sit",
-  "space": "multimodalart/wan-2-2-first-last-frame",
-  "api": "/generate_video",
-  "tries": 1,
-  "args": {
-   "start_image_pil": {
-    "file": "tools/art/canvas/lie.png"
-   },
-   "end_image_pil": {
-    "file": "tools/art/canvas/sit.png"
-   },
-   "prompt": "The lying black cat pushes itself up and sits upright on its haunches. Static camera, plain cream paper background, detailed illustration style, the cat stays the same size.",
-   "duration_seconds": 3.0,
-   "steps": 8,
-   "seed": 7,
-   "randomize_seed": false
-  }
- },
- {
-  "name": "trot",
-  "space": "zerogpu-aoti/wan2-2-fp8da-aoti-faster",
-  "api": "/generate_video",
-  "tries": 1,
+  "name": "k-real-1",
+  "space": "black-forest-labs/FLUX.1-Kontext-Dev",
+  "api": "/infer",
+  "tries": 2,
+  "timeout": 400,
   "args": {
    "input_image": {
     "file": "tools/art/canvas/stand.png"
    },
-   "prompt": "Side-view tracking shot. The black cat trots briskly to the right with a quick springy gait, legs moving fast, tail held up. The camera follows so the cat stays in exactly the same place in the frame. Static camera, plain cream paper background, detailed illustration style, the cat stays the same size.",
-   "steps": 6,
-   "duration_seconds": 3.5,
-   "seed": 7,
-   "randomize_seed": false
+   "prompt": "Turn this illustration into a realistic photograph of a real black short-haired house cat in exactly the same walking pose, side view, same size and same position in the frame. Natural soft black fur with subtle brown tones, yellow-green eyes, whiskers. Plain flat solid chroma-key green background, no floor, no shadow. Warm soft light from the left.",
+   "seed": 11,
+   "randomize_seed": false,
+   "guidance_scale": 2.5,
+   "steps": 28
   }
  },
  {
-  "name": "run",
-  "space": "zerogpu-aoti/wan2-2-fp8da-aoti-faster",
-  "api": "/generate_video",
-  "tries": 1,
+  "name": "k-real-2",
+  "space": "black-forest-labs/FLUX.1-Kontext-Dev",
+  "api": "/infer",
+  "tries": 2,
+  "timeout": 400,
   "args": {
    "input_image": {
     "file": "tools/art/canvas/stand.png"
    },
-   "prompt": "Side-view tracking shot. The black cat runs fast to the right in a bounding gallop, body stretching and bunching with each stride. The camera follows so the cat stays in exactly the same place in the frame. Static camera, plain cream paper background, detailed illustration style, the cat stays the same size.",
-   "steps": 6,
-   "duration_seconds": 3.5,
-   "seed": 7,
-   "randomize_seed": false
+   "prompt": "Turn this illustration into a realistic photograph of a real black short-haired house cat in exactly the same walking pose, side view, same size and same position in the frame. Natural soft black fur with subtle brown tones, yellow-green eyes, whiskers. Plain flat solid chroma-key green background, no floor, no shadow. Warm soft light from the left.",
+   "seed": 22,
+   "randomize_seed": false,
+   "guidance_scale": 2.5,
+   "steps": 28
   }
  },
  {
-  "name": "jump-up",
-  "space": "multimodalart/wan-2-2-first-last-frame",
-  "api": "/generate_video",
-  "tries": 1,
+  "name": "k-real-3",
+  "space": "black-forest-labs/FLUX.1-Kontext-Dev",
+  "api": "/infer",
+  "tries": 2,
+  "timeout": 400,
   "args": {
-   "start_image_pil": {
-    "file": "tools/art/canvas/jump-floor.png"
+   "input_image": {
+    "file": "tools/art/canvas/stand.png"
    },
-   "end_image_pil": {
-    "file": "tools/art/canvas/jump-shelf.png"
-   },
-   "prompt": "The small black cat sitting on the floor looks up at the high shelf, crouches low, then leaps straight up through the air, lands on top of the shelf and sits down there. Static camera, plain cream paper background, detailed illustration style.",
-   "duration_seconds": 3.0,
-   "steps": 8,
-   "seed": 7,
-   "randomize_seed": false
-  }
- },
- {
-  "name": "jump-up-b",
-  "space": "multimodalart/wan-2-2-first-last-frame",
-  "api": "/generate_video",
-  "tries": 1,
-  "args": {
-   "start_image_pil": {
-    "file": "tools/art/canvas/jump-floor.png"
-   },
-   "end_image_pil": {
-    "file": "tools/art/canvas/jump-shelf.png"
-   },
-   "prompt": "The small black cat sitting on the floor looks up at the high shelf, crouches low, then leaps straight up through the air, lands on top of the shelf and sits down there. Static camera, plain cream paper background, detailed illustration style.",
-   "duration_seconds": 3.0,
-   "steps": 8,
-   "seed": 21,
-   "randomize_seed": false
-  }
- },
- {
-  "name": "jump-up-c",
-  "space": "multimodalart/wan-2-2-first-last-frame",
-  "api": "/generate_video",
-  "tries": 1,
-  "args": {
-   "start_image_pil": {
-    "file": "tools/art/canvas/jump-floor.png"
-   },
-   "end_image_pil": {
-    "file": "tools/art/canvas/jump-shelf.png"
-   },
-   "prompt": "The small black cat sitting on the floor looks up at the high shelf, crouches low, then leaps straight up through the air, lands on top of the shelf and sits down there. Static camera, plain cream paper background, detailed illustration style.",
-   "duration_seconds": 3.0,
-   "steps": 8,
+   "prompt": "Turn this illustration into a realistic photograph of a real black short-haired house cat in exactly the same walking pose, side view, same size and same position in the frame. Natural soft black fur with subtle brown tones, yellow-green eyes, whiskers. Plain flat solid chroma-key green background, no floor, no shadow. Warm soft light from the left.",
    "seed": 33,
-   "randomize_seed": false
+   "randomize_seed": false,
+   "guidance_scale": 2.5,
+   "steps": 28
   }
  },
  {
-  "name": "jump-down",
-  "space": "multimodalart/wan-2-2-first-last-frame",
-  "api": "/generate_video",
-  "tries": 1,
-  "args": {
-   "start_image_pil": {
-    "file": "tools/art/canvas/jump-shelf.png"
-   },
-   "end_image_pil": {
-    "file": "tools/art/canvas/jump-floor.png"
-   },
-   "prompt": "The small black cat sitting on the high shelf leans forward over the edge, jumps down to the floor below, lands softly on its feet and sits down. Static camera, plain cream paper background, detailed illustration style.",
-   "duration_seconds": 3.0,
-   "steps": 8,
-   "seed": 7,
-   "randomize_seed": false
-  }
- },
- {
-  "name": "jump-down-b",
-  "space": "multimodalart/wan-2-2-first-last-frame",
-  "api": "/generate_video",
-  "tries": 1,
-  "args": {
-   "start_image_pil": {
-    "file": "tools/art/canvas/jump-shelf.png"
-   },
-   "end_image_pil": {
-    "file": "tools/art/canvas/jump-floor.png"
-   },
-   "prompt": "The small black cat sitting on the high shelf leans forward over the edge, jumps down to the floor below, lands softly on its feet and sits down. Static camera, plain cream paper background, detailed illustration style.",
-   "duration_seconds": 3.0,
-   "steps": 8,
-   "seed": 21,
-   "randomize_seed": false
-  }
- },
- {
-  "name": "sit-yawn",
-  "space": "multimodalart/wan-2-2-first-last-frame",
-  "api": "/generate_video",
-  "tries": 1,
-  "args": {
-   "start_image_pil": {
-    "file": "tools/art/canvas/sit.png"
-   },
-   "end_image_pil": {
-    "file": "tools/art/canvas/sit.png"
-   },
-   "prompt": "The sitting black cat yawns widely, showing its pink tongue and teeth, then closes its mouth and sits exactly as at the start. Static camera, plain cream paper background, detailed illustration style, the cat stays the same size.",
-   "duration_seconds": 3.0,
-   "steps": 8,
-   "seed": 7,
-   "randomize_seed": false
-  }
- },
- {
-  "name": "lie-roll",
-  "space": "multimodalart/wan-2-2-first-last-frame",
-  "api": "/generate_video",
-  "tries": 1,
-  "args": {
-   "start_image_pil": {
-    "file": "tools/art/canvas/lie.png"
-   },
-   "end_image_pil": {
-    "file": "tools/art/canvas/lie.png"
-   },
-   "prompt": "The lying black cat rolls over onto its back and wriggles playfully with its paws in the air, then rolls back and lies exactly as at the start. Static camera, plain cream paper background, detailed illustration style, the cat stays the same size.",
-   "duration_seconds": 3.5,
-   "steps": 8,
-   "seed": 7,
-   "randomize_seed": false
-  }
- },
- {
-  "name": "sit-paw",
-  "space": "multimodalart/wan-2-2-first-last-frame",
-  "api": "/generate_video",
-  "tries": 1,
-  "args": {
-   "start_image_pil": {
-    "file": "tools/art/canvas/sit.png"
-   },
-   "end_image_pil": {
-    "file": "tools/art/canvas/sit.png"
-   },
-   "prompt": "The sitting black cat looks up and playfully bats at the air with one front paw a few times, then puts its paw down and sits exactly as at the start. Static camera, plain cream paper background, detailed illustration style, the cat stays the same size.",
-   "duration_seconds": 3.5,
-   "steps": 8,
-   "seed": 7,
-   "randomize_seed": false
-  }
- },
- {
-  "name": "stand-arch",
-  "space": "multimodalart/wan-2-2-first-last-frame",
-  "api": "/generate_video",
-  "tries": 1,
-  "args": {
-   "start_image_pil": {
-    "file": "tools/art/canvas/stand.png"
-   },
-   "end_image_pil": {
-    "file": "tools/art/canvas/stand.png"
-   },
-   "prompt": "The black cat arches its back up high with its fur bristling and its tail puffed up, then relaxes back to standing exactly as at the start. Static camera, plain cream paper background, detailed illustration style, the cat stays the same size.",
-   "duration_seconds": 3.0,
-   "steps": 8,
-   "seed": 7,
-   "randomize_seed": false
-  }
- },
- {
-  "name": "walk-c",
-  "space": "zerogpu-aoti/wan2-2-fp8da-aoti-faster",
-  "api": "/generate_video",
-  "tries": 1,
+  "name": "k-toon-1",
+  "space": "black-forest-labs/FLUX.1-Kontext-Dev",
+  "api": "/infer",
+  "tries": 2,
+  "timeout": 400,
   "args": {
    "input_image": {
     "file": "tools/art/canvas/stand.png"
    },
-   "prompt": "Side-view tracking shot. The black cat walks to the right at a steady relaxed pace, its legs stepping naturally and its tail swaying. The camera follows so the cat stays in exactly the same place in the frame. Static camera, plain cream paper background, detailed illustration style, the cat stays the same size.",
-   "steps": 6,
-   "duration_seconds": 3.5,
-   "seed": 21,
-   "randomize_seed": false
+   "prompt": "Redraw this cat as a character from a hand-drawn 2D animated film: clean confident dark outlines, simple cel shading in two tones of soft charcoal black with a few lighter strokes on the back and chest, big friendly yellow-green eyes, exactly the same walking pose, side view, same size and same position. Plain flat solid chroma-key green background, no floor.",
+   "seed": 11,
+   "randomize_seed": false,
+   "guidance_scale": 2.5,
+   "steps": 28
   }
  },
  {
-  "name": "sit-tail",
-  "space": "multimodalart/wan-2-2-first-last-frame",
-  "api": "/generate_video",
-  "tries": 1,
+  "name": "k-toon-2",
+  "space": "black-forest-labs/FLUX.1-Kontext-Dev",
+  "api": "/infer",
+  "tries": 2,
+  "timeout": 400,
   "args": {
-   "start_image_pil": {
-    "file": "tools/art/canvas/sit.png"
+   "input_image": {
+    "file": "tools/art/canvas/stand.png"
    },
-   "end_image_pil": {
-    "file": "tools/art/canvas/sit.png"
+   "prompt": "Redraw this cat as a character from a hand-drawn 2D animated film: clean confident dark outlines, simple cel shading in two tones of soft charcoal black with a few lighter strokes on the back and chest, big friendly yellow-green eyes, exactly the same walking pose, side view, same size and same position. Plain flat solid chroma-key green background, no floor.",
+   "seed": 22,
+   "randomize_seed": false,
+   "guidance_scale": 2.5,
+   "steps": 28
+  }
+ },
+ {
+  "name": "k-toon-3",
+  "space": "black-forest-labs/FLUX.1-Kontext-Dev",
+  "api": "/infer",
+  "tries": 2,
+  "timeout": 400,
+  "args": {
+   "input_image": {
+    "file": "tools/art/canvas/stand.png"
    },
-   "prompt": "The black cat sits in place. Its tail swishes slowly from side to side, its ears flick and it blinks slowly, then it sits exactly as at the start. Static camera, plain cream paper background, detailed illustration style, the cat stays the same size.",
-   "duration_seconds": 3.5,
-   "steps": 8,
-   "seed": 5,
-   "randomize_seed": false
+   "prompt": "Redraw this cat as a character from a hand-drawn 2D animated film: clean confident dark outlines, simple cel shading in two tones of soft charcoal black with a few lighter strokes on the back and chest, big friendly yellow-green eyes, exactly the same walking pose, side view, same size and same position. Plain flat solid chroma-key green background, no floor.",
+   "seed": 33,
+   "randomize_seed": false,
+   "guidance_scale": 2.5,
+   "steps": 28
+  }
+ },
+ {
+  "name": "k-paint-1",
+  "space": "black-forest-labs/FLUX.1-Kontext-Dev",
+  "api": "/infer",
+  "tries": 2,
+  "timeout": 400,
+  "args": {
+   "input_image": {
+    "file": "tools/art/canvas/stand.png"
+   },
+   "prompt": "Repaint this cat as a soft painted storybook illustration, like a gouache picture-book painting: simple shapes, gentle brush texture, black fur with warm brown highlights, yellow-green eyes, exactly the same walking pose, side view, same size and same position. Plain flat solid chroma-key green background, no floor.",
+   "seed": 11,
+   "randomize_seed": false,
+   "guidance_scale": 2.5,
+   "steps": 28
+  }
+ },
+ {
+  "name": "k-paint-2",
+  "space": "black-forest-labs/FLUX.1-Kontext-Dev",
+  "api": "/infer",
+  "tries": 2,
+  "timeout": 400,
+  "args": {
+   "input_image": {
+    "file": "tools/art/canvas/stand.png"
+   },
+   "prompt": "Repaint this cat as a soft painted storybook illustration, like a gouache picture-book painting: simple shapes, gentle brush texture, black fur with warm brown highlights, yellow-green eyes, exactly the same walking pose, side view, same size and same position. Plain flat solid chroma-key green background, no floor.",
+   "seed": 22,
+   "randomize_seed": false,
+   "guidance_scale": 2.5,
+   "steps": 28
   }
  }
 ]
