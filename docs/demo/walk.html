@@ -28,7 +28,7 @@
   <img id="lit" alt="">
   <canvas id="fx"></canvas>
 </div>
-<div id="note">Demo: one cat walking. Tap to show the controls.</div>
+<div id="note">Demo: one cat walking. Tap the screen to show the buttons.</div>
 <div id="bar">
   <div class="grp" id="g-style"><span>Cat</span><button data-v="real">Real</button><button data-v="toon">Cartoon</button></div>
   <div class="grp" id="g-size"><span>Size</span><button data-v="0.8">S</button><button data-v="1">M</button><button data-v="1.25">L</button></div>
@@ -66,8 +66,12 @@ let view = { k: 1, ox: 0, oy: 0 }, dpr = 1;
 function fit() {
   const cw = innerWidth, ch = innerHeight;
   let k = Math.max(cw / W, ch / H);
-  if (cw / ch > W / H) k = Math.max(ch / H, cw / G.wide);
-  view = { k, ox: (cw - W * k) / 2, oy: (ch - H * k) / 2 };
+  let oy = (ch - H * k) / 2;
+  if (cw / ch > W / H) {          // wider than 16:9: keep (nearly) the full height so the hearth stays in view
+    k = Math.max(ch / H, Math.min(cw / G.wide, ch / H * 1.06));
+    oy = ch - H * k;
+  }
+  view = { k, ox: (cw - W * k) / 2, oy };
   const put = (el, x, y, w, h) => Object.assign(el.style, { left: view.ox + x * k + 'px', top: view.oy + y * k + 'px', width: w * k + 'px', height: h * k + 'px' });
   put(room, -G.margin, 0, G.wide, H); put(lit, -G.margin, 0, G.wide, H);
   put(fire, G.video.x, G.video.y, G.video.w, G.video.h); fire.style.objectFit = 'fill';
@@ -178,7 +182,7 @@ document.querySelectorAll('#g-style button').forEach(b => b.onclick = () => setS
 document.querySelectorAll('#g-size button').forEach(b => b.onclick = () => { st.size = +b.dataset.v; mark(); });
 document.querySelectorAll('#g-light button').forEach(b => b.onclick = () => { st.light = b.dataset.v === '1'; mark(); });
 let hideT;
-const poke = () => { bar.classList.remove('hide'); note.style.opacity = '.75'; clearTimeout(hideT); hideT = setTimeout(() => { bar.classList.add('hide'); note.style.opacity = '0'; }, 6000); };
+const poke = () => { bar.classList.remove('hide'); note.style.opacity = '.75'; clearTimeout(hideT); hideT = setTimeout(() => { bar.classList.add('hide'); note.style.opacity = '0'; }, 12000); };
 ['pointerdown', 'keydown', 'pointermove'].forEach(e => addEventListener(e, poke)); poke();
 addEventListener('keydown', e => {              // TV remote: left/right move between buttons, OK presses
   const all = [...document.querySelectorAll('#bar button')], i = all.indexOf(document.activeElement);

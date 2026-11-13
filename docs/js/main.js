@@ -35,8 +35,14 @@ class App {
     // phones and shows its extra width instead of losing the top and bottom.
     let k = Math.max(cw / W, ch / H);
     const wide = this.wide || W;
-    if (cw / ch > W / H && wide > W) k = Math.max(ch / H, cw / wide);
-    this.view = { k, ox: (cw - W * k) / 2, oy: (ch - H * k) / 2 };
+    let oy = null;
+    if (cw / ch > W / H && wide > W) {
+      // A wide scene on a screen wider than 16:9 keeps (nearly) its full height: the hearth must stay in view.
+      // At most 6% comes off the top; if the screen is wider still, the dark room fills the sides.
+      k = Math.max(ch / H, Math.min(cw / wide, ch / H * 1.06));
+      oy = ch - H * k;
+    }
+    this.view = { k, ox: (cw - W * k) / 2, oy: oy ?? (ch - H * k) / 2 };
     this.placeVideo();
     if (this.scene && this.scene.layout) this.scene.layout();
   }
