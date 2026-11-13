@@ -1,138 +1,70 @@
 [
  {
-  "name": "k-real-1",
-  "space": "black-forest-labs/FLUX.1-Kontext-Dev",
-  "api": "/infer",
+  "name": "w-real-a",
+  "space": "zerogpu-aoti/wan2-2-fp8da-aoti-faster",
+  "api": "/generate_video",
   "tries": 2,
-  "timeout": 400,
+  "timeout": 420,
   "args": {
    "input_image": {
-    "file": "tools/art/canvas/stand.png"
+    "file": "tools/art/keys/walk-real.png"
    },
-   "prompt": "Turn this illustration into a realistic photograph of a real black short-haired house cat in exactly the same walking pose, side view, same size and same position in the frame. Natural soft black fur with subtle brown tones, yellow-green eyes, whiskers. Plain flat solid chroma-key green background, no floor, no shadow. Warm soft light from the left.",
-   "seed": 11,
-   "randomize_seed": false,
-   "guidance_scale": 2.5,
-   "steps": 28
+   "prompt": "Side-view tracking shot of a real black cat walking calmly to the right with a natural relaxed stride, tail held up in a soft curve. The camera moves along with the cat so the cat stays in exactly the same place in the frame. Plain green screen background, steady even lighting, no flicker, the cat stays the same size. Photorealistic.",
+   "steps": 6,
+   "duration_seconds": 4,
+   "seed": 7,
+   "randomize_seed": false
   }
  },
  {
-  "name": "k-real-2",
-  "space": "black-forest-labs/FLUX.1-Kontext-Dev",
-  "api": "/infer",
+  "name": "w-real-b",
+  "space": "zerogpu-aoti/wan2-2-fp8da-aoti-faster",
+  "api": "/generate_video",
   "tries": 2,
-  "timeout": 400,
+  "timeout": 420,
   "args": {
    "input_image": {
-    "file": "tools/art/canvas/stand.png"
+    "file": "tools/art/keys/walk-real.png"
    },
-   "prompt": "Turn this illustration into a realistic photograph of a real black short-haired house cat in exactly the same walking pose, side view, same size and same position in the frame. Natural soft black fur with subtle brown tones, yellow-green eyes, whiskers. Plain flat solid chroma-key green background, no floor, no shadow. Warm soft light from the left.",
-   "seed": 22,
-   "randomize_seed": false,
-   "guidance_scale": 2.5,
-   "steps": 28
+   "prompt": "Side-view tracking shot of a real black cat walking calmly to the right with a natural relaxed stride, tail held up in a soft curve. The camera moves along with the cat so the cat stays in exactly the same place in the frame. Plain green screen background, steady even lighting, no flicker, the cat stays the same size. Photorealistic.",
+   "steps": 6,
+   "duration_seconds": 4,
+   "seed": 21,
+   "randomize_seed": false
   }
  },
  {
-  "name": "k-real-3",
-  "space": "black-forest-labs/FLUX.1-Kontext-Dev",
-  "api": "/infer",
+  "name": "w-toon-a",
+  "space": "zerogpu-aoti/wan2-2-fp8da-aoti-faster",
+  "api": "/generate_video",
   "tries": 2,
-  "timeout": 400,
+  "timeout": 420,
   "args": {
    "input_image": {
-    "file": "tools/art/canvas/stand.png"
+    "file": "tools/art/keys/walk-toon.png"
    },
-   "prompt": "Turn this illustration into a realistic photograph of a real black short-haired house cat in exactly the same walking pose, side view, same size and same position in the frame. Natural soft black fur with subtle brown tones, yellow-green eyes, whiskers. Plain flat solid chroma-key green background, no floor, no shadow. Warm soft light from the left.",
-   "seed": 33,
-   "randomize_seed": false,
-   "guidance_scale": 2.5,
-   "steps": 28
+   "prompt": "Hand-drawn 2D cartoon animation. The black cartoon cat walks calmly to the right in a smooth, gently bouncy walk cycle, tail up. The camera follows so the cat stays in exactly the same place in the frame. Flat solid green background, clean outlines, consistent flat colours, the cat stays the same size.",
+   "steps": 6,
+   "duration_seconds": 4,
+   "seed": 7,
+   "randomize_seed": false
   }
  },
  {
-  "name": "k-toon-1",
-  "space": "black-forest-labs/FLUX.1-Kontext-Dev",
-  "api": "/infer",
+  "name": "w-toon-b",
+  "space": "zerogpu-aoti/wan2-2-fp8da-aoti-faster",
+  "api": "/generate_video",
   "tries": 2,
-  "timeout": 400,
+  "timeout": 420,
   "args": {
    "input_image": {
-    "file": "tools/art/canvas/stand.png"
+    "file": "tools/art/keys/walk-toon.png"
    },
-   "prompt": "Redraw this cat as a character from a hand-drawn 2D animated film: clean confident dark outlines, simple cel shading in two tones of soft charcoal black with a few lighter strokes on the back and chest, big friendly yellow-green eyes, exactly the same walking pose, side view, same size and same position. Plain flat solid chroma-key green background, no floor.",
-   "seed": 11,
-   "randomize_seed": false,
-   "guidance_scale": 2.5,
-   "steps": 28
-  }
- },
- {
-  "name": "k-toon-2",
-  "space": "black-forest-labs/FLUX.1-Kontext-Dev",
-  "api": "/infer",
-  "tries": 2,
-  "timeout": 400,
-  "args": {
-   "input_image": {
-    "file": "tools/art/canvas/stand.png"
-   },
-   "prompt": "Redraw this cat as a character from a hand-drawn 2D animated film: clean confident dark outlines, simple cel shading in two tones of soft charcoal black with a few lighter strokes on the back and chest, big friendly yellow-green eyes, exactly the same walking pose, side view, same size and same position. Plain flat solid chroma-key green background, no floor.",
-   "seed": 22,
-   "randomize_seed": false,
-   "guidance_scale": 2.5,
-   "steps": 28
-  }
- },
- {
-  "name": "k-toon-3",
-  "space": "black-forest-labs/FLUX.1-Kontext-Dev",
-  "api": "/infer",
-  "tries": 2,
-  "timeout": 400,
-  "args": {
-   "input_image": {
-    "file": "tools/art/canvas/stand.png"
-   },
-   "prompt": "Redraw this cat as a character from a hand-drawn 2D animated film: clean confident dark outlines, simple cel shading in two tones of soft charcoal black with a few lighter strokes on the back and chest, big friendly yellow-green eyes, exactly the same walking pose, side view, same size and same position. Plain flat solid chroma-key green background, no floor.",
-   "seed": 33,
-   "randomize_seed": false,
-   "guidance_scale": 2.5,
-   "steps": 28
-  }
- },
- {
-  "name": "k-paint-1",
-  "space": "black-forest-labs/FLUX.1-Kontext-Dev",
-  "api": "/infer",
-  "tries": 2,
-  "timeout": 400,
-  "args": {
-   "input_image": {
-    "file": "tools/art/canvas/stand.png"
-   },
-   "prompt": "Repaint this cat as a soft painted storybook illustration, like a gouache picture-book painting: simple shapes, gentle brush texture, black fur with warm brown highlights, yellow-green eyes, exactly the same walking pose, side view, same size and same position. Plain flat solid chroma-key green background, no floor.",
-   "seed": 11,
-   "randomize_seed": false,
-   "guidance_scale": 2.5,
-   "steps": 28
-  }
- },
- {
-  "name": "k-paint-2",
-  "space": "black-forest-labs/FLUX.1-Kontext-Dev",
-  "api": "/infer",
-  "tries": 2,
-  "timeout": 400,
-  "args": {
-   "input_image": {
-    "file": "tools/art/canvas/stand.png"
-   },
-   "prompt": "Repaint this cat as a soft painted storybook illustration, like a gouache picture-book painting: simple shapes, gentle brush texture, black fur with warm brown highlights, yellow-green eyes, exactly the same walking pose, side view, same size and same position. Plain flat solid chroma-key green background, no floor.",
-   "seed": 22,
-   "randomize_seed": false,
-   "guidance_scale": 2.5,
-   "steps": 28
+   "prompt": "Hand-drawn 2D cartoon animation. The black cartoon cat walks calmly to the right in a smooth, gently bouncy walk cycle, tail up. The camera follows so the cat stays in exactly the same place in the frame. Flat solid green background, clean outlines, consistent flat colours, the cat stays the same size.",
+   "steps": 6,
+   "duration_seconds": 4,
+   "seed": 21,
+   "randomize_seed": false
   }
  }
 ]

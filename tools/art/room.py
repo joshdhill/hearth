@@ -26,7 +26,7 @@ xo, yo = xx / K, yy / K                                 # original-picture coord
 ox0, oy0, ox1, oy1 = g['opening']                       # the firebox opening (with its side walls)
 cx0, cy0, cx1, cy1 = g['firebox']                       # the empty cavity
 mant_top, mant_bot = g['mantel_top'], g['mantel_bottom']
-CANDLES = [(218, 55), (366, 35), (398, 70), (950, 66), (978, 62), (1006, 76), (1058, 76), (45, 371), (85, 402)]
+CANDLES = g.get('candles') or [(218, 55), (366, 35), (398, 70), (950, 66), (978, 62), (1006, 76), (1058, 76), (45, 371), (85, 402)]
 
 # ---- where the firelight falls --------------------------------------------------------------------------
 dx = np.maximum(np.maximum(ox0 - xo, xo - ox1), 0)
@@ -45,9 +45,10 @@ for (cx, cy) in CANDLES:                                                  # each
 A = cv2.GaussianBlur(A.astype(np.float32), (0, 0), 5 * K / 4)
 
 # ---- the opening for the footage -------------------------------------------------------------------------
-V = {'x': 440.2, 'y': 319.4, 'w': 1083.6, 'h': 609.6}                    # where the footage sits (scene px): the fire centred in the firebox, its logs just above the hearth
+V = g.get('video') or {'x': 440.2, 'y': 319.4, 'w': 1083.6, 'h': 609.6}                    # where the footage sits (scene px): the fire centred in the firebox, its logs just above the hearth
 to_o = lambda xs: xs / KD + MAR
-hx = np.clip((xo - to_o(640)) / (to_o(729) - to_o(640)), 0, 1) * np.clip((to_o(1235) - xo) / (to_o(1235) - to_o(1144)), 0, 1)
+h0, h1, h2, h3 = g.get('hole') or [to_o(640), to_o(729), to_o(1144), to_o(1235)]   # picture px: where the footage fades in, is clear, fades out
+hx = np.clip((xo - h0) / (h1 - h0), 0, 1) * np.clip((h3 - xo) / (h3 - h2), 0, 1)
 hy = np.clip((yo - (cy0 + 5)) / 34.0, 0, 1) * np.clip((cy1 + 1.0 - yo) / 3.0, 0, 1)
 smooth = lambda t: t * t * (3 - 2 * t)
 hole = smooth(hx) * smooth(hy)
@@ -92,7 +93,7 @@ Y = lambda y: round(y * KD, 1)
 info = {
     'wide': round(Wo * KD, 1), 'margin': round(MAR * KD, 1),
     'video': V, 'cavity': [D(cx0), Y(cy0), D(cx1), Y(cy1)],
-    'mantel': {'y': Y(mant_top), 'x': [D(g['mantel_x'][0]), D(g['mantel_x'][1])], 'clear': [D(425), D(925)]},
+    'mantel': {'y': Y(mant_top), 'x': [D(g['mantel_x'][0]), D(g['mantel_x'][1])], 'clear': [D(c) for c in g.get('clear', [425, 925])]},
     'hearth': {'y': Y(514), 'back': Y(500)},                               # where paws go (the front of the bricks' top face), and the back edge
     'candles': [[D(x), Y(y)] for x, y in CANDLES],
 }
