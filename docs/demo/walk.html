@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cat Walk Demo</title>
+<style>
+  :root { --ink: #f4e9dc; --panel: rgba(20, 14, 10, 0.72); --on: #e8a85a; }
+  html, body { margin: 0; height: 100%; background: #0b0806; overflow: hidden; color: var(--ink); font: 15px/1.3 system-ui, sans-serif; }
+  #stage { position: fixed; inset: 0; }
+  #stage video, #stage img, #stage canvas { position: absolute; display: block; max-width: none; }
+  #fx { left: 0; top: 0; width: 100vw; height: 100vh; }
+  #bar { position: fixed; left: 50%; bottom: max(12px, env(safe-area-inset-bottom)); transform: translateX(-50%); display: flex; gap: 14px; flex-wrap: wrap; justify-content: center;
+         background: var(--panel); padding: 8px 12px; border-radius: 14px; backdrop-filter: blur(6px); transition: opacity .6s; max-width: calc(100vw - 32px); box-sizing: border-box; }
+  #bar.hide { opacity: 0; pointer-events: none; }
+  .grp { display: flex; gap: 4px; align-items: center; }
+  .grp span { opacity: .7; margin-right: 4px; font-size: 13px; }
+  button { font: inherit; color: var(--ink); background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15); border-radius: 9px; padding: 6px 11px; cursor: pointer; }
+  button.on { background: var(--on); color: #1a0f08; border-color: var(--on); }
+  button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+  #note { position: fixed; left: 16px; top: max(12px, env(safe-area-inset-top)); font-size: 13px; opacity: .75; background: var(--panel); padding: 5px 9px; border-radius: 8px; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <video id="fire" muted playsinline loop autoplay></video>
+  <img id="room" alt="">
+  <img id="lit" alt="">
+  <canvas id="fx"></canvas>
+</div>
+<div id="note">Demo: one cat walking. Tap to show the controls.</div>
+<div id="bar">
+  <div class="grp" id="g-style"><span>Cat</span><button data-v="real">Real</button><button data-v="toon">Cartoon</button></div>
+  <div class="grp" id="g-size"><span>Size</span><button data-v="0.8">S</button><button data-v="1">M</button><button data-v="1.25">L</button></div>
+  <div class="grp" id="g-light"><span>Firelight on cat</span><button data-v="1">On</button><button data-v="0">Off</button></div>
+</div>
+<script type="module">
+const SITE = new URL('../media/', import.meta.url).href;
+const DIR = SITE + 'fireside-wide/', CAT = SITE + 'cat-demo/';
+const H = 1080, W = 1920;
+const G = await (await fetch(DIR + 'fireside.json')).json();
+const HEARTH = G.hearth.back + (G.hearth.y - G.hearth.back) * 0.55;      // paws in the middle of the hearth's top face
+const FIRE = [G.cavity[0], G.cavity[2]];
+const BASE_H = 205;                                                       // a standing cat, floor to ear tips, at size M
+
+const q = new URLSearchParams(location.search);
+const st = { style: q.get('cat') || 'real', size: +(q.get('size') || 1), light: q.get('light') !== '0' };
+
+// ---- picture layers and fire -------------------------------------------------------------------------
+const fire = document.getElementById('fire'), room = document.getElementById('room'), lit = document.getElementById('lit'), fx = document.getElementById('fx');
+const big = Math.max(innerWidth, innerHeight) * Math.min(2, devicePixelRatio || 1) > 2000;
+room.src = DIR + (big ? 'room-4k.webp' : 'room-2k.webp'); lit.src = DIR + (big ? 'lit-4k.webp' : 'lit-2k.webp');
+// things on the hearth the cat passes behind (the tool stand), drawn over it: the room as it is, plus the firelight
+const fronts = (G.front || []).map(b => { const r = new Image(), l = new Image(); r.src = DIR + `front-room-${big ? '4k' : '2k'}.webp`; l.src = DIR + `front-lit-${big ? '4k' : '2k'}.webp`; return { b, r, l }; });
+const hlsUrl = SITE + 'fire/ember/index.m3u8';
+if (fire.canPlayType('application/vnd.apple.mpegurl')) fire.src = hlsUrl;
+else {
+  await new Promise(res => { const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/hls.js@1.6.6/dist/hls.min.js'; s.onload = res; s.onerror = res; document.head.appendChild(s); });
+  if (window.Hls && Hls.isSupported()) { const h = new Hls({ capLevelToPlayerSize: true }); h.loadSource(hlsUrl); h.attachMedia(fire); }
+}
+fire.poster = SITE + 'fire/ember/poster.jpg';
+fire.play().catch(() => {});
+addEventListener('pointerdown', () => fire.play().catch(() => {}), { once: true });
+
+let view = { k: 1, ox: 0, oy: 0 }, dpr = 1;
+function fit() {
+  const cw = innerWidth, ch = innerHeight;
+  let k = Math.max(cw / W, ch / H);
+  if (cw / ch > W / H) k = Math.max(ch / H, cw / G.wide);
+  view = { k, ox: (cw - W * k) / 2, oy: (ch - H * k) / 2 };
+  const put = (el, x, y, w, h) => Object.assign(el.style, { left: view.ox + x * k + 'px', top: view.oy + y * k + 'px', width: w * k + 'px', height: h * k + 'px' });
+  put(room, -G.margin, 0, G.wide, H); put(lit, -G.margin, 0, G.wide, H);
+  put(fire, G.video.x, G.video.y, G.video.w, G.video.h); fire.style.objectFit = 'fill';
+  dpr = Math.min(2, devicePixelRatio || 1);
+  fx.width = Math.round(cw * dpr); fx.height = Math.round(ch * dpr);
+}
+addEventListener('resize', fit); fit();
+
+// ---- the cat -----------------------------------------------------------------------------------------
+const sheets = {};
+async function load(name) {
+  if (sheets[name]) return sheets[name];
+  const m = await (await fetch(CAT + name + '.json')).json();
+  m.img = new Image(); m.img.src = CAT + m.sheet; await m.img.decode().catch(() => {});
+  return (sheets[name] = m);
+}
+const buf = document.createElement('canvas'), bx = buf.getContext('2d');
+const rim = document.createElement('canvas'), rx = rim.getContext('2d');
+const cat = { x: -G.margin - 300, dir: 1, f: 0, wait: 0 };
+const ctx = fx.getContext('2d');
+
+function flicker(t) {   // the same slow breathing with quick flutters the room's firelight uses
+  const n = (a) => Math.sin(a) * 0.5 + Math.sin(a * 2.31 + 1.3) * 0.3 + Math.sin(a * 5.17 + 0.4) * 0.2;
+  return Math.max(0, Math.min(1, 0.55 + 0.28 * n(t * 2.1) + 0.06 * Math.sin(t * 13.7)));
+}
+
+let last = performance.now();
+function frame(now) {
+  const dt = Math.min(0.1, (now - last) / 1000); last = now; const t = now / 1000;
+  const fl = flicker(t);
+  lit.style.opacity = (0.5 + 0.5 * fl).toFixed(3);
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, fx.width, fx.height);
+  const m = sheets[st.style];
+  if (m) {
+    const s = BASE_H * st.size / m.height;                                  // sheet px -> scene px
+    if (cat.wait > 0) cat.wait -= dt;
+    else {
+      const fr = dt * m.fps;
+      cat.f = (cat.f + fr) % m.frames;
+      cat.x += cat.dir * m.speed * s * fr;
+      const end = W + G.margin + 300 * st.size, start = -G.margin - 300 * st.size;
+      if ((cat.dir > 0 && cat.x > end) || (cat.dir < 0 && cat.x < start)) { cat.dir = -cat.dir; cat.wait = 1.5; }
+    }
+    if (cat.wait <= 0) draw(m, s, fl);
+  }
+  const k = view.k * dpr;
+  for (const { b, r, l } of fronts) {
+    if (!r.complete || !l.complete) continue;
+    const x = view.ox * dpr + b.x * k, y = view.oy * dpr + b.y * k, w = b.w * k, h = b.h * k;
+    ctx.drawImage(r, x, y, w, h); ctx.globalAlpha = 0.5 + 0.5 * fl; ctx.drawImage(l, x, y, w, h); ctx.globalAlpha = 1;
+  }
+  requestAnimationFrame(frame);
+}
+
+function draw(m, s, fl) {
+  const k = view.k * dpr, ox = view.ox * dpr, oy = view.oy * dpr;
+  const fi = Math.floor(cat.f), [cw, ch] = m.cell, sx = (fi % m.cols) * cw, sy = Math.floor(fi / m.cols) * ch;
+  const w = cw * s * k, h = ch * s * k;
+  // how much the fire lights the cat: full in front of the firebox, fading over a cat-length either side
+  const reach = 260 * st.size;
+  const near = st.light ? Math.max(0, Math.min(1, 1 - Math.max(FIRE[0] - cat.x, cat.x - FIRE[1], 0) / reach)) : 0;
+  const px = ox + cat.x * k, py = oy + HEARTH * k;
+  const flip = (m.faces === 'right') !== (cat.dir > 0);
+  const left = flip ? px - (cw - m.anchor[0]) * s * k : px - m.anchor[0] * s * k, top = py - m.anchor[1] * s * k;
+
+  // contact shadow; with the fire behind the cat it falls forwards, towards us
+  const len = m.height * s * k * 1.05;
+  ctx.save();
+  ctx.translate(px, py + (2 + 5 * near) * k); ctx.scale(1, 0.11 + 0.05 * near);
+  const g = ctx.createRadialGradient(0, 0, 1, 0, 0, len * 0.62);
+  g.addColorStop(0, `rgba(10,5,2,${0.55 + 0.2 * near})`); g.addColorStop(0.6, `rgba(10,5,2,${0.22 + 0.1 * near})`); g.addColorStop(1, 'rgba(10,5,2,0)');
+  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, len * 0.62, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+
+  // the cat, graded into the room in its own buffer
+  const bw = Math.ceil(w), bh = Math.ceil(h);
+  if (buf.width !== bw || buf.height !== bh) { buf.width = bw; buf.height = bh; rim.width = bw; rim.height = bh; }
+  bx.globalCompositeOperation = 'source-over'; bx.clearRect(0, 0, bw, bh);
+  bx.save(); if (flip) { bx.translate(bw, 0); bx.scale(-1, 1); }
+  bx.drawImage(m.img, sx, sy, cw, ch, 0, 0, w, h); bx.restore();
+  bx.globalCompositeOperation = 'source-atop';
+  bx.fillStyle = `rgba(14,8,5,${0.30 * (1 - near) + 0.10})`; bx.fillRect(0, 0, bw, bh);          // the dim room: darker away from the fire
+  bx.fillStyle = `rgba(255,128,50,${(0.05 + 0.10 * fl) * near})`; bx.fillRect(0, 0, bw, bh);     // a little warm spill from the fire
+  ctx.drawImage(buf, left, top);
+
+  // backlight: the fire is behind the cat, so its upper outline catches a thin warm rim that flickers
+  if (near > 0.01) {
+    rx.globalCompositeOperation = 'source-over'; rx.clearRect(0, 0, bw, bh);
+    rx.drawImage(buf, 0, 0);
+    rx.globalCompositeOperation = 'destination-out';
+    const d = Math.max(1.5, 2.2 * k * s * (m.height / 200));
+    rx.drawImage(buf, 0, d); rx.drawImage(buf, d * 0.6, d * 0.8); rx.drawImage(buf, -d * 0.6, d * 0.8);
+    rx.globalCompositeOperation = 'source-in';
+    rx.fillStyle = 'rgb(255,170,90)'; rx.fillRect(0, 0, bw, bh);
+    ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = (0.35 + 0.45 * fl) * near;
+    ctx.drawImage(rim, left, top); ctx.restore();
+  }
+}
+
+// ---- controls ----------------------------------------------------------------------------------------
+const bar = document.getElementById('bar'), note = document.getElementById('note');
+function mark() {
+  for (const [id, v] of [['g-style', st.style], ['g-size', String(st.size)], ['g-light', st.light ? '1' : '0']])
+    document.querySelectorAll(`#${id} button`).forEach(b => b.classList.toggle('on', b.dataset.v === v));
+}
+async function setStyle(v) { st.style = v; await load(v); mark(); }
+document.querySelectorAll('#g-style button').forEach(b => b.onclick = () => setStyle(b.dataset.v));
+document.querySelectorAll('#g-size button').forEach(b => b.onclick = () => { st.size = +b.dataset.v; mark(); });
+document.querySelectorAll('#g-light button').forEach(b => b.onclick = () => { st.light = b.dataset.v === '1'; mark(); });
+let hideT;
+const poke = () => { bar.classList.remove('hide'); note.style.opacity = '.75'; clearTimeout(hideT); hideT = setTimeout(() => { bar.classList.add('hide'); note.style.opacity = '0'; }, 6000); };
+['pointerdown', 'keydown', 'pointermove'].forEach(e => addEventListener(e, poke)); poke();
+addEventListener('keydown', e => {              // TV remote: left/right move between buttons, OK presses
+  const all = [...document.querySelectorAll('#bar button')], i = all.indexOf(document.activeElement);
+  if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); all[(i + (e.key === 'ArrowRight' ? 1 : all.length - 1)) % all.length].focus(); }
+});
+mark();
+load(st.style === 'real' ? 'toon' : 'real');
+await setStyle(st.style);
+requestAnimationFrame(frame);
+window.demo = { st, cat, sheets };
+</script>
+</body>
+</html>
