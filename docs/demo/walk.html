@@ -10,7 +10,7 @@
   #stage { position: fixed; inset: 0; }
   #stage video, #stage img, #stage canvas { position: absolute; display: block; max-width: none; }
   #fx { left: 0; top: 0; width: 100vw; height: 100vh; }
-  #bar { position: fixed; left: 50%; bottom: max(12px, env(safe-area-inset-bottom)); transform: translateX(-50%); display: flex; gap: 14px; flex-wrap: wrap; justify-content: center;
+  #bar { position: fixed; left: 50%; top: max(12px, env(safe-area-inset-top)); transform: translateX(-50%); display: flex; gap: 14px; flex-wrap: wrap; justify-content: center;
          background: var(--panel); padding: 8px 12px; border-radius: 14px; backdrop-filter: blur(6px); transition: opacity .6s; max-width: calc(100vw - 32px); box-sizing: border-box; }
   #bar.hide { opacity: 0; pointer-events: none; }
   .grp { display: flex; gap: 4px; align-items: center; }
@@ -18,7 +18,7 @@
   button { font: inherit; color: var(--ink); background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15); border-radius: 9px; padding: 6px 11px; cursor: pointer; }
   button.on { background: var(--on); color: #1a0f08; border-color: var(--on); }
   button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
-  #note { position: fixed; left: 16px; top: max(12px, env(safe-area-inset-top)); font-size: 13px; opacity: .75; background: var(--panel); padding: 5px 9px; border-radius: 8px; }
+  #note { position: fixed; left: 16px; bottom: max(12px, env(safe-area-inset-bottom)); font-size: 13px; opacity: .75; background: var(--panel); padding: 5px 9px; border-radius: 8px; }
 </style>
 </head>
 <body>
@@ -28,8 +28,9 @@
   <img id="lit" alt="">
   <canvas id="fx"></canvas>
 </div>
-<div id="note">Demo: one cat walking. Tap the screen to show the buttons.</div>
+<div id="note">Demo: the cartoon cat. Tap the screen for the buttons.</div>
 <div id="bar">
+  <div class="grp" id="g-move"><span>Cat, do a trick</span><button data-v="sit">Sit</button><button data-v="lie">Lie down</button><button data-v="stretch">Stretch</button><button data-v="look">Look round</button></div>
   <div class="grp" id="g-size"><span>Size</span><button data-v="0.8">S</button><button data-v="1">M</button><button data-v="1.25">L</button></div>
   <div class="grp" id="g-light"><span>Firelight on cat</span><button data-v="1">On</button><button data-v="0">Off</button></div>
 </div>
@@ -106,9 +107,22 @@ function frame(now) {
   lit.style.opacity = (0.5 + 0.5 * fl).toFixed(3);
   ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, fx.width, fx.height);
   const m = sheets[st.style];
+  const scale = mm => BASE_H * st.size / mm.height;                         // sheet px -> scene px
+  if (m && cat.pending && !cat.move && cat.wait <= 0 && cat.x > 450 && cat.x < 1450 && sheets['toon-' + cat.pending]) startMove(cat.pending);
+  if (m && cat.move) {
+    // a trick: play it, hold the end pose (sit, lie down), play it backwards to stand up, then walk on
+    const mv = cat.move, mm = mv.m, how = MOVES[mv.name];
+    if (mv.phase === 'in') { mv.f += dt * mm.fps; if (mv.f >= mm.frames - 1) { mv.f = mm.frames - 1; if (how.hold) { mv.phase = 'hold'; mv.t = 0; } else endMove(); } }
+    else if (mv.phase === 'hold') { mv.t += dt; if (mv.t > how.hold) mv.phase = 'out'; }
+    else { mv.f -= dt * mm.fps; if (mv.f <= 0) endMove(); }
+  }
   if (m) {
-    const s = BASE_H * st.size / m.height;                                  // sheet px -> scene px
-    if (cat.wait > 0) cat.wait -= dt;
+    const s = scale(m);
+    if (cat.fade) { cat.fade.t += dt; if (cat.fade.t > 0.3) cat.fade = null; }
+    const a = cat.fade ? cat.fade.t / 0.3 : 1;
+    if (cat.fade) draw(cat.fade.m, scale(cat.fade.m), fl, cat.fade.f, 1 - a);
+    if (cat.move) { draw(cat.move.m, scale(cat.move.m), fl, cat.move.f, a); }
+    else if (cat.wait > 0) cat.wait -= dt;
     else {
       const fr = dt * m.fps;
       cat.f = (cat.f + fr) % m.frames;
@@ -116,7 +130,7 @@ function frame(now) {
       const end = W + G.margin + 300 * st.size, start = -G.margin - 300 * st.size;
       if ((cat.dir > 0 && cat.x > end) || (cat.dir < 0 && cat.x < start)) { cat.dir = -cat.dir; cat.wait = 1.5; }
     }
-    if (cat.wait <= 0) draw(m, s, fl);
+    if (!cat.move && cat.wait <= 0) draw(m, s, fl, cat.f, a);
   }
   const k = view.k * dpr;
   for (const { b, r, l } of fronts) {
@@ -127,9 +141,9 @@ function frame(now) {
   requestAnimationFrame(frame);
 }
 
-function draw(m, s, fl) {
+function draw(m, s, fl, fi0 = cat.f, alpha = 1) {
   const k = view.k * dpr, ox = view.ox * dpr, oy = view.oy * dpr;
-  const fi = Math.floor(cat.f), [cw, ch] = m.cell, sx = (fi % m.cols) * cw, sy = Math.floor(fi / m.cols) * ch;
+  const fi = Math.min(m.frames - 1, Math.max(0, Math.floor(fi0))), [cw, ch] = m.cell, sx = (fi % m.cols) * cw, sy = Math.floor(fi / m.cols) * ch;
   const w = cw * s * k, h = ch * s * k;
   // how much the fire lights the cat: full in front of the firebox, fading over a cat-length either side
   const reach = 260 * st.size;
@@ -144,7 +158,7 @@ function draw(m, s, fl) {
   ctx.translate(px, py + (2 + 5 * near) * k); ctx.scale(1, 0.11 + 0.05 * near);
   const g = ctx.createRadialGradient(0, 0, 1, 0, 0, len * 0.62);
   g.addColorStop(0, `rgba(10,5,2,${0.55 + 0.2 * near})`); g.addColorStop(0.6, `rgba(10,5,2,${0.22 + 0.1 * near})`); g.addColorStop(1, 'rgba(10,5,2,0)');
-  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, len * 0.62, 0, Math.PI * 2); ctx.fill();
+  ctx.globalAlpha = alpha; ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, len * 0.62, 0, Math.PI * 2); ctx.fill();
   ctx.restore();
 
   // the cat, graded into the room in its own buffer
@@ -156,7 +170,7 @@ function draw(m, s, fl) {
   bx.globalCompositeOperation = 'source-atop';
   bx.fillStyle = `rgba(14,8,5,${0.30 * (1 - near) + 0.10})`; bx.fillRect(0, 0, bw, bh);          // the dim room: darker away from the fire
   bx.fillStyle = `rgba(255,128,50,${(0.05 + 0.10 * fl) * near})`; bx.fillRect(0, 0, bw, bh);     // a little warm spill from the fire
-  ctx.drawImage(buf, left, top);
+  ctx.globalAlpha = alpha; ctx.drawImage(buf, left, top); ctx.globalAlpha = 1;
 
   // backlight: the fire is behind the cat, so its upper outline catches a thin warm rim that flickers
   if (near > 0.01) {
@@ -167,7 +181,7 @@ function draw(m, s, fl) {
     rx.drawImage(buf, 0, d); rx.drawImage(buf, d * 0.6, d * 0.8); rx.drawImage(buf, -d * 0.6, d * 0.8);
     rx.globalCompositeOperation = 'source-in';
     rx.fillStyle = 'rgb(255,170,90)'; rx.fillRect(0, 0, bw, bh);
-    ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = (0.35 + 0.45 * fl) * near;
+    ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = (0.35 + 0.45 * fl) * near * alpha;
     ctx.drawImage(rim, left, top); ctx.restore();
   }
 }
@@ -178,6 +192,24 @@ function mark() {
   for (const [id, v] of [['g-size', String(st.size)], ['g-light', st.light ? '1' : '0']])
     document.querySelectorAll(`#${id} button`).forEach(b => b.classList.toggle('on', b.dataset.v === v));
 }
+const MOVES = { sit: { hold: 5 }, lie: { hold: 8 }, stretch: {}, look: {} };
+function startMove(name) {
+  cat.fade = { m: sheets[st.style], f: cat.f, t: 0 };
+  cat.move = { name, m: sheets['toon-' + name], f: 0, phase: 'in', t: 0 };
+  cat.pending = null;
+}
+function endMove() {
+  const mv = cat.move; cat.move = null;
+  cat.fade = { m: mv.m, f: Math.max(0, Math.floor(mv.f)), t: 0 };
+  cat.f = 0;
+}
+document.querySelectorAll('#g-move button').forEach(b => b.onclick = async () => {
+  const name = b.dataset.v;
+  cat.pending = name;                                         // done as soon as the cat is in view
+  if (cat.wait > 0.3) cat.wait = 0.3;
+  if (cat.x < -100 || cat.x > W + 100) cat.x = cat.dir > 0 ? -150 : W + 150;   // off-screen: bring it straight in
+  await load('toon-' + name);
+});
 async function setStyle(v) { st.style = v; await load(v); mark(); }
 document.querySelectorAll('#g-size button').forEach(b => b.onclick = () => { st.size = +b.dataset.v; mark(); });
 document.querySelectorAll('#g-light button').forEach(b => b.onclick = () => { st.light = b.dataset.v === '1'; mark(); });
