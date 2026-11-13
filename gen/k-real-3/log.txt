@@ -1,0 +1,5 @@
+SPACE black-forest-labs/FLUX.1-Kontext-Dev /infer attempt 1
+  failed: AppError('You have exceeded your ZeroGPU quota (90s requested vs. 0s left). Try again in 19:08:17. Authenticate with a Hugging Face token for more quota - https://huggingface.co/settings/tokens')
+SPACE black-forest-labs/FLUX.1-Kontext-Dev /infer attempt 2
+  failed: AppError('You have exceeded your ZeroGPU quota (90s requested vs. 0s left). Try again in 19:07:55. Authenticate with a Hugging Face token for more quota - https://huggingface.co/settings/tokens')
+NO OUTPUT
