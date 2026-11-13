@@ -1,0 +1,7 @@
+SPACE zerogpu-aoti/wan2-2-fp8da-aoti-faster /generate_video attempt 1
+  failed: AppError('No GPU was available after 60s. <a style="white-space: nowrap;text-underline-offset: 2px;color: var(--body-text-color)" href="https://huggingface.co/join">Create a free account</a> to get a higher priority in ZeroGPU queues.')
+SPACE zerogpu-aoti/wan2-2-fp8da-aoti-faster /generate_video attempt 2
+  took 82 s; result: ('/tmp/gradio/3de7f2aff673ad3bf96dc44b0f4c51023b4e2f8a2866c27f70ebe37024ecd52c/tmpajwv03in.mp4', 21)
+  saved gen/w-real-b/out.mp4 317263
+  video: 832,480,16/1,65
+OK
