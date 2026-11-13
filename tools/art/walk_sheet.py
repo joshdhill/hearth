@@ -53,7 +53,10 @@ def key(bgr):
     fg = np.where(alpha[..., None] > 0.97, bgr, fg)
     g = fg[..., 1]; cap = np.maximum(fg[..., 0], fg[..., 2]) + 0.03            # no green spill on the fur
     edge = ndi.binary_dilation(alpha < 0.99, iterations=3)[..., None] & (alpha[..., None] > 0)
-    fg[..., 1] = np.where(edge[..., 0], np.minimum(g, cap), g)
+    fg[..., 1] = np.where(edge[..., 0] | (bgr.mean(2) < 0.3), np.minimum(g, cap), g)
+    # what is still green and only partly there is left-over screen (its shadow, a reflection between the legs): drop it
+    green = np.clip(((bgr[..., 1] - np.maximum(bgr[..., 0], bgr[..., 2])) - 0.02) * 10, 0, 1)
+    alpha = np.where(alpha < 0.99, alpha * (1 - green), alpha).astype(np.float32)
     return alpha, fg
 
 

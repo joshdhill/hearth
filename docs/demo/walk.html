@@ -52,13 +52,13 @@ const big = Math.max(innerWidth, innerHeight) * Math.min(2, devicePixelRatio || 
 room.src = DIR + (big ? 'room-4k.webp' : 'room-2k.webp'); lit.src = DIR + (big ? 'lit-4k.webp' : 'lit-2k.webp');
 // things on the hearth the cat passes behind (the tool stand), drawn over it: the room as it is, plus the firelight
 const fronts = (G.front || []).map(b => { const r = new Image(), l = new Image(); r.src = DIR + `front-room-${big ? '4k' : '2k'}.webp`; l.src = DIR + `front-lit-${big ? '4k' : '2k'}.webp`; return { b, r, l }; });
-const hlsUrl = SITE + 'fire/ember/index.m3u8';
+const hlsUrl = SITE + 'fire/ember-wide/index.m3u8';
 if (fire.canPlayType('application/vnd.apple.mpegurl')) fire.src = hlsUrl;
 else {
   await new Promise(res => { const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/hls.js@1.6.6/dist/hls.min.js'; s.onload = res; s.onerror = res; document.head.appendChild(s); });
   if (window.Hls && Hls.isSupported()) { const h = new Hls({ capLevelToPlayerSize: true }); h.loadSource(hlsUrl); h.attachMedia(fire); }
 }
-fire.poster = SITE + 'fire/ember/poster.jpg';
+fire.poster = SITE + 'fire/ember-wide/poster.jpg';
 fire.play().catch(() => {});
 addEventListener('pointerdown', () => fire.play().catch(() => {}), { once: true });
 
