@@ -1,0 +1,4 @@
+SPACE black-forest-labs/FLUX.1-Kontext-Dev /infer attempt 1
+  took 54 s; result: ('/tmp/gradio/72844cc6863aab512aca6b9ed5e87c9c93a8880ba953304002d7f2c9e64fd38f/image.webp', 11)
+  saved gen/k-real-1/out.webp 27786
+OK
