@@ -30,13 +30,12 @@
 </div>
 <div id="note">Demo: one cat walking. Tap the screen to show the buttons.</div>
 <div id="bar">
-  <div class="grp" id="g-style"><span>Cat</span><button data-v="real">Real</button><button data-v="toon">Cartoon</button></div>
   <div class="grp" id="g-size"><span>Size</span><button data-v="0.8">S</button><button data-v="1">M</button><button data-v="1.25">L</button></div>
   <div class="grp" id="g-light"><span>Firelight on cat</span><button data-v="1">On</button><button data-v="0">Off</button></div>
 </div>
 <script type="module">
 const SITE = new URL('../media/', import.meta.url).href;
-const DIR = SITE + 'fireside-wide/', CAT = SITE + 'cat-demo/';
+const DIR = SITE + 'fireside/', CAT = SITE + 'cat-demo/';
 const H = 1080, W = 1920;
 const G = await (await fetch(DIR + 'fireside.json')).json();
 const HEARTH = G.hearth.back + (G.hearth.y - G.hearth.back) * 0.55;      // paws in the middle of the hearth's top face
@@ -44,21 +43,23 @@ const FIRE = [G.cavity[0], G.cavity[2]];
 const BASE_H = 205;                                                       // a standing cat, floor to ear tips, at size M
 
 const q = new URLSearchParams(location.search);
-const st = { style: q.get('cat') || 'real', size: +(q.get('size') || 1), light: q.get('light') !== '0' };
+const st = { style: q.get('cat') || 'toon', size: +(q.get('size') || 1), light: q.get('light') !== '0' };
 
 // ---- picture layers and fire -------------------------------------------------------------------------
 const fire = document.getElementById('fire'), room = document.getElementById('room'), lit = document.getElementById('lit'), fx = document.getElementById('fx');
-const big = Math.max(innerWidth, innerHeight) * Math.min(2, devicePixelRatio || 1) > 2000;
+// iPhones and iPads get the lighter 1080p picture: Safari there is short on memory for very large images
+const ios = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const big = !ios && Math.max(innerWidth, innerHeight) * Math.min(2, devicePixelRatio || 1) > 2000;
 room.src = DIR + (big ? 'room-4k.webp' : 'room-2k.webp'); lit.src = DIR + (big ? 'lit-4k.webp' : 'lit-2k.webp');
 // things on the hearth the cat passes behind (the tool stand), drawn over it: the room as it is, plus the firelight
 const fronts = (G.front || []).map(b => { const r = new Image(), l = new Image(); r.src = DIR + `front-room-${big ? '4k' : '2k'}.webp`; l.src = DIR + `front-lit-${big ? '4k' : '2k'}.webp`; return { b, r, l }; });
-const hlsUrl = SITE + 'fire/ember-wide/index.m3u8';
+const hlsUrl = SITE + 'fire/ember/index.m3u8';
 if (fire.canPlayType('application/vnd.apple.mpegurl')) fire.src = hlsUrl;
 else {
   await new Promise(res => { const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/hls.js@1.6.6/dist/hls.min.js'; s.onload = res; s.onerror = res; document.head.appendChild(s); });
   if (window.Hls && Hls.isSupported()) { const h = new Hls({ capLevelToPlayerSize: true }); h.loadSource(hlsUrl); h.attachMedia(fire); }
 }
-fire.poster = SITE + 'fire/ember-wide/poster.jpg';
+fire.poster = SITE + 'fire/ember/poster.jpg';
 fire.play().catch(() => {});
 addEventListener('pointerdown', () => fire.play().catch(() => {}), { once: true });
 
@@ -174,11 +175,10 @@ function draw(m, s, fl) {
 // ---- controls ----------------------------------------------------------------------------------------
 const bar = document.getElementById('bar'), note = document.getElementById('note');
 function mark() {
-  for (const [id, v] of [['g-style', st.style], ['g-size', String(st.size)], ['g-light', st.light ? '1' : '0']])
+  for (const [id, v] of [['g-size', String(st.size)], ['g-light', st.light ? '1' : '0']])
     document.querySelectorAll(`#${id} button`).forEach(b => b.classList.toggle('on', b.dataset.v === v));
 }
 async function setStyle(v) { st.style = v; await load(v); mark(); }
-document.querySelectorAll('#g-style button').forEach(b => b.onclick = () => setStyle(b.dataset.v));
 document.querySelectorAll('#g-size button').forEach(b => b.onclick = () => { st.size = +b.dataset.v; mark(); });
 document.querySelectorAll('#g-light button').forEach(b => b.onclick = () => { st.light = b.dataset.v === '1'; mark(); });
 let hideT;
@@ -189,7 +189,6 @@ addEventListener('keydown', e => {              // TV remote: left/right move be
   if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); all[(i + (e.key === 'ArrowRight' ? 1 : all.length - 1)) % all.length].focus(); }
 });
 mark();
-load(st.style === 'real' ? 'toon' : 'real');
 await setStyle(st.style);
 requestAnimationFrame(frame);
 window.demo = { st, cat, sheets };

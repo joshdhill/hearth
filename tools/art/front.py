@@ -2,14 +2,14 @@
 of the room layers as small images to draw over the cat. They are cut from the finished room and
 lit layers, so they match the picture exactly.
 
-usage: front.py <master-x4.png> <layerdir>   (bbox below is in picture px of the wide master)"""
+usage: front.py <master-x4.png> <layerdir> [x0,x1,y0,y1]   (the stand's box in picture px; default: the wide master)"""
 import json, os, sys
 import numpy as np, cv2
 from scipy import ndimage as ndi
 from PIL import Image
 
 src, D = sys.argv[1], sys.argv[2]
-X0, X1, Y0, Y1 = 1100, 1262, 265, 540
+X0, X1, Y0, Y1 = [float(v) for v in sys.argv[3].split(',')] if len(sys.argv) > 3 else (1100, 1262, 265, 540)
 M = cv2.imread(src); K = M.shape[0] / 572.0
 c = M[int(Y0 * K):int(Y1 * K), int(X0 * K):int(X1 * K)].astype(np.float32) / 255
 lum, sat = c.mean(2), c.max(2) - c.min(2)

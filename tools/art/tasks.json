@@ -1,40 +1,6 @@
 [
  {
-  "name": "w-real-a",
-  "space": "zerogpu-aoti/wan2-2-fp8da-aoti-faster",
-  "api": "/generate_video",
-  "tries": 2,
-  "timeout": 420,
-  "args": {
-   "input_image": {
-    "file": "tools/art/keys/walk-real.png"
-   },
-   "prompt": "Side-view tracking shot of a real black cat walking calmly to the right with a natural relaxed stride, tail held up in a soft curve. The camera moves along with the cat so the cat stays in exactly the same place in the frame. Plain green screen background, steady even lighting, no flicker, the cat stays the same size. Photorealistic.",
-   "steps": 6,
-   "duration_seconds": 4,
-   "seed": 7,
-   "randomize_seed": false
-  }
- },
- {
-  "name": "w-real-b",
-  "space": "zerogpu-aoti/wan2-2-fp8da-aoti-faster",
-  "api": "/generate_video",
-  "tries": 2,
-  "timeout": 420,
-  "args": {
-   "input_image": {
-    "file": "tools/art/keys/walk-real.png"
-   },
-   "prompt": "Side-view tracking shot of a real black cat walking calmly to the right with a natural relaxed stride, tail held up in a soft curve. The camera moves along with the cat so the cat stays in exactly the same place in the frame. Plain green screen background, steady even lighting, no flicker, the cat stays the same size. Photorealistic.",
-   "steps": 6,
-   "duration_seconds": 4,
-   "seed": 21,
-   "randomize_seed": false
-  }
- },
- {
-  "name": "w-toon-a",
+  "name": "t-sit-a",
   "space": "zerogpu-aoti/wan2-2-fp8da-aoti-faster",
   "api": "/generate_video",
   "tries": 2,
@@ -43,15 +9,15 @@
    "input_image": {
     "file": "tools/art/keys/walk-toon.png"
    },
-   "prompt": "Hand-drawn 2D cartoon animation. The black cartoon cat walks calmly to the right in a smooth, gently bouncy walk cycle, tail up. The camera follows so the cat stays in exactly the same place in the frame. Flat solid green background, clean outlines, consistent flat colours, the cat stays the same size.",
+   "prompt": "Hand-drawn 2D cartoon animation, static camera. The black cartoon cat stops, then sits down on its haunches facing right, wraps its tail neatly around its front paws, and stays sitting calmly, blinking. The cat stays in the same place and the same size. Flat solid green background, clean outlines, consistent flat colours.",
    "steps": 6,
-   "duration_seconds": 4,
+   "duration_seconds": 5,
    "seed": 7,
    "randomize_seed": false
   }
  },
  {
-  "name": "w-toon-b",
+  "name": "t-sit-b",
   "space": "zerogpu-aoti/wan2-2-fp8da-aoti-faster",
   "api": "/generate_video",
   "tries": 2,
@@ -60,10 +26,78 @@
    "input_image": {
     "file": "tools/art/keys/walk-toon.png"
    },
-   "prompt": "Hand-drawn 2D cartoon animation. The black cartoon cat walks calmly to the right in a smooth, gently bouncy walk cycle, tail up. The camera follows so the cat stays in exactly the same place in the frame. Flat solid green background, clean outlines, consistent flat colours, the cat stays the same size.",
+   "prompt": "Hand-drawn 2D cartoon animation, static camera. The black cartoon cat stops, then sits down on its haunches facing right, wraps its tail neatly around its front paws, and stays sitting calmly, blinking. The cat stays in the same place and the same size. Flat solid green background, clean outlines, consistent flat colours.",
+   "steps": 6,
+   "duration_seconds": 5,
+   "seed": 21,
+   "randomize_seed": false
+  }
+ },
+ {
+  "name": "t-lie-a",
+  "space": "zerogpu-aoti/wan2-2-fp8da-aoti-faster",
+  "api": "/generate_video",
+  "tries": 2,
+  "timeout": 420,
+  "args": {
+   "input_image": {
+    "file": "tools/art/keys/walk-toon.png"
+   },
+   "prompt": "Hand-drawn 2D cartoon animation, static camera. The black cartoon cat lies down on its belly facing right, front paws stretched out in front, tail curled beside it, and rests with sleepy half-closed eyes. The cat stays in the same place and the same size. Flat solid green background, clean outlines, consistent flat colours.",
+   "steps": 6,
+   "duration_seconds": 5,
+   "seed": 7,
+   "randomize_seed": false
+  }
+ },
+ {
+  "name": "t-lie-b",
+  "space": "zerogpu-aoti/wan2-2-fp8da-aoti-faster",
+  "api": "/generate_video",
+  "tries": 2,
+  "timeout": 420,
+  "args": {
+   "input_image": {
+    "file": "tools/art/keys/walk-toon.png"
+   },
+   "prompt": "Hand-drawn 2D cartoon animation, static camera. The black cartoon cat lies down on its belly facing right, front paws stretched out in front, tail curled beside it, and rests with sleepy half-closed eyes. The cat stays in the same place and the same size. Flat solid green background, clean outlines, consistent flat colours.",
+   "steps": 6,
+   "duration_seconds": 5,
+   "seed": 21,
+   "randomize_seed": false
+  }
+ },
+ {
+  "name": "t-stretch",
+  "space": "zerogpu-aoti/wan2-2-fp8da-aoti-faster",
+  "api": "/generate_video",
+  "tries": 2,
+  "timeout": 420,
+  "args": {
+   "input_image": {
+    "file": "tools/art/keys/walk-toon.png"
+   },
+   "prompt": "Hand-drawn 2D cartoon animation, static camera. The black cartoon cat does a big lazy stretch: front legs reach far forward, chest low to the floor, rear end and tail up high, then it stands back up. The cat stays in the same place and the same size. Flat solid green background, clean outlines, consistent flat colours.",
+   "steps": 6,
+   "duration_seconds": 5,
+   "seed": 7,
+   "randomize_seed": false
+  }
+ },
+ {
+  "name": "t-look",
+  "space": "zerogpu-aoti/wan2-2-fp8da-aoti-faster",
+  "api": "/generate_video",
+  "tries": 2,
+  "timeout": 420,
+  "args": {
+   "input_image": {
+    "file": "tools/art/keys/walk-toon.png"
+   },
+   "prompt": "Hand-drawn 2D cartoon animation, static camera. The black cartoon cat stands still, turns its head to look straight at the viewer, blinks slowly, then looks ahead again. Only the head moves. The cat stays in the same place and the same size. Flat solid green background, clean outlines, consistent flat colours.",
    "steps": 6,
    "duration_seconds": 4,
-   "seed": 21,
+   "seed": 7,
    "randomize_seed": false
   }
  }
