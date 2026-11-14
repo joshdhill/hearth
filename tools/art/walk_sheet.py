@@ -121,7 +121,7 @@ shifts = []
 for p, q in zip(prof[:-1], prof[1:]):
     if p.sum() < 4 or q.sum() < 4:
         continue
-    cand = list(range(-40, 41))
+    cand = list(range(-140, 41))
     shifts.append(cand[int(np.argmax([float(np.minimum(np.roll(p, s), q).sum()) for s in cand]))])
 neg = [x for x in shifts if x < 0]
 v = 0.0 if ONCE or not shifts else -float(np.median(neg if len(neg) > len(shifts) / 2 else shifts))

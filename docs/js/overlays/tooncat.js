@@ -9,7 +9,7 @@ const BASE = new URL('../../media/cat-demo/', import.meta.url).href;
 export const TRICKS = [
   ['random', 'Random: loop through them all'], ['sit', 'Sit by the fire'], ['wash', 'Have a wash'],
   ['lie', 'Lie down'], ['nap', 'Nap by the fire'], ['roll', 'Roll over'], ['stretch', 'Big stretch'],
-  ['look', 'Look round'], ['walk', 'Walk by'], ['bye', 'Off you go']
+  ['look', 'Look round'], ['zoom', 'Zoomies'], ['walk', 'Walk by'], ['bye', 'Off you go']
 ];
 // each step: [clip, 1] plays it, [clip, -1] plays it backwards, ['hold', [min, max]] keeps the last frame
 const MOVES = {
@@ -19,9 +19,11 @@ const MOVES = {
   nap: [['lie', 1], ['nap', 1], ['hold', [8, 16]], ['lie', -1]],
   roll: [['lie', 1], ['roll', 1], ['hold', [1, 2.5]], ['lie', -1]],
   stretch: [['stretch', 1]],
-  look: [['look', 1]]
+  look: [['look', 1]],
+  zoom: [['run', 0]]                              // breaks into a gallop and dashes off (and back across, now and then)
 };
 const clipsOf = trick => [...new Set(MOVES[trick].filter(st => st[0] !== 'hold').map(st => 'toon-' + st[0]))];
+const GAIT_FADE = 0.25;
 const PAUSE = { sometimes: [40, 90], often: [12, 30], loop: [0.8, 2] };   // seconds between visits
 const CHANCE = { sometimes: 0.5, often: 0.75, loop: 1 };                  // that a visit includes a trick
 const BASE_H = 205;                                                      // standing, floor to ear tips (scene px)
@@ -34,6 +36,7 @@ export class ToonCat {
     this.sheets = {}; this.loading = {};
     this.away = true; this.wait = 4; this.x = spots.x0 - 300; this.dir = 1; this.f = 0;
     this.plan = null; this.planX = 0; this.move = null; this.fade = null; this.queue = []; this.bag = [];
+    this.gait = 'toon'; this.laps = 0;
     this.buf = document.createElement('canvas'); this.rim = document.createElement('canvas');
     this.ready = this.load('toon');
   }
@@ -74,13 +77,13 @@ export class ToonCat {
   }
 
   update(dt) {
-    const m = this.sheets.toon;
+    const m = this.sheets[this.gait] || this.sheets.toon;
     if (!m) return;
     if (this.fade) { this.fade.t += dt; if (this.fade.t > 0.3) this.fade = null; }
     if (this.away) {
       this.wait -= dt;
       if (this.wait > 0 || (this.mode === 'off' && !this.queue.length)) return;
-      this.away = false; this.dir = Math.random() < 0.5 ? 1 : -1; this.f = 0;
+      this.away = false; this.dir = Math.random() < 0.5 ? 1 : -1; this.f = 0; this.gait = 'toon';
       this.dir = this.x > 960 ? -1 : 1;                                // come back in from the side it left by
       this.x = this.dir > 0 ? this.sp.x0 - 250 : this.sp.x1 + 250;
       const mode = this.mode;
@@ -106,13 +109,21 @@ export class ToonCat {
       else this.plan = null;
     }
     if ((this.dir > 0 && this.x > this.sp.x1 + 260) || (this.dir < 0 && this.x < this.sp.x0 - 260)) {
-      this.away = true;
+      if (this.gait !== 'toon' && this.laps > 0) { this.laps--; this.dir = -this.dir; this.f = 0; return; }   // zoomies: and back again
+      this.away = true; this.gait = 'toon';
       const p = PAUSE[this.mode];
       this.wait = this.queue.length ? 0.5 : p ? rnd(p) : 1e9;
     }
   }
   startMove(name) {
-    this.move = { name, steps: MOVES[name], i: -1, m: this.sheets.toon, f: this.f, dir: 0, t: 0, len: 0 };
+    if (name === 'zoom') {                        // not a clip to play in place: the run takes over as the gait
+      this.fade = { m: this.sheets.toon, f: this.f, t: 0, x: this.x };
+      this.gait = 'toon-run'; this.f = 0; this.plan = null; this.laps = Math.random() < 0.5 ? 1 : 0;
+      return;
+    }
+    const from = this.sheets[this.gait] || this.sheets.toon;
+    this.gait = 'toon';                           // (a trick asked for mid-gallop: it pulls up first)
+    this.move = { name, steps: MOVES[name], i: -1, m: from, f: this.f, dir: 0, t: 0, len: 0 };
     this.plan = null;
     this.step(0);
   }
@@ -137,19 +148,19 @@ export class ToonCat {
 
   draw(ctx, t, dt, fl) {
     this.update(dt);
-    const m = this.sheets.toon;
+    const m = this.sheets[this.gait] || this.sheets.toon;
     if (!m || this.away) return;
     const a = this.fade ? this.fade.t / 0.3 : 1;
-    if (this.fade) this.drawFrame(ctx, this.fade.m, this.fade.f, 1 - a, fl);
+    if (this.fade) this.drawFrame(ctx, this.fade.m, this.fade.f, 1 - a, fl, this.fade.x);
     if (this.move) this.drawFrame(ctx, this.move.m, this.move.f, a, fl);
     else this.drawFrame(ctx, m, this.f, a, fl);
   }
 
-  drawFrame(ctx, m, f0, alpha, fl) {
+  drawFrame(ctx, m, f0, alpha, fl, atX) {
     const k = Math.abs(ctx.getTransform().a) || 1;                 // scene px -> device px
     const s = BASE_H / m.height, fi = Math.min(m.frames - 1, Math.max(0, Math.floor(f0)));
     const [cw, ch] = m.cell, sx = (fi % m.cols) * cw, sy = Math.floor(fi / m.cols) * ch;
-    const w = cw * s, h = ch * s, x = this.x, y = this.sp.floor;
+    const w = cw * s, h = ch * s, x = atX ?? this.x, y = this.sp.floor;
     const [f0x, f1x] = this.sp.fire;
     const near = Math.max(0, Math.min(1, 1 - Math.max(f0x - x, x - f1x, 0) / 260));
     const flip = (m.faces === 'right') !== (this.dir > 0);
