@@ -1,5 +1,5 @@
 SPACE zerogpu-aoti/wan2-2-fp8da-aoti-faster /generate_video attempt 1
-  failed: AppError('You have exceeded your ZeroGPU runs limit. Authenticate with a Hugging Face token for more quota - https://huggingface.co/settings/tokens')
-SPACE zerogpu-aoti/wan2-2-fp8da-aoti-faster /generate_video attempt 2
-  failed: AppError('You have exceeded your ZeroGPU runs limit. Authenticate with a Hugging Face token for more quota - https://huggingface.co/settings/tokens')
-NO OUTPUT
+  took 44 s; result: ('/tmp/gradio/c7dc2228d3e82530769ca8a61e58b4775b40e28c4f7dcfdfbd19249e3e1612bf/tmpnuqkwoh6.mp4', 7)
+  saved gen/t-run/out.mp4 410120
+  video: 832,480,16/1,65
+OK
