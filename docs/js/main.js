@@ -11,6 +11,7 @@ import { resumeAudio } from './audio/fire.js';
 
 const $ = id => document.getElementById(id);
 const native = window.HearthNative || null;
+if (native) document.documentElement.classList.add('native');
 const params = new URLSearchParams(location.search);
 
 class App {
@@ -82,6 +83,7 @@ class App {
     const s = new S(this, p);
     store.set('scene', p.id);
     document.body.classList.toggle('see-through', !!s.transparent);
+    document.documentElement.classList.toggle('see-through', !!s.transparent);
     this.wide = s.wide || W; this.fit();
     await s.enter();
     this.scene = s;
