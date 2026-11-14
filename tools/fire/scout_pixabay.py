@@ -18,10 +18,10 @@ os.makedirs(OUT, exist_ok=True)
 DL = '/tmp/scout-dl'
 os.makedirs(DL, exist_ok=True)
 UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
-SEARCHES = ['fireplace', 'fireplace fire', 'fireplace logs', 'wood stove', 'hearth', 'cozy fireplace', 'burning logs', 'fire wood']
+SEARCHES = [q.strip() for q in os.environ['SEARCHES'].split(',')] if os.environ.get('SEARCHES') else ['fireplace', 'fireplace fire', 'fireplace logs', 'wood stove', 'hearth', 'cozy fireplace', 'burning logs', 'fire wood']
 MIN_SECONDS = float(os.environ.get('MIN_SECONDS', 40))
 MAX_DOWNLOADS = int(os.environ.get('MAX_DOWNLOADS', 40))
-KNOWN = {'236567', '234515', '234516', '262228', '306771', '239514', '262032', '123069', '15178', '275774', '334256', '261768'}
+KNOWN = set(os.environ.get('SKIP', '').split(',')) | {'236567', '234515', '234516', '262228', '306771', '239514', '262032', '123069', '15178', '275774', '334256', '261768'}
 log = open(f'{OUT}/scout.jsonl', 'a')
 
 

@@ -13,14 +13,19 @@ jobs:
       - uses: actions/checkout@v4
       - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg >/dev/null && pip install -q opencv-python-headless numpy playwright && python -m playwright install --with-deps chromium >/dev/null
       - name: Scout
-        run: python3 tools/fire/scout_pixabay.py scout
+        env:
+          # close-up views straight into a brick firebox with logs on a grate (already measured clips skipped)
+          SEARCHES: 'fireplace grate,fire grate,brick fireplace,fireplace close up,log fire,firebox,burning logs fireplace,fireplace flames'
+          MIN_SECONDS: '30'
+          SKIP: '100202,136334,140481,141922,142554,142560,143327,159966,177174,178065,187501,192817,195704,198977,202903,211526,211761,214588,2336,233654,239700,245715,246333,246707,246708,247548,252160,25445,255500,272568,284317,321163,385135,386247,386248,44699,57916,75546,76349,9487'
+        run: python3 tools/fire/scout_pixabay.py scout2
       - name: Save to the media-work branch
         if: always()
         run: |
           git config user.name "hearth-bot"; git config user.email "actions@users.noreply.github.com"
           for try in 1 2 3 4 5; do
             rm -rf /tmp/mw; git fetch -q origin media-work && git worktree add -q -f /tmp/mw origin/media-work
-            rm -rf /tmp/mw/scout && cp -r scout /tmp/mw/scout
-            (cd /tmp/mw && git add -A scout && git commit -qm "Fire scout results" && git push -q origin HEAD:media-work) && break
+            rm -rf /tmp/mw/scout2 && cp -r scout2 /tmp/mw/scout2
+            (cd /tmp/mw && git add -A scout2 && git commit -qm "Fire scout results" && git push -q origin HEAD:media-work) && break
             git worktree remove -f /tmp/mw; sleep $((try * 9))
           done
