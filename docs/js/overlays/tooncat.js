@@ -1,15 +1,27 @@
 // The cartoon cat for the Fireside scene: a hand-drawn 2D black cat (generated from the family's cat)
-// that walks along the hearth and does tricks. Every clip starts and ends in the same standing pose,
-// so tricks are simply: walk in, stop, play the move (hold it, and play it back to stand up), walk on.
+// that walks along the hearth and does tricks. Every trick starts and ends in the standing pose the
+// walk uses: it is a chain of clips (sit down, wash, stand up again: the last played backwards) that meet
+// in the same poses, with holds in between, and a short cross-fade wherever one clip hands over to another.
 // It is put into the room the way a compositor would: darker away from the fire, a thin warm rim
 // that flickers with the fire when it is behind the cat, and a contact shadow falling forwards.
 const BASE = new URL('../../media/cat-demo/', import.meta.url).href;
 
 export const TRICKS = [
-  ['random', 'Random: loop through them all'], ['sit', 'Sit by the fire'], ['lie', 'Lie down'],
-  ['stretch', 'Big stretch'], ['look', 'Look round'], ['walk', 'Walk by'], ['bye', 'Off you go']
+  ['random', 'Random: loop through them all'], ['sit', 'Sit by the fire'], ['wash', 'Have a wash'],
+  ['lie', 'Lie down'], ['nap', 'Nap by the fire'], ['roll', 'Roll over'], ['stretch', 'Big stretch'],
+  ['look', 'Look round'], ['walk', 'Walk by'], ['bye', 'Off you go']
 ];
-const MOVES = { sit: { hold: [5, 9] }, lie: { hold: [8, 14] }, stretch: {}, look: {} };
+// each step: [clip, 1] plays it, [clip, -1] plays it backwards, ['hold', [min, max]] keeps the last frame
+const MOVES = {
+  sit: [['sit', 1], ['hold', [5, 9]], ['sit', -1]],
+  wash: [['sit2', 1], ['wash', 1], ['hold', [1, 2.5]], ['sit2', -1]],
+  lie: [['lie', 1], ['hold', [8, 14]], ['lie', -1]],
+  nap: [['lie', 1], ['nap', 1], ['hold', [8, 16]], ['lie', -1]],
+  roll: [['lie', 1], ['roll', 1], ['hold', [1, 2.5]], ['lie', -1]],
+  stretch: [['stretch', 1]],
+  look: [['look', 1]]
+};
+const clipsOf = trick => [...new Set(MOVES[trick].filter(st => st[0] !== 'hold').map(st => 'toon-' + st[0]))];
 const PAUSE = { sometimes: [40, 90], often: [12, 30], loop: [0.8, 2] };   // seconds between visits
 const CHANCE = { sometimes: 0.5, often: 0.75, loop: 1 };                  // that a visit includes a trick
 const BASE_H = 205;                                                      // standing, floor to ear tips (scene px)
@@ -44,17 +56,20 @@ export class ToonCat {
     // tricks happen on the middle of the hearth (by the fire, clear of the tool stand); with no room
     // left ahead, the cat walks off and does it on its next visit, coming in from the other side
     this.plan = trick;
-    if (trick) this.load('toon-' + trick);
+    if (trick) this.prep(trick);
     const px = soon && !this.away ? this.x + this.dir * gap : 560 + Math.random() * 800;
     if (!this.away && (this.dir > 0 ? px > 1450 : px < 450)) { this.plan = null; if (trick) this.queue.unshift(trick); return; }
     this.planX = Math.max(450, Math.min(1450, px));
   }
+  prep(trick) { return Promise.all(clipsOf(trick).map(n => this.load(n))); }
+  has(trick) { return clipsOf(trick).every(n => this.sheets[n]); }
   do(trick) {
-    if (trick === 'bye') { this.queue = []; this.plan = null; if (this.move && this.move.phase !== 'out') { this.move.phase = 'out'; } return; }
+    if (trick === 'bye') { this.queue = []; this.plan = null; if (this.move) this.step(this.move.steps.length - 1); return; }
+    if (trick && trick !== 'random' && trick !== 'walk' && !MOVES[trick]) return;
     if (trick === 'random') { this.bag = []; trick = this.next(); }
     if (trick === 'walk') trick = null;
     if (this.move) { if (trick) this.queue.push(trick); return; }
-    if (this.away) { this.queue = trick ? [trick] : []; this.wait = 0; if (trick) this.load('toon-' + trick); return; }
+    if (this.away) { this.queue = trick ? [trick] : []; this.wait = 0; if (trick) this.prep(trick); return; }
     this.aim(trick, true);
   }
 
@@ -73,17 +88,20 @@ export class ToonCat {
       return;
     }
     if (this.move) {
-      const mv = this.move, mm = mv.m, how = MOVES[mv.name];
-      if (mv.phase === 'in') { mv.f += dt * mm.fps; if (mv.f >= mm.frames - 1) { mv.f = mm.frames - 1; if (how.hold) { mv.phase = 'hold'; mv.t = 0; mv.len = rnd(how.hold); } else this.endMove(); } }
-      else if (mv.phase === 'hold') { mv.t += dt; if (mv.t > mv.len) mv.phase = 'out'; }
-      else { mv.f -= dt * mm.fps; if (mv.f <= 0) this.endMove(); }
+      const mv = this.move;
+      if (mv.dir === 0) { mv.t += dt; if (mv.t > mv.len) this.step(mv.i + 1); }
+      else {
+        mv.f += mv.dir * dt * mv.m.fps;
+        if (mv.dir > 0 && mv.f >= mv.m.frames - 1) { mv.f = mv.m.frames - 1; this.step(mv.i + 1); }
+        else if (mv.dir < 0 && mv.f <= 0) { mv.f = 0; this.step(mv.i + 1); }
+      }
       return;
     }
     const s = BASE_H / m.height, fr = dt * m.fps;
     this.f = (this.f + fr) % m.frames;
     this.x += this.dir * m.speed * s * fr;
     if (this.plan && (this.dir > 0 ? this.x >= this.planX : this.x <= this.planX)) {
-      if (this.sheets['toon-' + this.plan]) this.startMove(this.plan);
+      if (this.has(this.plan)) this.startMove(this.plan);
       else if (this.x > 300 && this.x < 1620) this.planX = this.x + this.dir * 40;    // still loading: try a little further on
       else this.plan = null;
     }
@@ -94,13 +112,23 @@ export class ToonCat {
     }
   }
   startMove(name) {
-    this.fade = { m: this.sheets.toon, f: this.f, t: 0 };
-    this.move = { name, m: this.sheets['toon-' + name], f: 0, phase: 'in', t: 0 };
+    this.move = { name, steps: MOVES[name], i: -1, m: this.sheets.toon, f: this.f, dir: 0, t: 0, len: 0 };
     this.plan = null;
+    this.step(0);
+  }
+  step(i) {                                       // go on to step i of the trick (past the end: walk on)
+    const mv = this.move;
+    if (i >= mv.steps.length) return this.endMove();
+    const [what, arg] = mv.steps[i];
+    mv.i = i;
+    if (what === 'hold') { mv.dir = 0; mv.t = 0; mv.len = rnd(arg); return; }
+    const m = this.sheets['toon-' + what], f = arg > 0 ? 0 : m.frames - 1;
+    if (m !== mv.m) this.fade = { m: mv.m, f: mv.f, t: 0 };       // a different clip takes over: cross-fade
+    mv.m = m; mv.f = f; mv.dir = arg;
   }
   endMove() {
     const mv = this.move; this.move = null;
-    this.fade = { m: mv.m, f: 0, t: 0 };
+    this.fade = { m: mv.m, f: mv.f, t: 0 };
     this.f = 0;
     // more to do: a queued trick, or (non-stop) the next one, a little further along if there is room
     const more = this.queue.length ? this.queue.shift() : this.mode === 'loop' ? this.next() : null;

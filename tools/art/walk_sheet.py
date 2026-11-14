@@ -19,6 +19,7 @@ from PIL import Image
 src, OUT, NAME = sys.argv[1:4]
 ONCE = '--once' in sys.argv
 SC = float(sys.argv[sys.argv.index('--scale') + 1]) if '--scale' in sys.argv else 0.6
+LIKE = sys.argv[sys.argv.index('--like') + 1] if '--like' in sys.argv else None   # starts where that clip ends: use its size and spot
 DBG = next((int(a) for a in sys.argv[4:] if a.isdigit()), None)
 os.makedirs(OUT, exist_ok=True)
 pr = subprocess.run(['ffprobe', '-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=width,height', '-of', 'csv=p=0', src], capture_output=True, text=True).stdout.strip().split(',')
@@ -52,6 +53,9 @@ def key(bgr):
         return np.zeros((h, w), np.float32), bgr
     sz = ndi.sum(solid, lab, range(1, n + 1))
     body = ndi.binary_fill_holes(np.isin(lab, 1 + np.nonzero(sz > sz.max() * 0.02)[0]))
+    # a gap that closes into a loop (between the legs, under the tail) is still screen: keep it see-through
+    screen = ndi.binary_dilation(gdom > 0.35 * gb, iterations=1)
+    body &= ~screen
     near = ndi.binary_dilation(body, iterations=3)
     alpha = np.where(body, 1.0, a * near).astype(np.float32)
     alpha = np.maximum(alpha, cv2.GaussianBlur(body.astype(np.float32), (0, 0), 0.7) * body)
@@ -103,8 +107,13 @@ loop = mats[i:j]
 # the floor: where the lowest paws are most of the time
 lows = [np.nonzero(a.max(1) > 0.5)[0].max() for a, _ in (loop[:3] if ONCE else loop)]
 ground = float(np.percentile(lows, 80))
+if LIKE:
+    ref = json.load(open(os.path.join(OUT, LIKE + '.json')))
+    ground = ref['clip_anchor'][1]
 tops = [np.nonzero(a.max(1) > 0.5)[0].min() for a, _ in (loop[:3] if ONCE else loop)]
 height = ground - float(np.median(tops))
+if LIKE:
+    height = ref['height'] / ref.get('scale', 0.6)
 # paw slide per frame along the floor
 y0, y1 = int(ground) - 8, int(ground) + 2
 prof = [a[y0:y1].max(0) for a, _ in loop] + [loop[0][0][y0:y1].max(0)]
@@ -134,7 +143,9 @@ for k, (a, fg) in enumerate(loop):
     sheet[r * ch:(r + 1) * ch, c * cw:(c + 1) * cw] = np.clip(rgba * 255 + 0.5, 0, 255).astype(np.uint8)
 Image.fromarray(sheet, 'RGBA').save(os.path.join(OUT, NAME + '.webp'), 'WEBP', quality=88, method=5, alpha_quality=95)
 cx = float(np.average(np.arange(w), weights=(loop[0][0] if ONCE else union).sum(0) + 1e-6))
+if LIKE:
+    cx = ref['clip_anchor'][0]
 info = {'fps': 16, 'frames': len(loop), 'cell': [int(cw), int(ch)], 'cols': int(cols), 'sheet': NAME + '.webp', 'anchor': [round((cx - x0) * SC, 1), round((ground - yy0) * SC, 1)],
-        'height': round(height * SC, 1), 'speed': round(abs(v) * SC, 2), 'faces': faces, 'seam': round(seam, 2)}
+        'height': round(height * SC, 1), 'scale': SC, 'clip_anchor': [round(cx, 1), round(ground, 1)], 'speed': round(abs(v) * SC, 2), 'faces': faces, 'seam': round(seam, 2)}
 json.dump(info, open(os.path.join(OUT, NAME + '.json'), 'w'), default=float)
 print(info, round(os.path.getsize(os.path.join(OUT, NAME + '.webp')) / 1e6, 2), 'MB')
