@@ -16,7 +16,8 @@ export const FIRES = {
   brick: fire('brick', 'Brick fireplace'),
   logs: fire('logs', 'Roaring logs'),
   roaring: fire('roaring', 'Hearth with grate'),
-  stove: fire('stove', 'Wood stove')
+  stove: fire('stove', 'Wood stove'),
+  firebox: fire('firebox', 'Into the firebox')
 };
 const LEVEL = { off: 0, low: 0.25, medium: 0.5, high: 0.85 };
 // a real fireplace recording (CC0, "Fireplace sound loop" by PagDev) under the generated crackles

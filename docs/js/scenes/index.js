@@ -13,6 +13,11 @@ export const SCENES = [
     defaults: { fire: 'brick', sound: 'medium', crackle: true, cat: 'off', lights: false, music: 'search:Jazz by the fireplace' }
   },
   {
+    id: 'firebox', name: 'Firebox', type: 'fire',
+    blurb: 'Straight into a brick firebox: logs burning on the grate, nothing else.',
+    defaults: { fire: 'firebox', sound: 'medium', crackle: true, cat: 'off', lights: false, music: 'search:Jazz by the fireplace' }
+  },
+  {
     id: 'birdwindow', name: 'Bird Window', type: 'window', branch: true, view: 'woods', wall: '#8a8b79',
     blurb: 'Birds heard in the yard today land on the branch.',
     defaults: { birds: true, names: true, calls: true, weather: 'live', time: 'live', season: 'auto', cat: 'sometimes', music: 'spotify:playlist:37i9dQZF1DX4sWSpwq3LiO' }
@@ -41,7 +46,7 @@ export const SCENES = [
 
 // Options shown in the menu, by scene type. Values cycle with OK.
 export const OPTIONS = [
-  { key: 'fire', label: 'Fire', types: ['fire'], values: [['brick', 'Brick fireplace'], ['logs', 'Roaring logs'], ['roaring', 'Hearth with grate'], ['stove', 'Wood stove']] },
+  { key: 'fire', label: 'Fire', types: ['fire'], values: [['brick', 'Brick fireplace'], ['logs', 'Roaring logs'], ['roaring', 'Hearth with grate'], ['stove', 'Wood stove'], ['firebox', 'Into the firebox']] },
   { key: 'trick', label: 'Cat, do a trick', types: ['hearth'], action: true, hint: 'Pick one', values: TRICKS },
   { key: 'room', label: 'Room', types: ['hearth'], values: [['evening', 'Evening'], ['dark', 'Lights out'], ['lamp', 'Lamp on']] },
   { key: 'candles', label: 'Candles', types: ['hearth'], values: [[true, 'Lit'], [false, 'Out']] },
