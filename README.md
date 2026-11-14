@@ -32,15 +32,19 @@ Every scene can be changed from the menu (music, the cat, weather, time of day, 
 
 ## Installing on the TV (once)
 
-1. On the TV: Settings → System → About → click **Android TV OS build** 7 times to turn on developer options.
-2. Settings → System → Developer options → turn on **Wireless debugging**, then open it and choose **Pair device with pairing code**.
-3. On the PC, with Android platform-tools:
+With the remote only:
+
+1. On the TV, install **Downloader** (by AFTVnews) from Google Play.
+2. Settings → System → About → click **Android TV OS build** 7 times, until it says you are a developer.
+3. Settings → Apps → Security & restrictions → Unknown sources → turn on **Downloader**.
+4. Open Downloader and type `joshdhill.github.io/hearth/tv`. The download starts by itself; choose **Install** (if Play Protect warns about an unknown app, choose to install anyway), then **Open**.
+
+Updates to the scenes need nothing on the TV: the app loads them from the site each time. Only a change under `android/` needs the same install again (it installs over the old one, keeping its settings).
+
+Optional, from a computer with Android platform-tools, so Hearth comes back to the front after it opens Spotify for a moment (Settings → System → Developer options → **Wireless debugging** → **Pair device with pairing code**):
 
 ```
 adb pair <ip:pairing-port> <code>
 adb connect <ip:port>
-adb install -r hearth.apk
 adb shell appops set com.joshdhill.hearth SYSTEM_ALERT_WINDOW allow
 ```
-
-The last line lets Hearth come back to the front after it opens Spotify for a moment.
