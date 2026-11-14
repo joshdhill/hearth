@@ -2,7 +2,7 @@ name: Art scene (fill, then upscale 4x)
 on:
   workflow_dispatch:
   push:
-    paths: [ 'tools/art/scene/**', 'tools/art/fill_scene.py', '.github/workflows/art-scene.yml' ]
+    paths: [ 'tools/art/scene/**', 'tools/art/firebox/**', 'tools/art/scene-target', 'tools/art/fill_scene.py', '.github/workflows/art-scene.yml' ]
 permissions:
   contents: write
 jobs:
@@ -17,7 +17,9 @@ jobs:
       - uses: actions/checkout@v4
       - run: pip install -q gradio_client opencv-python-headless numpy
       - name: Fill
-        run: python3 tools/art/fill_scene.py tools/art/scene/stage1.png tools/art/scene/stage1-mask.png /tmp/scene ${{ matrix.seed }}
+        run: |
+          T=$(cat tools/art/scene-target 2>/dev/null || echo scene); echo "T=$T" >> $GITHUB_ENV   # which picture: tools/art/<T>/stage1.png
+          python3 tools/art/fill_scene.py tools/art/$T/stage1.png tools/art/$T/stage1-mask.png /tmp/scene ${{ matrix.seed }}
       - name: Upscale 4x
         run: |
           pip install -q torch torchvision --index-url https://download.pytorch.org/whl/cpu
@@ -34,7 +36,7 @@ jobs:
           git config user.name "hearth-bot"; git config user.email "actions@users.noreply.github.com"
           for try in 1 2 3 4 5 6; do
             rm -rf /tmp/mw; git fetch -q origin media-work && git worktree add -q -f /tmp/mw origin/media-work
-            rm -rf /tmp/mw/scene/${{ matrix.seed }}; mkdir -p /tmp/mw/scene/${{ matrix.seed }} && cp /tmp/scene/* /tmp/mw/scene/${{ matrix.seed }}/
-            (cd /tmp/mw && git add -A scene && git commit -qm "Scene fill, seed ${{ matrix.seed }}" && git push -q origin HEAD:media-work) && break
+            rm -rf /tmp/mw/$T/${{ matrix.seed }}; mkdir -p /tmp/mw/$T/${{ matrix.seed }} && cp /tmp/scene/* /tmp/mw/$T/${{ matrix.seed }}/
+            (cd /tmp/mw && git add -A $T && git commit -qm "Scene fill, seed ${{ matrix.seed }}" && git push -q origin HEAD:media-work) && break
             git worktree remove -f /tmp/mw; sleep $((RANDOM % 15 + try * 5))
           done
