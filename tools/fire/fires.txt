@@ -1,4 +1,2 @@
-# name  source  tv_seconds  web_seconds   (one job per line)
-ember https://pixabay.com/videos/fire-flames-chimney-fireplace-141922/ 300 120
-roaring https://pixabay.com/videos/roaring-fireplace-fireplace-334256/ 300 120
-stove https://pixabay.com/videos/fireplace-wood-burner-log-fire-261768/ 300 120
+# name  source  tv_seconds  web_seconds  [how]   (one job per line; how = xfade: the whole clip, dissolved at the join)
+firebox https://pixabay.com/videos/fire-fireplace-flame-burn-hot-44699/ 60 60 xfade

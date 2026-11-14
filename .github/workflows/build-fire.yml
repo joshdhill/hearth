@@ -2,7 +2,7 @@ name: Build long fire loops
 on:
   workflow_dispatch:
   push:
-    paths: [ 'tools/fire/build_long.py', 'tools/fire/fires.txt', 'tools/fire/mode', '.github/workflows/build-fire.yml' ]
+    paths: [ 'tools/fire/build_long.py', 'tools/fire/xfade_loop.py', 'tools/fire/fires.txt', 'tools/fire/mode', '.github/workflows/build-fire.yml' ]
 permissions:
   contents: write
 jobs:
@@ -25,6 +25,7 @@ jobs:
           echo "url=$(echo "$line" | awk '{print $2}')" >> $GITHUB_OUTPUT
           echo "tv=$(echo "$line" | awk '{print $3}')" >> $GITHUB_OUTPUT
           echo "web=$(echo "$line" | awk '{print $4}')" >> $GITHUB_OUTPUT
+          echo "how=$(echo "$line" | awk '{print $5}')" >> $GITHUB_OUTPUT
       - name: Download
         if: steps.pick.outputs.url != ''
         run: |
@@ -48,7 +49,12 @@ jobs:
           done
       - name: Build the long loop
         if: steps.pick.outputs.url != '' && steps.pick.outputs.mode != 'analyze'
-        run: python3 tools/fire/build_long.py dl/src.mp4 "${{ steps.pick.outputs.name }}" "${{ steps.pick.outputs.tv }}" "${{ steps.pick.outputs.web }}" out
+        run: |
+          if [ "${{ steps.pick.outputs.how }}" = xfade ]; then
+            python3 tools/fire/xfade_loop.py dl/src.mp4 "${{ steps.pick.outputs.name }}" out
+          else
+            python3 tools/fire/build_long.py dl/src.mp4 "${{ steps.pick.outputs.name }}" "${{ steps.pick.outputs.tv }}" "${{ steps.pick.outputs.web }}" out
+          fi
       - name: Check the finished loops (cuts, seam, how soon footage repeats)
         if: steps.pick.outputs.url != '' && steps.pick.outputs.mode != 'analyze'
         run: |
