@@ -1,90 +1,5 @@
 [
  {
-  "name": "t-wash",
-  "space": "zerogpu-aoti/wan2-2-fp8da-aoti-faster",
-  "api": "/generate_video",
-  "tries": 2,
-  "timeout": 420,
-  "args": {
-   "input_image": {
-    "file": "tools/art/keys/toon-sit.png"
-   },
-   "prompt": "Hand-drawn 2D cartoon animation, static camera. The sitting black cartoon cat licks its front paw and washes its face with it, a few times, then puts the paw down and sits calmly again. The cat stays in the same place and the same size. Flat solid green background, clean outlines, consistent flat colours.",
-   "steps": 6,
-   "duration_seconds": 5,
-   "seed": 7,
-   "randomize_seed": false
-  }
- },
- {
-  "name": "t-wash-b",
-  "space": "zerogpu-aoti/wan2-2-fp8da-aoti-faster",
-  "api": "/generate_video",
-  "tries": 2,
-  "timeout": 420,
-  "args": {
-   "input_image": {
-    "file": "tools/art/keys/toon-sit.png"
-   },
-   "prompt": "Hand-drawn 2D cartoon animation, static camera. The sitting black cartoon cat licks its front paw and washes its face with it, a few times, then puts the paw down and sits calmly again. The cat stays in the same place and the same size. Flat solid green background, clean outlines, consistent flat colours.",
-   "steps": 6,
-   "duration_seconds": 5,
-   "seed": 21,
-   "randomize_seed": false
-  }
- },
- {
-  "name": "t-nap",
-  "space": "zerogpu-aoti/wan2-2-fp8da-aoti-faster",
-  "api": "/generate_video",
-  "tries": 2,
-  "timeout": 420,
-  "args": {
-   "input_image": {
-    "file": "tools/art/keys/toon-lie.png"
-   },
-   "prompt": "Hand-drawn 2D cartoon animation, static camera. The lying black cartoon cat slowly closes its eyes, rests its head on its paws and dozes peacefully; its side rises and falls gently with its breathing and the tip of its tail twitches once. The cat stays in the same place and the same size. Flat solid green background, clean outlines, consistent flat colours.",
-   "steps": 6,
-   "duration_seconds": 5,
-   "seed": 7,
-   "randomize_seed": false
-  }
- },
- {
-  "name": "t-roll",
-  "space": "zerogpu-aoti/wan2-2-fp8da-aoti-faster",
-  "api": "/generate_video",
-  "tries": 2,
-  "timeout": 420,
-  "args": {
-   "input_image": {
-    "file": "tools/art/keys/toon-lie.png"
-   },
-   "prompt": "Hand-drawn 2D cartoon animation, static camera. The lying black cartoon cat rolls over onto its back with its paws in the air, wriggles happily, then rolls back onto its belly and lies as before. The cat stays in the same place and the same size. Flat solid green background, clean outlines, consistent flat colours.",
-   "steps": 6,
-   "duration_seconds": 5,
-   "seed": 7,
-   "randomize_seed": false
-  }
- },
- {
-  "name": "t-roll-b",
-  "space": "zerogpu-aoti/wan2-2-fp8da-aoti-faster",
-  "api": "/generate_video",
-  "tries": 2,
-  "timeout": 420,
-  "args": {
-   "input_image": {
-    "file": "tools/art/keys/toon-lie.png"
-   },
-   "prompt": "Hand-drawn 2D cartoon animation, static camera. The lying black cartoon cat rolls over onto its back with its paws in the air, wriggles happily, then rolls back onto its belly and lies as before. The cat stays in the same place and the same size. Flat solid green background, clean outlines, consistent flat colours.",
-   "steps": 6,
-   "duration_seconds": 5,
-   "seed": 21,
-   "randomize_seed": false
-  }
- },
- {
   "name": "t-run",
   "space": "zerogpu-aoti/wan2-2-fp8da-aoti-faster",
   "api": "/generate_video",
@@ -98,6 +13,23 @@
    "steps": 6,
    "duration_seconds": 4,
    "seed": 7,
+   "randomize_seed": false
+  }
+ },
+ {
+  "name": "t-run-b",
+  "space": "zerogpu-aoti/wan2-2-fp8da-aoti-faster",
+  "api": "/generate_video",
+  "tries": 2,
+  "timeout": 420,
+  "args": {
+   "input_image": {
+    "file": "tools/art/keys/walk-toon.png"
+   },
+   "prompt": "Hand-drawn 2D cartoon animation. Side-view tracking shot: the black cartoon cat dashes to the right at full speed in a fast bounding gallop, ears back, tail streaming. The camera follows so the cat stays in exactly the same place in the frame. Flat solid green background, clean outlines, consistent flat colours, the cat stays the same size.",
+   "steps": 6,
+   "duration_seconds": 4,
+   "seed": 21,
    "randomize_seed": false
   }
  }
