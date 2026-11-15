@@ -1,0 +1,62 @@
+{
+ "19216987": {
+  "title": "Just a moment...",
+  "file": "https://videos.pexels.com/video-files/19216987/19216987-hd_1920_1080_30fps.mp4",
+  "w": 1920,
+  "h": 1080,
+  "fps": "30000/1001",
+  "codec": "h264",
+  "seconds": 11.4,
+  "mb": 8.7
+ },
+ "35042279": {
+  "title": "Just a moment...",
+  "file": "https://videos.pexels.com/video-files/35042279/14844511_1920_1080_30fps.mp4",
+  "w": 1920,
+  "h": 1080,
+  "fps": "30000/1001",
+  "codec": "h264",
+  "seconds": 40.4,
+  "mb": 43.4
+ },
+ "946600": {
+  "title": "Just a moment...",
+  "file": "https://videos.pexels.com/video-files/946600/946600-hd_1920_1080_30fps.mp4",
+  "w": 1920,
+  "h": 1080,
+  "fps": "30000/1001",
+  "codec": "h264",
+  "seconds": 61.1,
+  "mb": 39.9
+ },
+ "6937884": {
+  "title": "Just a moment...",
+  "file": "https://videos.pexels.com/video-files/6937884/6937884-hd_1920_1080_30fps.mp4",
+  "w": 1920,
+  "h": 1080,
+  "fps": "30000/1001",
+  "codec": "h264",
+  "seconds": 24.5,
+  "mb": 15.5
+ },
+ "10602611": {
+  "title": "Just a moment...",
+  "file": "https://videos.pexels.com/video-files/10602611/10602611-hd_3840_2160_30fps.mp4",
+  "w": 1280,
+  "h": 720,
+  "fps": "30000/1001",
+  "codec": "h264",
+  "seconds": 12.6,
+  "mb": 4.4
+ },
+ "17062876": {
+  "title": "Just a moment...",
+  "file": "https://videos.pexels.com/video-files/17062876/17062876-uhd_3840_2160_24fps.mp4",
+  "w": 3840,
+  "h": 2160,
+  "fps": "24/1",
+  "codec": "h264",
+  "seconds": 23.0,
+  "mb": 72.8
+ }
+}
