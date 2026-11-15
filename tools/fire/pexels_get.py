@@ -42,6 +42,21 @@ with sync_playwright() as p:
                 req = urllib.request.Request(how, headers={'User-Agent': UA, 'Referer': 'https://www.pexels.com/'})
                 open(dst, 'wb').write(urllib.request.urlopen(req, timeout=180).read()); ok = True
             if not ok:
+                # the page was blocked: try the usual file names straight from the file server
+                for size in ('uhd_3840_2160', 'uhd_2560_1440', 'hd_1920_1080', 'hd_1280_720'):
+                    for fps in (24, 25, 30, 50, 60):
+                        u = f'https://videos.pexels.com/video-files/{vid}/{vid}-{size}_{fps}fps.mp4'
+                        try:
+                            req = urllib.request.Request(u, headers={'User-Agent': UA, 'Referer': 'https://www.pexels.com/'})
+                            data = urllib.request.urlopen(req, timeout=180).read()
+                            if len(data) > 1e6:
+                                open(dst, 'wb').write(data); ok = True; how = u
+                                break
+                        except Exception:
+                            pass
+                    if ok:
+                        break
+            if not ok:
                 print(vid, 'no file', title, files[-3:], flush=True); continue
             pr = json.loads(subprocess.run(['ffprobe', '-v', 'error', '-select_streams', 'v:0', '-show_entries',
                                             'stream=width,height,r_frame_rate,codec_name:format=duration', '-of', 'json', dst],
