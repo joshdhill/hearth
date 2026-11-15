@@ -2,7 +2,7 @@ name: Build long fire loops
 on:
   workflow_dispatch:
   push:
-    paths: [ 'tools/fire/build_long.py', 'tools/fire/xfade_loop.py', 'tools/fire/fires.txt', 'tools/fire/mode', '.github/workflows/build-fire.yml' ]
+    paths: [ 'tools/fire/build_long.py', 'tools/fire/xfade_loop.py', 'tools/fire/enlarge.py', 'tools/fire/fires.txt', 'tools/fire/mode', '.github/workflows/build-fire.yml' ]
 permissions:
   contents: write
 jobs:
@@ -33,9 +33,28 @@ jobs:
           url="${{ steps.pick.outputs.url }}"
           case "$url" in
             *pixabay.com/videos/*) python3 tools/fire/resolve_pixabay.py dl "$url"; mv dl/pixabay-*.mp4 dl/src.mp4 ;;
+            media-work:*) git fetch -q origin media-work && git show "origin/${url}" > dl/src.mp4 ;;
             *) curl -sL --max-time 600 -o dl/src.mp4 "$url" ;;
           esac
           ffprobe -v error -show_entries stream=codec_name,width,height,r_frame_rate,pix_fmt:format=duration -of compact dl/src.mp4
+      - name: Enlarge a small clip to 4K (detail from Real-ESRGAN on the still parts)
+        if: steps.pick.outputs.url != '' && contains(steps.pick.outputs.how, 'x4')
+        run: |
+          pip install -q torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -q spandrel pillow
+          curl -sL -o RealESRGAN_x4plus.pth https://github.com/xinntao/Real-ESRGAN/releases/download/v0.1.0/RealESRGAN_x4plus.pth
+          python3 tools/fire/enlarge.py plate dl/src.mp4 dl/plate.png
+          python3 tools/art/upscale.py dl/plate.png dl/plate-x4.png
+          python3 tools/fire/enlarge.py build dl/src.mp4 dl/plate.png dl/plate-x4.png dl/src4k.mp4
+          mv dl/src4k.mp4 dl/src.mp4
+          n="${{ steps.pick.outputs.name }}"
+          git config user.name "hearth-bot"; git config user.email "actions@users.noreply.github.com"
+          for try in 1 2 3 4 5; do
+            rm -rf /tmp/mw; git fetch -q origin media-work && git worktree add -q -f /tmp/mw origin/media-work
+            mkdir -p /tmp/mw/enlarge && cp dl/src4k-still.png "/tmp/mw/enlarge/$n-detail.png" && cp dl/src4k-plain.png "/tmp/mw/enlarge/$n-plain.png"
+            (cd /tmp/mw && git add -A enlarge && git commit -qm "Enlarged stills: $n" && git push -q origin HEAD:media-work) && break
+            git worktree remove -f /tmp/mw; sleep $((try * 9))
+          done
       - name: Similarity data only (for planning)
         if: steps.pick.outputs.url != '' && steps.pick.outputs.mode == 'analyze'
         run: |
@@ -50,7 +69,7 @@ jobs:
       - name: Build the long loop
         if: steps.pick.outputs.url != '' && steps.pick.outputs.mode != 'analyze'
         run: |
-          if [ "${{ steps.pick.outputs.how }}" = xfade ]; then
+          if [ "${{ steps.pick.outputs.how }}" = xfade ] || [ "${{ steps.pick.outputs.how }}" = x4-xfade ]; then
             python3 tools/fire/xfade_loop.py dl/src.mp4 "${{ steps.pick.outputs.name }}" out
           else
             python3 tools/fire/build_long.py dl/src.mp4 "${{ steps.pick.outputs.name }}" "${{ steps.pick.outputs.tv }}" "${{ steps.pick.outputs.web }}" out

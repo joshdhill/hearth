@@ -1,2 +1,4 @@
-# name  source  tv_seconds  web_seconds  [how]   (one job per line; how = xfade: the whole clip, dissolved at the join)
-firebox https://pixabay.com/videos/fire-fireplace-flame-burn-hot-44699/ 60 60 xfade
+# name  source  tv_seconds  web_seconds  [how]   (one job per line; how = xfade: the whole clip, dissolved at the join; x4: enlarge a small clip to 4K first)
+# firebox https://pixabay.com/videos/fire-fireplace-flame-burn-hot-44699/ 60 60 xfade
+# Gemini-made fireplace (Josh's), darkened and dirtied here, enlarged from 720p
+classic media-work:src/classic-720.mp4 60 60 x4
