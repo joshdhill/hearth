@@ -1,0 +1,36 @@
+name: Fire look (contact sheets of free fireplace clips)
+on:
+  workflow_dispatch:
+  push:
+    paths: [ 'tools/fire/look.py', '.github/workflows/fire-look.yml' ]
+permissions:
+  contents: write
+jobs:
+  look:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg fonts-dejavu-core >/dev/null && pip install -q pillow playwright && python -m playwright install --with-deps chromium >/dev/null
+      - name: Look
+        env:
+          PAGES: |
+            https://mixkit.co/free-stock-video/fireplace/
+            https://mixkit.co/free-stock-video/wood-fire/
+            https://www.pexels.com/search/videos/fireplace%20logs/
+            https://www.pexels.com/search/videos/fireplace%20grate/
+            https://www.pexels.com/search/videos/fireplace/
+            https://www.videezy.com/free-video/fireplace
+            https://uppbeat.io/stock-video/category/fireplace
+            https://coverr.co/stock-video-footage/fireplace
+        run: python3 tools/fire/look.py look
+      - name: Save to the media-work branch
+        if: always()
+        run: |
+          git config user.name "hearth-bot"; git config user.email "actions@users.noreply.github.com"
+          for try in 1 2 3 4 5; do
+            rm -rf /tmp/mw; git fetch -q origin media-work && git worktree add -q -f /tmp/mw origin/media-work
+            rm -rf /tmp/mw/look && cp -r look /tmp/mw/look
+            (cd /tmp/mw && git add -A look && git commit -qm "Fire look sheets" && git push -q origin HEAD:media-work) && break
+            git worktree remove -f /tmp/mw; sleep $((try * 9))
+          done
