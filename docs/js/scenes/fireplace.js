@@ -17,7 +17,8 @@ export const FIRES = {
   logs: fire('logs', 'Roaring logs'),
   roaring: fire('roaring', 'Hearth with grate'),
   stove: fire('stove', 'Wood stove'),
-  firebox: fire('firebox', 'Into the firebox')
+  firebox: fire('firebox', 'Into the firebox'),
+  classic: fire('classic', 'Classic brick fireplace')     // made in Gemini, darkened and dirtied, enlarged to 4K
 };
 const LEVEL = { off: 0, low: 0.25, medium: 0.5, high: 0.85 };
 // a real fireplace recording (CC0, "Fireplace sound loop" by PagDev) under the generated crackles

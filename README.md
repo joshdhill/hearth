@@ -6,6 +6,8 @@ Ambient scenes for the Google TV Streamer, with Spotify playing in the backgroun
 | --- | --- |
 | Fireside | A photoreal brick fireplace filling the whole screen (a generated picture, recomposed with a lower mantel, a wider firebox and a hearth across the full width), real fire footage in the firebox, firelight flickering over the brick, candles on the mantel, and the family's black cat: their own illustration, animated. She walks by, sits by the fire, has a wash, rolls over, naps, gets the zoomies and jumps up on the mantel. **Cat, do a trick** in the menu picks one; **Random: loop through them all** keeps her going through every trick, non-stop |
 | Fireplace | Four real fireplaces in 4K (brick fireplace, roaring logs, hearth with grate, wood stove), each a 5-minute seamless loop; crackles that never repeat |
+| Firebox | Straight into a brick firebox from free 4K footage, logs burning on the grate, nothing else |
+| Classic Fireplace | Dead straight into an old brick fireplace: three logs on an iron grate over glowing coals, the floor sooty with ash. Made in Gemini, then darkened, dirtied and enlarged to 4K here (`tools/fire/enlarge.py`) |
 | Bird Window | Birds heard in the yard today (from the bird board feed) fly in and perch on the branch |
 | Weather Window | Live Germantown sky: time of day, clouds, rain, snow, fog, with Sugarloaf on the horizon |
 | Thanksgiving | Golden-hour window, pumpkins and candles on the sill, leaves falling |
