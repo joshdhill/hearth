@@ -1,0 +1,32 @@
+name: Fire pexels (fetch candidate clips)
+on:
+  workflow_dispatch:
+  push:
+    paths: [ 'tools/fire/pexels_get.py', '.github/workflows/fire-pexels.yml' ]
+permissions:
+  contents: write
+jobs:
+  get:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg >/dev/null && pip install -q playwright && python -m playwright install --with-deps chromium >/dev/null
+      - name: Fetch
+        # classic log fires on a grate, filmed from the front
+        run: python3 tools/fire/pexels_get.py px 11751758 26583810 19216987 35042279 946600 6937884 10602611 17062876
+      - name: Clips to the media-v2 release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: media-v2
+          files: px/pexels-*.mp4
+      - name: Stills to the media-work branch
+        if: always()
+        run: |
+          git config user.name "hearth-bot"; git config user.email "actions@users.noreply.github.com"
+          for try in 1 2 3 4 5; do
+            rm -rf /tmp/mw; git fetch -q origin media-work && git worktree add -q -f /tmp/mw origin/media-work
+            rm -rf /tmp/mw/pexels && mkdir -p /tmp/mw/pexels && cp -r px/stills px/clips.json /tmp/mw/pexels/
+            (cd /tmp/mw && git add -A pexels && git commit -qm "Pexels candidate stills" && git push -q origin HEAD:media-work) && break
+            git worktree remove -f /tmp/mw; sleep $((try * 9))
+          done
