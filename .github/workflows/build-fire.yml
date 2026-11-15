@@ -40,12 +40,14 @@ jobs:
       - name: Enlarge a small clip to 4K (detail from Real-ESRGAN on the still parts)
         if: steps.pick.outputs.url != '' && contains(steps.pick.outputs.how, 'x4')
         run: |
-          pip install -q torch --index-url https://download.pytorch.org/whl/cpu
-          pip install -q spandrel pillow
+          set -o pipefail
+          mkdir -p logs
+          pip install -q torch torchvision --index-url https://download.pytorch.org/whl/cpu 2>&1 | tail -3
+          pip install -q spandrel pillow 2>&1 | tail -3
           curl -sL -o RealESRGAN_x4plus.pth https://github.com/xinntao/Real-ESRGAN/releases/download/v0.1.0/RealESRGAN_x4plus.pth
-          python3 tools/fire/enlarge.py plate dl/src.mp4 dl/plate.png
-          python3 tools/art/upscale.py dl/plate.png dl/plate-x4.png
-          python3 tools/fire/enlarge.py build dl/src.mp4 dl/plate.png dl/plate-x4.png dl/src4k.mp4
+          python3 tools/fire/enlarge.py plate dl/src.mp4 dl/plate.png 2>&1 | tee logs/enlarge.txt
+          python3 tools/art/upscale.py dl/plate.png dl/plate-x4.png 2>&1 | tail -5 | tee -a logs/enlarge.txt
+          python3 tools/fire/enlarge.py build dl/src.mp4 dl/plate.png dl/plate-x4.png dl/src4k.mp4 2>&1 | tee -a logs/enlarge.txt
           mv dl/src4k.mp4 dl/src.mp4
           n="${{ steps.pick.outputs.name }}"
           git config user.name "hearth-bot"; git config user.email "actions@users.noreply.github.com"
@@ -55,6 +57,13 @@ jobs:
             (cd /tmp/mw && git add -A enlarge && git commit -qm "Enlarged stills: $n" && git push -q origin HEAD:media-work) && break
             git worktree remove -f /tmp/mw; sleep $((try * 9))
           done
+      - name: Keep the log if enlarging failed
+        if: failure()
+        run: |
+          git config user.name "hearth-bot"; git config user.email "actions@users.noreply.github.com"
+          rm -rf /tmp/mw; git fetch -q origin media-work && git worktree add -q -f /tmp/mw origin/media-work
+          mkdir -p /tmp/mw/logs && cp logs/* /tmp/mw/logs/ 2>/dev/null; ls -la dl >> /tmp/mw/logs/enlarge.txt
+          (cd /tmp/mw && git add -A logs && git commit -qm "Fire build log" && git push -q origin HEAD:media-work) || true
       - name: Similarity data only (for planning)
         if: steps.pick.outputs.url != '' && steps.pick.outputs.mode == 'analyze'
         run: |
