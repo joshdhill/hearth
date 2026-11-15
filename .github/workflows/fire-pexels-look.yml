@@ -15,8 +15,8 @@ jobs:
       - name: Look and fetch
         env:
           # straight-on views of a whole firebox, logs on a grate
-          QUERIES: 'fireplace,brick fireplace,wood burning fireplace,fireplace fire,fireplace front view'
-          GET: '11751758 26583810'
+          QUERIES: ''
+          GET: '5968832 4060537'
         run: python3 tools/fire/pexels_look.py pxl
       - name: Clips to the media-v2 release
         if: hashFiles('pxl/pexels-*.mp4') != ''

@@ -113,6 +113,9 @@ for vid in GET:
             fid, fps = m.group(1), m.group(2)
             for size in ('uhd_3840_2160', 'uhd_4096_2160', 'uhd_2560_1440', 'hd_1920_1080', '3840_2160', '2560_1440', '1920_1080'):
                 cands.append(f'https://videos.pexels.com/video-files/{vid}/{fid}{"-" if size[0] in "uh" else "_"}{size}_{fps}fps.mp4')
+    for size in ('uhd_3840_2160', 'uhd_2560_1440', 'hd_1920_1080'):
+        for fps in (24, 25, 30, 50, 60):
+            cands.append(f'https://videos.pexels.com/video-files/{vid}/{vid}-{size}_{fps}fps.mp4')
     cands = sorted(set(cands), key=lambda u: -px(u))
     dst = f'{OUT}/pexels-{vid}.mp4'
     for u in cands:
